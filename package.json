@@ -1,0 +1,28 @@
+{
+  "name": "pdf-metadata-editor",
+  "version": "1.0.0",
+  "description": "Batch edit PDF metadata",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "",
+  "keywords": [
+    "Electron",
+    "PDF",
+    "metadata"
+  ],
+  "author": "LaVaughn Haynes",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "~1.6.2"
+  },
+  "dependencies": {
+    "axios": "^0.16.1",
+    "csvtojson": "^1.1.5",
+    "dist-exiftool": "^10.53.0",
+    "exiftool": "^0.0.3",
+    "jquery": "^3.2.1",
+    "node-exiftool": "^2.1.5"
+  }
+}

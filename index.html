@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ABA-IPL PDF Metadata Batch Processor</title>
+    <link src="./src/style.css">
+  </head>
+  <body>
+    <h1>ABA-IPL PDF Metadata Batch Processor!!</h1>
+    <input type="file" id="file-input">
+    <button id="importFileButton">Import</button>
+    <div class="error-message"></div>
+    <div id="list"></div>
+  </body>
+
+  <script>
+    //requires
+    $ = require('jquery');
+    const { ipcRenderer } = require('electron');
+    const csv = require('csvtojson');
+    const ep = ipcRenderer.sendSync('exiftool-request', '');
+
+    //variables
+    let csvObj = null;
+    let csvCache = null;
+
+
+    //cache elements
+    let $fileInput = $('#file-input');
+    let $importFileButton = $('#importFileButton');
+    let $errorMessage = $('.error-message');
+    let $list = $('#list');
+
+
+    //functions
+    const readCsvData = (npmModule, csvFilePath) => {
+      return new Promise((resolve, reject) => {
+        let result = [];
+
+        npmModule()
+          .fromFile(csvFilePath)
+          .on('json', (jsonObj) => {
+            result.push(jsonObj);
+          })
+          .on('done', (error) => {
+            if(error){
+              reject(error);
+            }
+            resolve(result);
+          });
+      });
+    }
+
+
+    const processFiles = (npmModule, arr) => {
+      let data;
+      let filePath;
+      //maybe make a promise chain
+
+      for(let i = 0, len = arr.length; i < len; i++){
+        data = {};
+        filePath = arr[i]['-File Path']; //should throw an error if this is empty
+
+        Object.keys(arr[i]).forEach((key) => {
+          if(!key.startsWith('-') && arr[i][key]){
+            data[key] = arr[i][key];
+          }else if(arr[i][key] === 'DELETE'){
+            data[key] = '';
+          }
+        });
+
+        updateMeta(npmModule, filePath, data);
+      }
+
+      console.log('done!!');
+    }
+
+
+    const updateMeta = (npmModule, filePath, data) => {
+      console.log(`Starting ${filePath}...`);
+
+      npmModule.open()
+      .then(() => npmModule.writeMetadata(filePath, data, ['overwrite_original']))
+      .then(() => npmModule.close())
+      .catch(console.error);
+
+      console.log('DONE!');
+
+      return true;
+    }
+
+
+    const cacheFiles = (data) => {
+      csvCache = data;
+      return true;
+    }
+
+    const listFiles = () => {
+      console.log(csvCache);
+      let list = csvCache.map((doc, indx) => {
+        return `
+        <div>
+          <ul>
+            <li>Title: ${doc.Title}</li>
+            <li>Description: ${doc.Description}</li>
+            <li>file: ${2+2}</li>
+            <li></li>
+          </ul>
+        </div>`;
+      });
+
+      $list.html(list);
+    }
+
+    const updateErrorMessage = (err) => {
+      $errorMessage.html(err);
+    }
+
+
+    //events
+    $fileInput.on('change', (e) => {
+      csvObj = e.target.files[0];
+    });
+
+
+    $importFileButton.on('click', (e) => {
+      e.preventDefault();
+      let errorMessage = '';     
+      let { path, name, size } = csvObj;
+
+      if(!path){
+        errorMessage = "File required: You must select a file";
+      }else if(!name.endsWith('.csv')){
+        errorMessage = `Invalid extension: File must end with ".csv"`;
+      }else if(size > 25000000){
+        errorMessage = "File too big: Please limit files to 25MB";
+      }
+
+      updateErrorMessage(errorMessage);
+
+      if(!errorMessage){
+        readCsvData(csv, path)
+          .then((data) => cacheFiles(data))
+          .then(() => listFiles());
+      }
+      //readCsvData(csv, path).then((data) => processFiles(ep, data));
+    });
+
+  </script>
+</html>
