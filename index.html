@@ -122,9 +122,13 @@
     }
 
 
-    const getIcon = (fileName) => {
+    const getExtension = (fileName) => {
+      return fileName.split('.').pop().substr(0, 3).toLowerCase();
+    }
+
+
+    const getIcon = (extension) => {
       let fileType;
-      let extension = fileName.split('.').pop().substr(0, 3);
 
       switch(extension){
           case 'pdf':
@@ -148,11 +152,15 @@
 
 
     const listFiles = () => {
-      //console.log(state.csvCache);
+      let extension;
+      let fileLink;
+
       let list = state.data.map((doc, indx) => {
+        extension = getExtension(doc['-Path']);
+        fileLink = extension === 'pdf' ? `href="file://${doc['-fullPath']}"` : `href="${doc['-fullPath']}" class="link"`;
         return `
         <div class="row">
-          ${getIcon(doc['-Path'])}
+          ${getIcon(extension)}
           <ul>
             <li>
               <strong>Title (${doc['-id']}):</strong> 
@@ -164,7 +172,7 @@
             </li>
             <li>
               <strong>Path from CSV:</strong> 
-              <a href="${doc['-fullPath']}" target="_blank" class="link">${doc['-Path']}</a>
+              <a ${fileLink} target="_blank">${doc['-Path']}</a>
             </li>
           </ul>
         </div>`;
@@ -218,11 +226,9 @@
       
     });
 
-    //maybe continue to open pdfs in browser
     $list.on('click', '.link', function(e){
       e.preventDefault();
       let path = $(this).attr('href');
-      //alert(path);
       shell.openItem(path);
     });
 
