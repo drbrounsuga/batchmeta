@@ -77,19 +77,17 @@
         updateMeta(npmModule, filePath, data);
       }
 
-      console.log('done!!');
+      //console.log('done!!');
     }
 
 
     const updateMeta = (npmModule, filePath, data) => {
-      console.log(`Starting ${filePath}...`);
-
+      //console.log(`Starting ${filePath}...`);
       npmModule.open()
       .then(() => npmModule.writeMetadata(filePath, data, ['overwrite_original']))
       .then(() => npmModule.close())
       .catch(console.error);
-
-      console.log('DONE!');
+      //console.log('DONE!');
 
       return true;
     }
@@ -100,12 +98,38 @@
       return true;
     }
 
+
+    const getIcon = (fileName) => {
+      let fileType;
+      let extension = fileName.split('.').pop().substr(0, 3);
+
+      switch(extension){
+          case 'pdf':
+            fileType = 'file-pdf-o';
+            break;
+          case 'xls':
+            fileType = 'file-excel-o';
+            break;
+          case 'doc':
+            fileType = 'file-word-o';
+            break;
+          case 'ppt':
+            fileType = 'file-powerpoint-o';
+            break;
+          default:
+            fileType = 'file-o';
+      }
+
+      return `<i class="fa fa-${fileType} fa-2x"></i>`;
+    }
+
+
     const listFiles = () => {
-      console.log(csvCache);
+      //console.log(csvCache);
       let list = csvCache.map((doc, indx) => {
         return `
         <div class="row">
-          <i class="fa fa-file-pdf-o fa-3x"></i>
+          ${getIcon(doc.Path)}
           <ul>
             <li>
               <strong>Title:</strong> 
@@ -126,6 +150,7 @@
       $list.html(list);
     }
 
+
     const updateErrorMessage = (err) => {
       $errorMessage.html(err);
     }
@@ -142,7 +167,7 @@
         dir: dir,
         size: size
       };
-      console.log(csvObj);
+      //console.log(csvObj);
     });
 
 
