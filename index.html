@@ -2,14 +2,14 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>ABA-IPL PDF Metadata Batch Processor</title>
+    <title>Metadata Batch Processor</title>
     <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="src/style.css">
   </head>
   <body>
     <div class="container">
-      <h1>ABA-IPL PDF Metadata Batch Processor!!</h1>
+      <h1>Metadata Batch Processor!!</h1>
       <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
       <input type="file" id="file-input">
       <button id="importFileButton">Import</button>
@@ -21,13 +21,17 @@
   <script>
     //requires
     $ = require('jquery');
-    const { ipcRenderer } = require('electron');
+    const { ipcRenderer, shell } = require('electron');
     const csv = require('csvtojson');
     const ep = ipcRenderer.sendSync('exiftool-request', '');
 
     //variables
-    let csvObj = null;
-    let csvCache = null;
+
+    let state = {
+      csvObj: null,
+      csvCache: null,
+      data: []
+    };
 
 
     //cache elements
@@ -57,7 +61,27 @@
     }
 
 
-    const processFiles = (npmModule, arr) => {
+    const processCache = () => {
+      state.data = state.csvCache.map((doc, indx) => {
+        //let name = doc['-Path'].replace(/\\/g, "/");
+        //let path = state.csvObj.dir.replace(/\\/g, "/");
+        let name = doc['-Path'];
+        let path = state.csvObj.dir;
+
+        doc['-id'] = indx;
+        doc['-Path'] = name;
+        doc['-fullPath'] = `${path}${name}`;
+        return doc;
+      });
+
+      console.log('processing...');
+      console.log(state.data);
+      console.log('...done');
+      return true;
+    }
+
+
+    const updateFiles = (npmModule, arr) => {
       let data;
       let filePath;
       //maybe make a promise chain
@@ -93,9 +117,8 @@
     }
 
 
-    const cacheFiles = (data) => {
-      csvCache = data;
-      return true;
+    const cacheFile = (data) => {
+      state.csvCache = data;
     }
 
 
@@ -125,14 +148,14 @@
 
 
     const listFiles = () => {
-      //console.log(csvCache);
-      let list = csvCache.map((doc, indx) => {
+      //console.log(state.csvCache);
+      let list = state.data.map((doc, indx) => {
         return `
         <div class="row">
-          ${getIcon(doc.Path)}
+          ${getIcon(doc['-Path'])}
           <ul>
             <li>
-              <strong>Title:</strong> 
+              <strong>Title (${doc['-id']}):</strong> 
               ${doc.Title}
             </li>
             <li>
@@ -141,7 +164,7 @@
             </li>
             <li>
               <strong>Path from CSV:</strong> 
-              <a href="file://${csvObj.dir}${doc.Path}" target="_blank">${doc.Path}</a>
+              <a href="${doc['-fullPath']}" target="_blank" class="link">${doc['-Path']}</a>
             </li>
           </ul>
         </div>`;
@@ -161,20 +184,20 @@
       let { name, path, size } = e.target.files[0];
       let pathLength = path.length - name.length;
       let dir = path.slice(0, pathLength);
-      csvObj = {
+      state.csvObj = {
         name: name,
         path: path,
         dir: dir,
         size: size
       };
-      //console.log(csvObj);
+      //console.log(state.csvObj);
     });
 
 
     $importFileButton.on('click', (e) => {
       e.preventDefault();
       let errorMessage = '';     
-      let { path, name, size } = csvObj;
+      let { path, name, size } = state.csvObj;
 
       if(!path){
         errorMessage = "File required: You must select a file";
@@ -188,10 +211,19 @@
 
       if(!errorMessage){
         readCsvData(csv, path)
-          .then((data) => cacheFiles(data))
+          .then((data) => cacheFile(data))
+          .then(() => processCache())
           .then(() => listFiles());
       }
-      //readCsvData(csv, path).then((data) => processFiles(ep, data));
+      
+    });
+
+    //maybe continue to open pdfs in browser
+    $list.on('click', '.link', function(e){
+      e.preventDefault();
+      let path = $(this).attr('href');
+      //alert(path);
+      shell.openItem(path);
     });
 
   </script>

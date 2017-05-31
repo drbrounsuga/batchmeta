@@ -31,8 +31,10 @@ body{
 
 .container{
   height: 100%;
+  /*
   -webkit-user-select: none;
   -webkit-app-region: drag;
+  */
 }
 
 

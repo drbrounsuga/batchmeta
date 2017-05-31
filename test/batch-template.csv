@@ -1,3 +1,5 @@
-Title,Path,Creator,Description
-Gwent: The Witcher Card Game,pdf-meta-test.pdf,Von Haynes,This is a test to see if I can batch edit PDF metadata in Node
-Destiny 2 Coming to PC!,pdf-meta-test2.pdf,Vaughn Haynes,This is a test to see if I can convert CSV data to JSON objects
+Title,-Path,Creator,Description
+Gwent: The Witcher Card Game,test.pdf,Von Haynes,This is a test to see if I can batch edit metadata
+Destiny 2 Coming to PC!,nested\test.pdf,Jumoke Hodari,This is a test to see if I can convert nested files
+Hearthstone Tournament,test.docx,James Haynes,This is a test to see if I can modify word documents
+Elder Scfrolls Legends no on Ipad,test.xlsx,Jane Doe,This is a test to see if I can modify excel docs
