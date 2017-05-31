@@ -6,7 +6,10 @@
   "scripts": {
     "start": "electron ."
   },
-  "repository": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drbrounsuga/batchmeta.git"
+  },
   "keywords": [
     "Electron",
     "PDF",
