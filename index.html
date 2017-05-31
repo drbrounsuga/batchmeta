@@ -103,8 +103,7 @@
           <ul>
             <li>Title: ${doc.Title}</li>
             <li>Description: ${doc.Description}</li>
-            <li>file: ${2+2}</li>
-            <li></li>
+            <li>Path from CSV: <a href="file://${csvObj.dir}${doc.Path}" target="_blank">${doc.Path}</a></li>
           </ul>
         </div>`;
       });
@@ -119,7 +118,16 @@
 
     //events
     $fileInput.on('change', (e) => {
-      csvObj = e.target.files[0];
+      let { name, path, size } = e.target.files[0];
+      let pathLength = path.length - name.length;
+      let dir = path.slice(0, pathLength);
+      csvObj = {
+        name: name,
+        path: path,
+        dir: dir,
+        size: size
+      };
+      console.log(csvObj);
     });
 
 

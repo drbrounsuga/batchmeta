@@ -1,3 +1,3 @@
-Title,#NAME?,Creator,Description
-Gwent: The Witcher Card Game,C:\Users\ABAIPL\Documents\pdfmetadata\test\pdf-meta-test.pdf,Von Haynes,This is a test to see if I can batch edit PDF metadata in Node
-Destiny 2 Coming to PC!,C:\Users\ABAIPL\Documents\pdfmetadata\test\pdf-meta-test2.pdf,Vaughn Haynes,This is a test to see if I can convert CSV data to JSON objects
+Title,Path,Creator,Description
+Gwent: The Witcher Card Game,pdf-meta-test.pdf,Von Haynes,This is a test to see if I can batch edit PDF metadata in Node
+Destiny 2 Coming to PC!,pdf-meta-test2.pdf,Vaughn Haynes,This is a test to see if I can convert CSV data to JSON objects
