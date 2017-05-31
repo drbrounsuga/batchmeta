@@ -27,6 +27,7 @@
     "dist-exiftool": "^10.53.0",
     "exiftool": "^0.0.3",
     "jquery": "^3.2.1",
-    "node-exiftool": "^2.1.5"
+    "node-exiftool": "^2.1.5",
+    "normalize.css": "^7.0.0"
   }
 }

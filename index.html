@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8">
     <title>ABA-IPL PDF Metadata Batch Processor</title>
+    <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="src/style.css">
   </head>
   <body>
-    <h1>ABA-IPL PDF Metadata Batch Processor!!</h1>
-    <input type="file" id="file-input">
-    <button id="importFileButton">Import</button>
-    <div class="error-message"></div>
-    <div id="list"></div>
+    <div class="container">
+      <h1>ABA-IPL PDF Metadata Batch Processor!!</h1>
+      <input type="file" id="file-input">
+      <button id="importFileButton">Import</button>
+      <div class="error-message"></div>
+      <div id="list"></div>
+    </div>
   </body>
 
   <script>
@@ -99,11 +102,20 @@
       console.log(csvCache);
       let list = csvCache.map((doc, indx) => {
         return `
-        <div>
+        <div class="row">
           <ul>
-            <li>Title: ${doc.Title}</li>
-            <li>Description: ${doc.Description}</li>
-            <li>Path from CSV: <a href="file://${csvObj.dir}${doc.Path}" target="_blank">${doc.Path}</a></li>
+            <li>
+              <strong>Title:</strong> 
+              ${doc.Title}
+            </li>
+            <li>
+              <strong>Description:</strong> 
+              ${doc.Description}
+            </li>
+            <li>
+              <strong>Path from CSV:</strong> 
+              <a href="file://${csvObj.dir}${doc.Path}" target="_blank">${doc.Path}</a>
+            </li>
           </ul>
         </div>`;
       });
