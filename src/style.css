@@ -39,7 +39,8 @@ body{
 
 
 .row{
-  border: 1px solid #ccc;
+  position: relative;
+  border: 1px solid #eee;
   padding: 20px;
   font-size: 1.2em;
 }
@@ -54,3 +55,28 @@ body{
   line-height: 1.5em;
 }
 
+.row .fa{
+  position: absolute;
+  top: 25px;
+  left: 30px;
+}
+
+.row ul{
+  padding-left: 80px;
+}
+
+i.fa-file-pdf-o{
+  color: #E40B0B;
+}
+
+i.fa-file-word-o{
+  color: #295497;
+}
+
+i.fa-file-excel-o{
+  color: #207245;
+}
+
+i.fa-file-powerpoint-o{
+  color: #D14524;
+}

@@ -147,7 +147,7 @@
             fileType = 'file-o';
       }
 
-      return `<i class="fa fa-${fileType} fa-2x"></i>`;
+      return `<i class="fa fa-${fileType} fa-3x"></i>`;
     }
 
 
@@ -163,7 +163,7 @@
           ${getIcon(extension)}
           <ul>
             <li>
-              <strong>Title (${doc['-id']}):</strong> 
+              <strong>Title (${Number.parseInt(doc['-id'], 10) + 1}):</strong> 
               ${doc.Title}
             </li>
             <li>
