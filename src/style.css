@@ -29,8 +29,7 @@ body{
 }
 
 html{
-  background: url(assets/flower.jpg) fixed center center;
-  background-position: cover;
+  background-color: #252526;
 }
 
 i.fa-file-pdf-o{
@@ -62,7 +61,7 @@ i.fa-file-powerpoint-o{
   border-radius: 4px;
   margin: 15px 60px;
   padding: 20px;
-  font-size: 1.2em;
+  font-size: 1.0em;
   -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
   -moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
@@ -91,4 +90,54 @@ i.fa-file-powerpoint-o{
 #file-input{
   position: absolute;
   visibility: hidden;
+}
+
+#list{
+  margin-left: 100px;
+}
+
+.menu{
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100px;
+  background-color: #333;
+  -webkit-box-shadow: 1px 0px 5px 0px rgba(50, 50, 50, 0.5);
+  -moz-box-shadow:    1px 0px 5px 0px rgba(50, 50, 50, 0.5);
+  box-shadow:         1px 0px 5px 0px rgba(50, 50, 50, 0.5);
+}
+
+.menu ul{
+  padding: 0;
+  list-style: none;
+}
+
+.menu li{
+  text-align: center;
+  padding: 20px 10px;color: #fff;
+  text-align: center;
+}
+
+.menu a{
+  position: relative;
+  display:inline-block;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border-radius: 50%;
+  background-color: #fff;
+  text-decoration: none;
+}
+
+.menu a i{
+  display: inline-block;
+  color: #333;
+}
+
+.menu .fa-check-circle-o{
+  position: absolute;
+  color: #1D9E74;
+  font-size: 1.5em;
 }
