@@ -2,28 +2,29 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Metadata Batch Processor</title>
+    <title>Metadata Batch Processor -v 1.0.0</title>
     <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" href="src/style.css">
   </head>
   <body>
     <div class="container">
-      <h1>Metadata Batch Processor!!</h1>
-      <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+      <div class="error-message">Testing</div>
       <input type="file" id="file-input">
-      <button id="importFileButton">Import</button>
-      <div class="error-message"></div>
+      <div class="menu">
+        <h1>Metadata Batch Processor!!</h1>
+        <button id="uploadFileButton">++Choose File</button>
+        <div id="chosen-file" class="chosen-file">...</div>
+        <button id="importFileButton">Import</button>
+      </div>
       <div id="list"></div>
     </div>
   </body>
 
   <script>
     /*
-    * add more side padding on the list
     * add a check mark for completed update
     * add a broken file image
-    * make a proxy for the file upload input and move it off screen
     * make sure the additional meta can be added
     * test for broken paths
     * style the buttons
@@ -46,7 +47,9 @@
 
     //cache elements
     let $fileInput = $('#file-input');
+    let $uploadFileButton = $('#uploadFileButton');
     let $importFileButton = $('#importFileButton');
+    let $chosenFile = $('#chosen-file');
     let $errorMessage = $('.error-message');
     let $list = $('#list');
 
@@ -208,9 +211,14 @@
         dir: dir,
         size: size
       };
-      //console.log(state.csvObj);
+
+      $chosenFile.html(name);
     });
 
+    $uploadFileButton.on('click', (e) => {
+      e.preventDefault();
+      $fileInput.trigger('click');
+    });
 
     $importFileButton.on('click', (e) => {
       e.preventDefault();

@@ -33,18 +33,34 @@ html{
   background-position: cover;
 }
 
+i.fa-file-pdf-o{
+  color: #E40B0B;
+}
+
+i.fa-file-word-o{
+  color: #295497;
+}
+
+i.fa-file-excel-o{
+  color: #207245;
+}
+
+i.fa-file-powerpoint-o{
+  color: #D14524;
+}
+
 .container{
+  position: relative;
   height: 100%;
   -webkit-user-select: none;
   -webkit-app-region: drag;
 }
 
-
 .row{
   position: relative;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 4px;
-  margin: 15px 30px;
+  margin: 15px 60px;
   padding: 20px;
   font-size: 1.2em;
   -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
@@ -72,18 +88,7 @@ html{
   padding-left: 80px;
 }
 
-i.fa-file-pdf-o{
-  color: #E40B0B;
-}
-
-i.fa-file-word-o{
-  color: #295497;
-}
-
-i.fa-file-excel-o{
-  color: #207245;
-}
-
-i.fa-file-powerpoint-o{
-  color: #D14524;
+#file-input{
+  position: absolute;
+  visibility: hidden;
 }
