@@ -4,11 +4,27 @@ const path = require('path');
 const url = require('url');
 
 let mainWindow;
-let ep;
+let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 
 ipcMain.on('exiftool-request', (event, arg) => {
   ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
+  //console.log(ep);
   event.returnValue = ep;
+});
+
+ipcMain.on('exiftool-read', (event, arg) => {
+  console.log(arg);
+  console.log('------------------------');
+  //let result = new Promise((resolve, reject) => {
+    ep.open()
+      .then(() => ep.readMetadata(arg, ['-File:all']))
+      .then((res) => {
+        event.returnValue = res;
+      })
+      .then(() => ep.close())
+      .catch(console.error);
+  //});
+  
 });
 
 function createWindow(){

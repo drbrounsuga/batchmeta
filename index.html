@@ -61,8 +61,6 @@
     const csv = require('csvtojson');
     const ep = ipcRenderer.sendSync('exiftool-request', '');
 
-    //variables
-
     let state = {
       csvObj: null,
       csvCache: null,
@@ -74,6 +72,8 @@
     let $fileInput = $('#file-input');
     let $uploadFileButton = $('#uploadFileButton');
     let $importFileButton = $('#importFileButton');
+    let $processFileButton = $('#processFileButton');
+    let $restartButton = $('#restartButton');
     let $chosenFile = $('#chosen-file');
     let $errorMessage = $('.error-message');
     let $list = $('#list');
@@ -144,13 +144,17 @@
 
 
     const updateMeta = (npmModule, filePath, data) => {
-      //console.log(`Starting ${filePath}...`);
       npmModule.open()
       .then(() => npmModule.writeMetadata(filePath, data, ['overwrite_original']))
       .then(() => npmModule.close())
       .catch(console.error);
-      //console.log('DONE!');
 
+      return true;
+    }
+
+
+    const readMeta = (filePath) => {
+      console.log(ipcRenderer.sendSync('exiftool-read', filePath));
       return true;
     }
 
@@ -226,6 +230,11 @@
 
 
     //events
+    $restartButton.on('click', (e) => {
+      e.preventDefault();
+      readMeta('./test/test.pdf');
+    });
+
     $fileInput.on('change', (e) => {
       let { name, path, size } = e.target.files[0];
       let pathLength = path.length - name.length;
@@ -274,6 +283,8 @@
       let path = $(this).attr('href');
       shell.openItem(path);
     });
+
+
 
   </script>
 </html>
