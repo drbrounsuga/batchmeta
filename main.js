@@ -18,7 +18,7 @@ function createWindow(){
     minWidth: 850,
     height: 450, 
     minHeight: 450,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#333333',
     autoHideMenuBar: true
   });
 
