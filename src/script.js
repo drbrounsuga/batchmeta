@@ -16,18 +16,15 @@
 
 
 /*
-* add a check mark for completed update
 * add a broken file image
 * make sure the additional meta can be added
 * test for broken paths
-* style the buttons
 * ...
 */
 //requires
 $ = require('jquery');
 const { ipcRenderer, shell } = require('electron');
 const csv = require('csvtojson');
-
 let state = {
   csvObj: null,
   csvCache: null,

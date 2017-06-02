@@ -1,7 +1,11 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const exiftool = require('node-exiftool');
+const version = require('./package.json').version;
+const name = require('./package.json').displayName;
 const path = require('path');
 const url = require('url');
+
+console.log(version);
 
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
@@ -35,7 +39,8 @@ function createWindow(){
     height: 550, 
     minHeight: 550,
     backgroundColor: '#333333',
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    title: `${name} -v ${version}`
   });
 
   mainWindow.loadURL(url.format({

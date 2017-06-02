@@ -1,7 +1,8 @@
 {
   "name": "pdf-metadata-editor",
   "version": "1.0.0",
-  "description": "Batch edit PDF metadata",
+  "displayName": "Metadata Batch Processor",
+  "description": "Batch edit file metadata",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
