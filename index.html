@@ -48,6 +48,23 @@
 
   <script>
     /*
+    *================
+    * CQ5 properties
+    *================
+    * .data["0"].Title (String)
+    * .data["0"].Description (String)
+    * .data["0"].Tags (Array)
+    * .data["0"].Creator (String)
+    * .data["0"].Contributor (String)
+    * .data["0"].Language (String)
+    * .data["0"]["Rights-x-repair"] (String)
+    * .data["0"].Owner (String)
+    * .data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
+    *================
+    */
+
+
+    /*
     * add a check mark for completed update
     * add a broken file image
     * make sure the additional meta can be added
@@ -233,6 +250,7 @@
     $restartButton.on('click', (e) => {
       e.preventDefault();
       readMeta('./test/test.pdf');
+      //readMeta('../pdf-meta-test.pdf');
     });
 
     $fileInput.on('change', (e) => {
