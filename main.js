@@ -28,8 +28,8 @@ function createWindow(){
   mainWindow = new BrowserWindow({
     width: 850, 
     minWidth: 850,
-    height: 450, 
-    minHeight: 450,
+    height: 550, 
+    minHeight: 550,
     backgroundColor: '#333333',
     autoHideMenuBar: true
   });
