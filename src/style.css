@@ -109,7 +109,9 @@ i.fa-file-powerpoint-o{
   line-height: 1.5em;
 }
 
-.row .fa{
+
+
+.row-icon{
   position: absolute;
   top: 25px;
   left: 30px;
@@ -165,8 +167,10 @@ i.fa-file-powerpoint-o{
   color: #333;
 }
 
-.menu .fa-check-circle-o{
+#list .fa-check{
   position: absolute;
+  bottom: 100%;
+  left: 100%;
+  transform: translate(-45%, 50%) scale(0.4);
   color: #1D9E74;
-  font-size: 1.5em;
 }

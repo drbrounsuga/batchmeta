@@ -154,7 +154,7 @@ const getIcon = (extension) => {
         fileType = 'file-o';
   }
 
-  return `<i class="fa fa-${fileType} fa-3x"></i>`;
+  return `<i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
 };
 
 
