@@ -81,7 +81,6 @@
     $ = require('jquery');
     const { ipcRenderer, shell } = require('electron');
     const csv = require('csvtojson');
-    const ep = ipcRenderer.sendSync('exiftool-request', '');
 
     let state = {
       csvObj: null,
@@ -119,7 +118,7 @@
             resolve(result);
           });
       });
-    }
+    };
 
 
     const processCache = () => {
@@ -139,7 +138,7 @@
       console.log(state.data);
       console.log('...done');
       return true;
-    }
+    };
 
 
     const updateFiles = (npmModule, arr) => {
@@ -159,37 +158,34 @@
           }
         });
 
-        updateMeta(npmModule, filePath, data);
+        updateMeta(filePath, data);
       }
 
       //console.log('done!!');
-    }
+    };
 
 
-    const updateMeta = (npmModule, filePath, data) => {
-      npmModule.open()
-      .then(() => npmModule.writeMetadata(filePath, data, ['overwrite_original']))
-      .then(() => npmModule.close())
-      .catch(console.error);
-
+    const updateMeta = (filePath, data) => {
+      //I need to see if I need to return the result
+      let response = ipcRenderer.send('exiftool-write', filePath, data);
       return true;
-    }
+    };
 
 
     const readMetaAsync = (filePath) => {
       let files = ipcRenderer.send('exiftool-read', filePath);
       return true;
-    }
+    };
 
 
     const cacheFile = (data) => {
       state.csvCache = data;
-    }
+    };
 
 
     const getExtension = (fileName) => {
       return fileName.split('.').pop().substr(0, 3).toLowerCase();
-    }
+    };
 
 
     const getIcon = (extension) => {
@@ -213,7 +209,7 @@
       }
 
       return `<i class="fa fa-${fileType} fa-3x"></i>`;
-    }
+    };
 
 
     const listFiles = () => {
@@ -244,7 +240,7 @@
       });
 
       $list.html(list);
-    }
+    };
 
 
     const updateErrorMessage = (err) => {
@@ -254,11 +250,19 @@
       }else{
          $errorMessage.addClass('hide');
       }
-    }
+    };
 
 
     //electron process event listeners
     ipcRenderer.on('exiftool-read-reply', (event, arg) => {
+      if(arg.error){
+        updateErrorMessage(arg.error);
+      }else{
+        console.log(arg);
+      }
+    });
+
+    ipcRenderer.on('exiftool-write-reply', (event, arg) => {
       if(arg.error){
         updateErrorMessage(arg.error);
       }else{

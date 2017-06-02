@@ -6,21 +6,25 @@ const url = require('url');
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 
-//fix request below. Cant pass main to renderer
-ipcMain.on('exiftool-request', (event, arg) => {
-  ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
-  //console.log(ep);
-  event.returnValue = ep;
+//verify request below. Cant pass main to renderer
+ipcMain.on('exiftool-write', (event, filePath, data) => {
+  ep.open()
+    .then(() => ep.writeMetadata(filePath, data, ['overwrite_original']))
+    .then((res) => {
+      event.sender.send('exiftool-write-reply', res);
+    })
+    .then(() => ep.close())
+    .catch(console.error);
 });
 
-ipcMain.on('exiftool-read', (event, arg) => {
-    ep.open()
-      .then(() => ep.readMetadata(arg, ['-File:all']))
-      .then((res) => {
-        event.sender.send('exiftool-read-reply', res);
-      })
-      .then(() => ep.close())
-      .catch(console.error);
+ipcMain.on('exiftool-read', (event, filePath) => {
+  ep.open()
+    .then(() => ep.readMetadata(filePath, ['-File:all']))
+    .then((res) => {
+      event.sender.send('exiftool-read-reply', res);
+    })
+    .then(() => ep.close())
+    .catch(console.error);
 });
 
 function createWindow(){
