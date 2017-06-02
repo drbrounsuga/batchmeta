@@ -48,6 +48,38 @@ i.fa-file-powerpoint-o{
   color: #D14524;
 }
 
+.hide{
+  display: none;
+}
+
+.error-message{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  font-size: 1.5em;
+  text-align: center;
+  padding: 20px;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: #fff;
+}
+
+.error-message .message{
+  width: 100%;
+  display: block;
+}
+
+#close-error{
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 1.2em;
+  color: #fff;
+  font-size: 1.2em;
+  text-decoration: none;
+}
+
 .container{
   position: relative;
   height: 100%;
@@ -57,7 +89,7 @@ i.fa-file-powerpoint-o{
 
 .row{
   position: relative;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #fff;
   border-radius: 4px;
   margin: 15px 60px;
   padding: 20px;

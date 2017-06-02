@@ -9,7 +9,12 @@
   </head>
   <body>
     <div class="container">
-      <div class="error-message">Testing</div>
+      <div class="error-message hide">
+        <a href="#" id="close-error" title="Close message">
+          <i class="fa fa-times"></i>
+        </a>
+        <div class="message"></div>
+      </div>
       <input type="file" id="file-input">
       <div class="menu">
         <ul>
@@ -91,6 +96,7 @@
     let $importFileButton = $('#importFileButton');
     let $processFileButton = $('#processFileButton');
     let $restartButton = $('#restartButton');
+    let $closeError = $('#close-error');
     let $chosenFile = $('#chosen-file');
     let $errorMessage = $('.error-message');
     let $list = $('#list');
@@ -170,8 +176,8 @@
     }
 
 
-    const readMeta = (filePath) => {
-      console.log(ipcRenderer.sendSync('exiftool-read', filePath));
+    const readMetaAsync = (filePath) => {
+      let files = ipcRenderer.send('exiftool-read', filePath);
       return true;
     }
 
@@ -242,15 +248,35 @@
 
 
     const updateErrorMessage = (err) => {
-      $errorMessage.html(err);
+      $errorMessage.find('.message').html(`<strong>Error:</strong> ${err}`);
+      if(err){
+         $errorMessage.removeClass('hide');
+      }else{
+         $errorMessage.addClass('hide');
+      }
     }
 
 
+    //electron process event listeners
+    ipcRenderer.on('exiftool-read-reply', (event, arg) => {
+      if(arg.error){
+        updateErrorMessage(arg.error);
+      }else{
+        console.log(arg);
+      }
+    });
+
+
     //events
+    $closeError.on('click', (e) => {
+      e.preventDefault();
+      $errorMessage.addClass('hide');
+    });
+
     $restartButton.on('click', (e) => {
       e.preventDefault();
-      readMeta('./test/test.pdf');
-      //readMeta('../pdf-meta-test.pdf');
+      readMetaAsync('./test/test.pdf');
+      //readMetaAsync('../pdf-meta-test.pdf');
     });
 
     $fileInput.on('change', (e) => {

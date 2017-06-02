@@ -6,6 +6,7 @@ const url = require('url');
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 
+//fix request below. Cant pass main to renderer
 ipcMain.on('exiftool-request', (event, arg) => {
   ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
   //console.log(ep);
@@ -13,18 +14,13 @@ ipcMain.on('exiftool-request', (event, arg) => {
 });
 
 ipcMain.on('exiftool-read', (event, arg) => {
-  console.log(arg);
-  console.log('------------------------');
-  //let result = new Promise((resolve, reject) => {
     ep.open()
       .then(() => ep.readMetadata(arg, ['-File:all']))
       .then((res) => {
-        event.returnValue = res;
+        event.sender.send('exiftool-read-reply', res);
       })
       .then(() => ep.close())
       .catch(console.error);
-  //});
-  
 });
 
 function createWindow(){
