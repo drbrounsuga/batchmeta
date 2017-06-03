@@ -35,11 +35,9 @@ let state = {
 //cache elements
 let $fileInput = $('#file-input');
 let $uploadFileButton = $('#uploadFileButton');
-let $importFileButton = $('#importFileButton');
 let $processFileButton = $('#processFileButton');
 let $restartButton = $('#restartButton');
 let $closeError = $('#close-error');
-let $chosenFile = $('#chosen-file');
 let $errorMessage = $('.error-message');
 let $list = $('#list');
 
@@ -181,8 +179,15 @@ const listFiles = () => {
       </ul>
     </div>`;
   });
-
-  $list.html(list);
+console.log(state.data);
+  $list.html(`
+    <li class="chosen-file">Process "${state.csvObj.name}"?</li>
+    <li class="chosen-file">
+      <a href="#" id="processFileButton" title="Process Tags">
+        <i class="fa fa-play"></i>
+      </a>
+    </li>
+    ${list}`);
 };
 
 
@@ -237,7 +242,13 @@ $fileInput.on('change', (e) => {
     size: size
   };
 
-  $chosenFile.html(name);
+  $list.html(`
+    <li class="chosen-file">import "${name}"?</li>
+    <li class="chosen-file">
+      <a href="#" id="importFileButton" title="Import ${name}">
+        <i class="fa fa-upload"></i>
+      </a>
+    </li>`);
 });
 
 $uploadFileButton.on('click', (e) => {
@@ -245,7 +256,7 @@ $uploadFileButton.on('click', (e) => {
   $fileInput.trigger('click');
 });
 
-$importFileButton.on('click', (e) => {
+$list.on('click', '#importFileButton', (e) => {
   e.preventDefault();
   let errorMessage = '';     
   let { path, name, size } = state.csvObj;
