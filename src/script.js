@@ -18,9 +18,13 @@
 *================
 * TO DO LIST
 *================
-* add a broken file image
-* make sure the additional meta can be added
+* troubleshoot custom tags (tag)
+* troubleshoot xslt (can't write)
+* check that all met is written
 * test for broken paths
+* capture all errors
+* write to the info bar
+* fix bug with reset, maybe have it refresh the app
 * ...
 */
 
@@ -37,35 +41,6 @@ let $processFileButton = $('#processFileButton');
 let $closeError = $('#close-error');
 let $errorMessage = $('.error-message');
 let $list = $('#list');
-
-//electron process event listeners
-//================================
-ipcRenderer.on('exiftool-read-reply', (event, arg) => {
-  if(arg.error){
-    updateErrorMessage(arg.error);
-  }else{
-    console.log(arg);
-  }
-});
-
-ipcRenderer.on('exiftool-write-reply', (event, arg) => {
-  if(arg.error){
-    updateErrorMessage(arg.error);
-  }else{
-    console.log(arg);
-  }
-});
-
-const updateMeta = (filePath, data, indx) => {
-  //I need to see if I need to return the result
-  let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
-  return true;
-};
-
-const readMetaAsync = (filePath) => {
-  let files = ipcRenderer.send('exiftool-read', filePath);
-  return true;
-};
 
 //Vue Components
 //================================
@@ -188,7 +163,8 @@ let vueContainer = new Vue({
         this.state = Object.assign({}, this.defaultState);
       }else if(action === 'help'){
         console.log('help button clicked');
-        readMetaAsync('./test/test.pdf');
+        readMetaAsync('./test/testx.pdf');
+        //readMetaAsync('./test/test.pdf');
         //readMetaAsync('../pdf-meta-test.pdf');
       }
     },
@@ -277,27 +253,35 @@ let vueContainer = new Vue({
       let data;
       let filePath;
       let arr = this.state.data;
-      //get -id to update list
 
       for(let i = 0, len = arr.length; i < len; i++){
         data = {};
         filePath = arr[i]['-fullPath']; //icon to empty file if this is empty
 
-        if(!filePath){
-          continue;
-        }
+        if(!filePath){ continue; }
 
-        // Object.keys(arr[i]).forEach((key) => {
-        //   if(!key.startsWith('-') && arr[i][key]){
-        //     data[key] = arr[i][key];
-        //   }else if(arr[i][key] === 'DELETE'){
-        //     data[key] = '';
-        //   }
-        // });
+        Object.keys(arr[i]).forEach((key) => {
+          if(key.includes(':')){
+            /* 
+            * if the key contains a : then its an array prop:
+            * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
+            */
+            let [ arrKey, propName ] = key.split(':');
 
-        console.log(arr[i]);
+            if(!data[arrKey]){
+              data[arrKey] = [];
+            }
 
-        //updateMeta(filePath, data, i);
+            data[arrKey].push(`${propName}:${arr[i][key]}`);
+
+          }else if(!key.startsWith('-') && arr[i][key]){
+            data[key] = arr[i][key];
+          }else if(arr[i][key] === 'DELETE'){
+            data[key] = '';
+          }
+        });
+
+        updateMeta(filePath, data, i);
       }
     }
   }
@@ -306,3 +290,33 @@ let vueContainer = new Vue({
 
 vueContainer.getDefaultState();
 
+
+//electron process event listeners
+//================================
+ipcRenderer.on('exiftool-read-reply', (event, res) => {
+  if(res.error){
+    vueContainer.updateErrorMessage(res.error);
+  }else{
+    console.log(res);
+  }
+});
+
+ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
+  if(res.error){
+    //vueContainer.updateErrorMessage(res.error);
+    console.log(res.error);
+  }else{
+    console.log(res + ' ' + indx);
+  }
+});
+
+const updateMeta = (filePath, data, indx) => {
+  //I need to see if I need to return the result
+  let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
+  return true;
+};
+
+const readMetaAsync = (filePath) => {
+  let files = ipcRenderer.send('exiftool-read', filePath);
+  return true;
+};

@@ -1,6 +1,2 @@
 Path,Title,Description,Tags:ROBOTS,Tags:publishing_entity,Creator,Contributor,Language,Rights,Owner,ExpirationDate
-test.pdf,Gwent: The Witcher Card Game,This is a test to see if I can batch edit metadata,FOLLOW,PT,Von Haynes,,en,Copyright &copy; 2017,American Bar Association,2017:05:19 03:15
-nested\test.pdf,Destiny 2 Coming to PC!,This is a test to see if I can convert nested files,FOLLOW,PT,Jumoke Hodari,,en,Copyright &copy; 2018,American Bar Association,2017:05:20 18:19
-test.docx,Hearthstone Tournament,This is a test to see if I can modify word documents,FOLLOW,PT,James Haynes,,en,Copyright &copy; 2019,American Bar Association,2017:05:19 03:15
-test.xlsx,Elder Scrolls Legends now on Ipad,This is a test to see if I can modify excel docs,FOLLOW,PT,Jane Doe,,en,Copyright &copy; 2020,American Bar Association,2017:05:20 03:15
-nested\test.pptx,Now 10% more awesome,Testing for nested pptx,FOLLOW,PT,Van Jones,,en,Copyright &copy; 2021,American Bar Association,2017:05:21 03:15
+testx.pdf,Gwent: The Witcher Card Game,This is a test to see if I can batch edit metadata,NOFOLLOW,VH,Von Haynes,DELETE,en,Copyright &copy; 2017,American Bar Association,2017:05:19 03:15
