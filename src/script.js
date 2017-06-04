@@ -11,6 +11,8 @@
 * .data["0"]["Rights-x-repair"] (String)
 * .data["0"].Owner (String)
 * .data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
+*
+* FilePermissions: "rw-rw-rw-"
 *================
 */
 
@@ -30,21 +32,33 @@
 
 //requires
 //================================
-$ = require('jquery');
 const { ipcRenderer, shell } = require('electron');
 const csv = require('csvtojson');
 const Vue = require('../node_modules/vue/dist/vue.js');
+let vueContainer;
 
-//cache elements
+//electron process event listeners
 //================================
-let $processFileButton = $('#processFileButton');
-let $closeError = $('#close-error');
-let $errorMessage = $('.error-message');
-let $list = $('#list');
+ipcRenderer.on('exiftool-read-reply', (event, res) => {
+  if(res.error){
+    vueContainer.updateErrorMessage(res.error);
+  }else{
+    console.log(res.data[0]);
+  }
+});
+
+ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
+  if(res.error){
+    //vueContainer.updateErrorMessage(res.error);
+    console.log(res.error);
+  }else{
+    console.log(res + ' from item: ' + indx);
+  }
+});
 
 //Vue Components
 //================================
-let vueContainer = new Vue({
+vueContainer = new Vue({
   el: '.container',
   data: {
     state: {
@@ -163,9 +177,9 @@ let vueContainer = new Vue({
         this.state = Object.assign({}, this.defaultState);
       }else if(action === 'help'){
         console.log('help button clicked');
-        readMetaAsync('./test/testx.pdf');
-        //readMetaAsync('./test/test.pdf');
-        //readMetaAsync('../pdf-meta-test.pdf');
+        //this.readMetaAsync('./test/testx.pdf');
+        this.readMetaAsync('./test/test.pdf');
+        //this.readMetaAsync('../pdf-meta-test.pdf');
       }
     },
     //translates the selected csv into a file list preview
@@ -243,6 +257,11 @@ let vueContainer = new Vue({
           });
       });
     },
+    //read file with exiftool
+    readMetaAsync(filePath){
+      let files = ipcRenderer.send('exiftool-read', filePath);
+      return true;
+    },
     //updates the error message display
     updateErrorMessage(err){
       err = err ? `<strong>Error:</strong> ${err}` : err;
@@ -281,8 +300,14 @@ let vueContainer = new Vue({
           }
         });
 
-        updateMeta(filePath, data, i);
+        this.updateMeta(filePath, data, i);
       }
+    },
+    //write to file with exiftool
+    updateMeta(filePath, data, indx){
+      let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
+      console.log('writing meta...');
+      return true;
     }
   }
 });
@@ -290,33 +315,3 @@ let vueContainer = new Vue({
 
 vueContainer.getDefaultState();
 
-
-//electron process event listeners
-//================================
-ipcRenderer.on('exiftool-read-reply', (event, res) => {
-  if(res.error){
-    vueContainer.updateErrorMessage(res.error);
-  }else{
-    console.log(res);
-  }
-});
-
-ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
-  if(res.error){
-    //vueContainer.updateErrorMessage(res.error);
-    console.log(res.error);
-  }else{
-    console.log(res + ' ' + indx);
-  }
-});
-
-const updateMeta = (filePath, data, indx) => {
-  //I need to see if I need to return the result
-  let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
-  return true;
-};
-
-const readMetaAsync = (filePath) => {
-  let files = ipcRenderer.send('exiftool-read', filePath);
-  return true;
-};

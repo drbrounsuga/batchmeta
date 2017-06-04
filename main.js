@@ -23,7 +23,7 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
 
 ipcMain.on('exiftool-read', (event, filePath) => {
   ep.open()
-    .then(() => ep.readMetadata(filePath, ['-File:all']))
+    .then(() => ep.readMetadata(filePath, []))
     .then((res) => {
       event.sender.send('exiftool-read-reply', res);
     })
