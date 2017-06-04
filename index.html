@@ -46,7 +46,7 @@
           </a>
         </div>
         <div v-if="state.page.showFileList" class="row" v-for="doc in state.data">
-          <span v-html="doc['-icon']"></span>
+          <span v-html="doc['-icon']" class="{ processed: doc['-processedStatus'] }"></span>
           <ul>
             <li>
               <strong>Title ({{Number.parseInt(doc['-id'], 10) + 1}}):</strong> 
@@ -58,7 +58,7 @@
             </li>
             <li v-if="doc['-extension'] === 'pdf'" v-html="doc['-fileLink']"></li>
             <li v-else="doc['-extension'] === 'pdf'">
-              <a href="#" target="_blank" @click.prevent="openWithShell(doc['-fullPath'])">{{doc['-Path']}}</a>
+              <a href="#" target="_blank" @click.prevent="openWithShell(doc['-fullPath'])">{{doc['-path']}}</a>
             </li>
           </ul>
         </div>

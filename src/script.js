@@ -56,9 +56,9 @@ ipcRenderer.on('exiftool-write-reply', (event, arg) => {
   }
 });
 
-const updateMeta = (filePath, data) => {
+const updateMeta = (filePath, data, indx) => {
   //I need to see if I need to return the result
-  let response = ipcRenderer.send('exiftool-write', filePath, data);
+  let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
   return true;
 };
 
@@ -75,6 +75,7 @@ let vueContainer = new Vue({
     state: {
       csvObj: null,
       csvCache: null,
+      csvMaxSizeMB: 25,
       errorMessage: '',
       step: 0,
       page: {
@@ -158,7 +159,8 @@ let vueContainer = new Vue({
             fileType = 'file-o';
       }
 
-      return `<i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
+      return `
+      <i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
     },
     //reads the selected csv in as an object then updates the view
     getInputFile(e){
@@ -199,8 +201,8 @@ let vueContainer = new Vue({
         errorMessage = "File required: You must select a file";
       }else if(!name.endsWith('.csv')){
         errorMessage = `Invalid extension: File must end with ".csv"`;
-      }else if(size > 25000000){
-        errorMessage = "File too big: Please limit files to 25MB";
+      }else if(size > this.state.csvMaxSizeMB * 1000000){
+        errorMessage = `File too big: Please limit files to ${this.state.csvMaxSizeMB}MB`;
       }
 
       this.updateErrorMessage(errorMessage);
@@ -226,16 +228,22 @@ let vueContainer = new Vue({
       this.state.data = this.state.csvCache.map((doc, indx) => {
         //let name = doc['-Path'].replace(/\\/g, "/");
         //let path = this.state.csvObj.dir.replace(/\\/g, "/");
-        let name = doc['-Path'];
+        let name = doc['Path'];
+        delete doc['Path'];
         let path = this.state.csvObj.dir;
         let extension = this.getExtension(name);
 
         doc['-id'] = indx;
-        doc['-Path'] = name;
+        doc['-path'] = name;
         doc['-fullPath'] = `${path}${name}`;
-        doc['-fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
+        if(name){
+          doc['-fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
+        }else{
+          doc['-fileLink'] = `<a class="bad-link">${name}</a>`;
+        }
         doc['-extension'] = extension;
         doc['-icon'] = this.getIcon(extension);
+        doc['-processedStatus'] = null;
         return doc;
       });
 
@@ -265,27 +273,32 @@ let vueContainer = new Vue({
       this.state.errorMessage = err;
     },
     //modifies the metadata of all files in the list
-    updateFiles(npmModule, arr){
-      // let data;
-      // let filePath;
-      // //maybe make a promise chain
+    updateFiles(){
+      let data;
+      let filePath;
+      let arr = this.state.data;
+      //get -id to update list
 
-      // for(let i = 0, len = arr.length; i < len; i++){
-      //   data = {};
-      //   filePath = arr[i]['-File Path']; //should throw an error if this is empty
+      for(let i = 0, len = arr.length; i < len; i++){
+        data = {};
+        filePath = arr[i]['-fullPath']; //icon to empty file if this is empty
 
-      //   Object.keys(arr[i]).forEach((key) => {
-      //     if(!key.startsWith('-') && arr[i][key]){
-      //       data[key] = arr[i][key];
-      //     }else if(arr[i][key] === 'DELETE'){
-      //       data[key] = '';
-      //     }
-      //   });
+        if(!filePath){
+          continue;
+        }
 
-        console.log('updating files....');
-        //console.log(data);
-        //updateMeta(filePath, data);
-      //}
+        // Object.keys(arr[i]).forEach((key) => {
+        //   if(!key.startsWith('-') && arr[i][key]){
+        //     data[key] = arr[i][key];
+        //   }else if(arr[i][key] === 'DELETE'){
+        //     data[key] = '';
+        //   }
+        // });
+
+        console.log(arr[i]);
+
+        //updateMeta(filePath, data, i);
+      }
     }
   }
 });
