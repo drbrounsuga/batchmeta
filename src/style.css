@@ -215,4 +215,9 @@ i.fa-file-powerpoint-o{
   left: 100%;
   transform: translate(-45%, 50%) scale(0.4);
   color: #1D9E74;
+  display: none;
+}
+
+#list .processed .fa-check{
+  display: inline-block;
 }
