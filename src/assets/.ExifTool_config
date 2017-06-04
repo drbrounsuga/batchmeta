@@ -1,8 +1,22 @@
-#{ cq: "http://www.day.com/jcr/cq/1.0" }
 %Image::ExifTool::UserDefined = (
-    'Image::ExifTool::XMP::xmp' => {
-        Tags => { List => 'Bag' },
+  'Image::ExifTool::XMP::Main' => {
+    cq => {
+      SubDirectory => {
+        TagTable => 'Image::ExifTool::UserDefined::cq',
+      },
     },
+  },
 );
+
+
+%Image::ExifTool::UserDefined::cq = (
+  GROUPS => { 0 => 'XMP', 1 => 'XMP-cq', 2 => 'Image' },
+  NAMESPACE => { 'cq' => 'http://www.day.com/jcr/cq/1.0' },
+  WRITABLE => 'string',
+  Tags => { List => 'Bag' },
+  Subject => { List => 'Bag' },
+);
+
+
 
 1;
