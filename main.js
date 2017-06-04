@@ -31,6 +31,16 @@ ipcMain.on('exiftool-read', (event, filePath) => {
     .catch(console.error);
 });
 
+ipcMain.on('reload', (event) => {
+  mainWindow.webContents.reloadIgnoringCache();
+  event.sender.send('reload-reply');
+});
+
+ipcMain.on('get-title', (event) => {
+  let res = `${name} -v ${version}`;
+  event.sender.send('get-title-reply', res);
+});
+
 function createWindow(){
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -39,8 +49,7 @@ function createWindow(){
     height: 550, 
     minHeight: 550,
     backgroundColor: '#333333',
-    autoHideMenuBar: true,
-    title: `${name} -v ${version}`
+    autoHideMenuBar: true
   });
 
   mainWindow.loadURL(url.format({
@@ -52,9 +61,8 @@ function createWindow(){
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  mainWindow.on('closed', function () {
-    mainWindow = null
-    //ep.quit();
+  mainWindow.on('closed', function(){
+    mainWindow = null;
   });
 }
 
@@ -63,11 +71,10 @@ app.on('ready', createWindow);
 app.on('window-all-closed', function(){
   if (process.platform !== 'darwin'){
     app.quit();
-    //ep.quit();
   }
 });
 
-app.on('activate', function (){
+app.on('activate', function(){
   if (mainWindow === null) {
     createWindow();
   }

@@ -20,13 +20,11 @@
 *================
 * TO DO LIST
 *================
-* troubleshoot custom tags (tag)
 * troubleshoot xslt (can't write)
 * check that all met is written
 * test for broken paths
 * capture all errors
 * write to the info bar
-* fix bug with reset, maybe have it refresh the app
 * ...
 */
 
@@ -55,12 +53,28 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   }
 });
 
+ipcRenderer.on('reload-reply', (event, res) => {
+  if(res.error){
+    vueContainer.updateErrorMessage(res.error);
+  }
+});
+
+ipcRenderer.on('get-title-reply', (event, res) => {
+  if(res.error){
+    vueContainer.updateErrorMessage(res.error);
+  }else{
+    vueContainer.setTitle(res);
+    console.log(res);
+  }
+});
+
 //Vue Components
 //================================
 vueContainer = new Vue({
   el: '.container',
   data: {
     state: {
+      title: '...',
       csvObj: null,
       csvCache: null,
       csvMaxSizeMB: 25,
@@ -73,7 +87,6 @@ vueContainer = new Vue({
       },
       data: []
     },
-    defaultState: null,
     buttons: [
       {
         id: 'uploadFileButton',
@@ -117,10 +130,6 @@ vueContainer = new Vue({
       });
 
       this.state.page = newPage;
-    },
-    //makes a copy of state to revert to on reset
-    getDefaultState(){
-      this.defaultState = Object.assign({}, this.state);
     },
     //gets the extension of imported files
     getExtension(fileName){
@@ -173,7 +182,7 @@ vueContainer = new Vue({
         this.state.step = 1;
         document.getElementById('file-input').click();
       }else if(action === 'clear'){
-        this.state = Object.assign({}, this.defaultState);
+        ipcRenderer.send('reload');
       }else if(action === 'help'){
         console.log('help button clicked');
         //this.readMetaAsync('./test/testx.pdf');
@@ -258,8 +267,13 @@ vueContainer = new Vue({
     },
     //read file with exiftool
     readMetaAsync(filePath){
-      let files = ipcRenderer.send('exiftool-read', filePath);
+      ipcRenderer.send('exiftool-read', filePath);
       return true;
+    },
+    //sets the title of the application
+    setTitle(str){
+      this.state.title = str;
+      let title = document.getElementById('app-title').innerText = str
     },
     //updates the error message display
     updateErrorMessage(err){
@@ -304,12 +318,10 @@ vueContainer = new Vue({
     },
     //write to file with exiftool
     updateMeta(filePath, data, indx){
-      let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
+      ipcRenderer.send('exiftool-write', filePath, data, indx);
       return true;
     }
   }
 });
 
-
-vueContainer.getDefaultState();
-
+ipcRenderer.send('get-title');
