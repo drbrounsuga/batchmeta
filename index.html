@@ -8,34 +8,63 @@
   </head>
   <body>
     <div class="container">
-      <div class="error-message hide">
-        <a href="#" id="close-error" title="Close message">
+      <div v-if="state.errorMessage !== ''" class="error-message">
+        <a href="#" id="close-error" title="Close message" @click.prevent="updateErrorMessage('')">
           <i class="fa fa-times"></i>
         </a>
-        <div class="message"></div>
+        <div class="message" v-html="state.errorMessage"></div>
       </div>
-      <input type="file" id="file-input">
+      <input type="file" id="file-input" @change="getInputFile">
+
       <div class="menu">
         <ul>
-          <li>
-            <a href="#" id="uploadFileButton" title="Choose File">
-              <i class="fa fa-plus"></i>
-            </a>
-          </li>
-          <li>
-            <a href="#" id="restartButton" title="Clear Selections">
-              <i class="fa fa-refresh"></i>
-            </a>
-          </li>
-          <li>
-            <a href="#" id="helpButton" title="Help">
-              <i class="fa fa-question"></i>
+          <li v-for="button in buttons" v-if="state.step >= button.displayOnStep">
+            <a href="#" :id="button.id" :title="button.title" @click="handleButtonClicks(button.action)">
+              <i :class="button.class"></i>
             </a>
           </li>
         </ul>
-        
       </div>
-      <div id="list"></div>
+
+      <div id="list">
+
+        <div v-if="state.page.showImporter" class="chosen-file">
+          import "{{state.csvObj.name}}"?
+        </div>
+        <div v-if="state.page.showImporter" class="chosen-file">
+          <a href="#" id="importFileButton" title="Import File" @click.prevent="importFile">
+            <i class="fa fa-upload"></i>
+          </a>
+        </div>
+
+        <div v-if="state.page.showFileList" class="chosen-file">
+          Process "{{state.csvObj.name}}"?
+        </div>
+        <div v-if="state.page.showFileList" class="chosen-file">
+          <a href="#" id="processFileButton" title="Process Tags">
+            <i class="fa fa-play"></i>
+          </a>
+        </div>
+        <div v-if="state.page.showFileList" class="row" v-for="doc in state.data">
+          <span v-html="doc['-icon']"></span>
+          <ul>
+            <li>
+              <strong>Title ({{Number.parseInt(doc['-id'], 10) + 1}}):</strong> 
+              {{doc.Title}}
+            </li>
+            <li>
+              <strong>Description:</strong> 
+              {{doc.Description}}
+            </li>
+            <li v-if="doc['-extension'] === 'pdf'" v-html="doc['-fileLink']"></li>
+            <li v-else="doc['-extension'] === 'pdf'">
+              <a href="#" target="_blank" @click.prevent="openWithShell(doc['-fullPath'])">{{doc['-Path']}}</a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
       <div id="info">
         <i class="fa fa-info-circle"></i>
         <span class="content"></span>
