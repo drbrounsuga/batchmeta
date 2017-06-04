@@ -25,18 +25,21 @@
 */
 
 //requires
+//================================
 $ = require('jquery');
 const { ipcRenderer, shell } = require('electron');
 const csv = require('csvtojson');
 const Vue = require('../node_modules/vue/dist/vue.js');
 
 //cache elements
+//================================
 let $processFileButton = $('#processFileButton');
 let $closeError = $('#close-error');
 let $errorMessage = $('.error-message');
 let $list = $('#list');
 
 //electron process event listeners
+//================================
 ipcRenderer.on('exiftool-read-reply', (event, arg) => {
   if(arg.error){
     updateErrorMessage(arg.error);
@@ -65,6 +68,7 @@ const readMetaAsync = (filePath) => {
 };
 
 //Vue Components
+//================================
 let vueContainer = new Vue({
   el: '.container',
   data: {
@@ -106,9 +110,11 @@ let vueContainer = new Vue({
     ]
   },
   methods: {
+    //saves a copy of the data from the selected csv to state
     cacheFile(data){
       this.state.csvCache = data;
     },
+    //routing. determines what info to display
     changePage(selection){
       let keys = Object.keys(this.state.page);
       let newPage = {};
@@ -123,12 +129,15 @@ let vueContainer = new Vue({
 
       this.state.page = newPage;
     },
+    //makes a copy of state to revert to on reset
     getDefaultState(){
       this.defaultState = Object.assign({}, this.state);
     },
+    //gets the extension of imported files
     getExtension(fileName){
       return fileName.split('.').pop().substr(0, 3).toLowerCase();
     },
+    //generates an icon for imported files
     getIcon(extension){
       let fileType;
 
@@ -151,6 +160,7 @@ let vueContainer = new Vue({
 
       return `<i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
     },
+    //reads the selected csv in as an object then updates the view
     getInputFile(e){
       if(e.target.files.length < 1){
         return;
@@ -167,6 +177,7 @@ let vueContainer = new Vue({
 
       this.changePage('showImporter');
     },
+    //handles/routes clicks on the nav bar
     handleButtonClicks(action){
       if(action === 'upload'){
         this.state.step = 1;
@@ -179,6 +190,7 @@ let vueContainer = new Vue({
         //readMetaAsync('../pdf-meta-test.pdf');
       }
     },
+    //translates the selected csv into a file list preview
     importFile(){
       let errorMessage = '';     
       let { path, name, size } = this.state.csvObj;
@@ -200,13 +212,16 @@ let vueContainer = new Vue({
           .then(() => this.listFiles());
       }
     },
+    //updates the view to show the file list
     listFiles(){
       this.state.step = 2;
       this.changePage('showFileList');
     },
+    //opens non-pdf files with the OS's defaul app
     openWithShell(path, extension){
       shell.openItem(path);
     },
+    //mutates a copy of the selected csv's data for use in processing
     processCache(){
       this.state.data = this.state.csvCache.map((doc, indx) => {
         //let name = doc['-Path'].replace(/\\/g, "/");
@@ -226,6 +241,7 @@ let vueContainer = new Vue({
 
       return true;
     },
+    //reads the csv file in as a json object
     readCsvData(npmModule, csvFilePath){
       return new Promise((resolve, reject) => {
         let result = [];
@@ -243,9 +259,33 @@ let vueContainer = new Vue({
           });
       });
     },
+    //updates the error message display
     updateErrorMessage(err){
       err = err ? `<strong>Error:</strong> ${err}` : err;
       this.state.errorMessage = err;
+    },
+    //modifies the metadata of all files in the list
+    updateFiles(npmModule, arr){
+      // let data;
+      // let filePath;
+      // //maybe make a promise chain
+
+      // for(let i = 0, len = arr.length; i < len; i++){
+      //   data = {};
+      //   filePath = arr[i]['-File Path']; //should throw an error if this is empty
+
+      //   Object.keys(arr[i]).forEach((key) => {
+      //     if(!key.startsWith('-') && arr[i][key]){
+      //       data[key] = arr[i][key];
+      //     }else if(arr[i][key] === 'DELETE'){
+      //       data[key] = '';
+      //     }
+      //   });
+
+        console.log('updating files....');
+        //console.log(data);
+        //updateMeta(filePath, data);
+      //}
     }
   }
 });
@@ -253,175 +293,3 @@ let vueContainer = new Vue({
 
 vueContainer.getDefaultState();
 
-//==========================================================================
-//functions
-// const readCsvData = (npmModule, csvFilePath) => {
-//   return new Promise((resolve, reject) => {
-//     let result = [];
-
-//     npmModule()
-//       .fromFile(csvFilePath)
-//       .on('json', (jsonObj) => {
-//         result.push(jsonObj);
-//       })
-//       .on('done', (error) => {
-//         if(error){
-//           reject(error);
-//         }
-//         resolve(result);
-//       });
-//   });
-// };
-
-
-// const processCache = () => {
-//   state.data = state.csvCache.map((doc, indx) => {
-//     //let name = doc['-Path'].replace(/\\/g, "/");
-//     //let path = state.csvObj.dir.replace(/\\/g, "/");
-//     let name = doc['-Path'];
-//     let path = state.csvObj.dir;
-
-//     doc['-id'] = indx;
-//     doc['-Path'] = name;
-//     doc['-fullPath'] = `${path}${name}`;
-//     return doc;
-//   });
-
-//   console.log('processing...');
-//   console.log(state.data);
-//   console.log('...done');
-//   return true;
-// };
-
-
-const updateFiles = (npmModule, arr) => {
-  let data;
-  let filePath;
-  //maybe make a promise chain
-
-  for(let i = 0, len = arr.length; i < len; i++){
-    data = {};
-    filePath = arr[i]['-File Path']; //should throw an error if this is empty
-
-    Object.keys(arr[i]).forEach((key) => {
-      if(!key.startsWith('-') && arr[i][key]){
-        data[key] = arr[i][key];
-      }else if(arr[i][key] === 'DELETE'){
-        data[key] = '';
-      }
-    });
-
-    updateMeta(filePath, data);
-  }
-
-  //console.log('done!!');
-};
-
-
-// const getExtension = (fileName) => {
-//   return fileName.split('.').pop().substr(0, 3).toLowerCase();
-// };
-
-
-// const getIcon = (extension) => {
-//   let fileType;
-
-//   switch(extension){
-//       case 'pdf':
-//         fileType = 'file-pdf-o';
-//         break;
-//       case 'xls':
-//         fileType = 'file-excel-o';
-//         break;
-//       case 'doc':
-//         fileType = 'file-word-o';
-//         break;
-//       case 'ppt':
-//         fileType = 'file-powerpoint-o';
-//         break;
-//       default:
-//         fileType = 'file-o';
-//   }
-
-//   return `<i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
-// };
-
-
-const listFiles = () => {
-  let extension;
-  let fileLink;
-
-  let list = state.data.map((doc, indx) => {
-    extension = getExtension(doc['-Path']);
-    fileLink = extension === 'pdf' ? `href="file://${doc['-fullPath']}"` : `href="${doc['-fullPath']}" class="link"`;
-    return `
-    <div class="row">
-      ${getIcon(extension)}
-      <ul>
-        <li>
-          <strong>Title (${Number.parseInt(doc['-id'], 10) + 1}):</strong> 
-          ${doc.Title}
-        </li>
-        <li>
-          <strong>Description:</strong> 
-          ${doc.Description}
-        </li>
-        <li>
-          <strong>Path from CSV:</strong> 
-          <a ${fileLink} target="_blank">${doc['-Path']}</a>
-        </li>
-      </ul>
-    </div>`;
-  });
-console.log(state.data);
-  $list.html(`
-    <li class="chosen-file">Process "${state.csvObj.name}"?</li>
-    <li class="chosen-file">
-      <a href="#" id="processFileButton" title="Process Tags">
-        <i class="fa fa-play"></i>
-      </a>
-    </li>
-    ${list}`);
-};
-
-
-// const updateErrorMessage = (err) => {
-//   $errorMessage.find('.message').html(`<strong>Error:</strong> ${err}`);
-//   if(err){
-//       $errorMessage.removeClass('hide');
-//   }else{
-//       $errorMessage.addClass('hide');
-//   }
-// };
-
-
-
-// $list.on('click', '#importFileButton', (e) => {
-//   e.preventDefault();
-//   let errorMessage = '';     
-//   let { path, name, size } = state.csvObj;
-
-//   if(!path){
-//     errorMessage = "File required: You must select a file";
-//   }else if(!name.endsWith('.csv')){
-//     errorMessage = `Invalid extension: File must end with ".csv"`;
-//   }else if(size > 25000000){
-//     errorMessage = "File too big: Please limit files to 25MB";
-//   }
-
-//   updateErrorMessage(errorMessage);
-
-//   if(!errorMessage){
-//     readCsvData(csv, path)
-//       .then((data) => cacheFile(data))
-//       .then(() => processCache())
-//       .then(() => listFiles());
-//   }
-  
-// });
-
-// $list.on('click', '.link', function(e){
-//   e.preventDefault();
-//   let path = $(this).attr('href');
-//   shell.openItem(path);
-// });

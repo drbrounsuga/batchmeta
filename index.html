@@ -41,7 +41,7 @@
           Process "{{state.csvObj.name}}"?
         </div>
         <div v-if="state.page.showFileList" class="chosen-file">
-          <a href="#" id="processFileButton" title="Process Tags">
+          <a href="#" id="processFileButton" title="Process Tags" @click.prevent="updateFiles">
             <i class="fa fa-play"></i>
           </a>
         </div>
