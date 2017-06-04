@@ -49,8 +49,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res) => {
 
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   if(res.error){
-    //vueContainer.updateErrorMessage(res.error);
-    console.log(res.error);
+    vueContainer.updateErrorMessage(res.error);
   }else{
     console.log(res + ' from item: ' + indx);
   }
@@ -306,7 +305,6 @@ vueContainer = new Vue({
     //write to file with exiftool
     updateMeta(filePath, data, indx){
       let response = ipcRenderer.send('exiftool-write', filePath, data, indx);
-      console.log('writing meta...');
       return true;
     }
   }
