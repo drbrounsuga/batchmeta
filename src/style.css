@@ -170,6 +170,10 @@ i.fa-file-powerpoint-o{
   transform: translate(-50%, -50%);
 }
 
+.chosen-file a:hover i{
+  color: #fff;
+}
+
 .menu{
   display: block;
   position: fixed;
@@ -198,13 +202,18 @@ i.fa-file-powerpoint-o{
   height: 50px;
   line-height: 50px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
 }
 
 .menu a i{
   display: inline-block;
   color: #333;
+  transform: scale(1.4);
+}
+
+.menu a:hover{
+  background-color: #fff;
 }
 
 #list .fa-check{
