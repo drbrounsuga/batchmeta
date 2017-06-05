@@ -13,7 +13,7 @@ let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 //verify request below. Cant pass main to renderer
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   ep.open()
-    .then(() => ep.writeMetadata(filePath, data, ['overwrite_original']))
+    .then(() => ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original']))
     .then((res) => {
       event.sender.send('exiftool-write-reply', res, indx);
     })

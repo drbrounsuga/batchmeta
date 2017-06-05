@@ -1,2 +1,4 @@
 Path,Title,Description,Tags:ROBOTS,Tags:publishing_entity,Creator,Contributor,Language,Rights,Owner,ExpirationDate
-testx.pdf,Gwent: The Witcher Card Game,This is a test to see if I can batch edit metadata,NOFOLLOW,VH,Von Haynes,DELETE,en,Copyright &copy; 2017,American Bar Association,2017:05:19 03:15
+test.pdf,Gwent: The Witcher Card Game,This is a test to see if I can batch edit metadata,FOLLOW,PT,Von Haynes,,en,Copyright &copy; 2017,American Bar Association,2017:05:19 03:15
+nested\test.pdf,Destiny 2 Coming to PC!,This is a test to see if I can convert nested files,FOLLOW,PT,Jumoke Hodari,,en,Copyright &copy; 2018,American Bar Association,2017:05:20 18:19
+testx.pdf,Hearthstone Tournament,This is a test to see if I can modify word documents,FOLLOW,PT,James Haynes,,en,Copyright &copy; 2019,American Bar Association,2017:05:19 03:15
