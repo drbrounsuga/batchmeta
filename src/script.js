@@ -46,10 +46,11 @@ ipcRenderer.on('exiftool-read-reply', (event, res) => {
 });
 
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
-  if(res.error){
+  if(res.error && res.error !== '1 image files updated'){
     vueContainer.updateErrorMessage(res.error);
+    vueContainer.updateListItemStatus(indx, false);
   }else{
-    console.log(res + ' from item: ' + indx);
+    vueContainer.updateListItemStatus(indx, true);
   }
 });
 
@@ -64,7 +65,6 @@ ipcRenderer.on('get-title-reply', (event, res) => {
     vueContainer.updateErrorMessage(res.error);
   }else{
     vueContainer.setTitle(res);
-    console.log(res);
   }
 });
 
@@ -133,6 +133,9 @@ vueContainer = new Vue({
     },
     //gets the extension of imported files
     getExtension(fileName){
+      if(!fileName){
+        return null;
+      }
       return fileName.split('.').pop().substr(0, 3).toLowerCase();
     },
     //generates an icon for imported files
@@ -152,6 +155,9 @@ vueContainer = new Vue({
           case 'ppt':
             fileType = 'file-powerpoint-o';
             break;
+          case null:
+           fileType = 'chain-broken';
+           break;
           default:
             fileType = 'file-o';
       }
@@ -185,7 +191,6 @@ vueContainer = new Vue({
         ipcRenderer.send('reload');
       }else if(action === 'help'){
         console.log('help button clicked');
-        //this.readMetaAsync('./test/testx.pdf');
         this.readMetaAsync('./test/test.pdf');
         //this.readMetaAsync('../pdf-meta-test.pdf');
       }
@@ -231,17 +236,17 @@ vueContainer = new Vue({
         let path = this.state.csvObj.dir;
         let extension = this.getExtension(name);
 
-        doc['-id'] = indx;
-        doc['-path'] = name;
-        doc['-fullPath'] = `${path}${name}`;
+        doc['zzz_id'] = indx;
+        doc['zzz_path'] = name;
+        doc['zzz_fullPath'] = `${path}${name}`;
         if(name){
-          doc['-fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
+          doc['zzz_fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
         }else{
-          doc['-fileLink'] = `<a class="bad-link">${name}</a>`;
+          doc['zzz_fileLink'] = `<a class="bad-link">${name}</a>`;
         }
-        doc['-extension'] = extension;
-        doc['-icon'] = this.getIcon(extension);
-        doc['-processedStatus'] = null;
+        doc['zzz_extension'] = extension;
+        doc['zzz_icon'] = this.getIcon(extension);
+        doc['zzz_processedStatus'] = null;
         return doc;
       });
 
@@ -288,7 +293,7 @@ vueContainer = new Vue({
 
       for(let i = 0, len = arr.length; i < len; i++){
         data = {};
-        filePath = arr[i]['-fullPath']; //icon to empty file if this is empty
+        filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
 
         if(!filePath){ continue; }
 
@@ -306,15 +311,22 @@ vueContainer = new Vue({
 
             data[arrKey].push(`${propName}:${arr[i][key]}`);
 
-          }else if(!key.startsWith('-') && arr[i][key]){
+          }else if(!key.startsWith('zzz_') && arr[i][key]){
             data[key] = arr[i][key];
           }else if(arr[i][key] === 'DELETE'){
             data[key] = '';
           }
         });
 
+        this.state.step = 3;
         this.updateMeta(filePath, data, i);
       }
+    },
+    //update the status flag of items that were updated
+    updateListItemStatus(indx, updateStatus){
+      let itemToUpdate = Object.assign({}, this.state.data[indx]);
+      itemToUpdate.zzz_processedStatus = updateStatus;
+      vueContainer.$set(this.state.data, indx, itemToUpdate);
     },
     //write to file with exiftool
     updateMeta(filePath, data, indx){

@@ -38,28 +38,28 @@
           </a>
         </div>
 
-        <div v-if="state.page.showFileList" class="chosen-file">
+        <div v-if="state.page.showFileList && state.step < 3" class="chosen-file">
           Process "{{state.csvObj.name}}"?
         </div>
-        <div v-if="state.page.showFileList" class="chosen-file">
+        <div v-if="state.page.showFileList && state.step < 3" class="chosen-file">
           <a href="#" id="processFileButton" title="Process Tags" @click.prevent="updateFiles">
             <i class="fa fa-play"></i>
           </a>
         </div>
         <div v-if="state.page.showFileList" class="row" v-for="doc in state.data">
-          <span v-html="doc['-icon']" class="{ processed: doc['-processedStatus'] }"></span>
+          <span v-html="doc.zzz_icon" :class="{ 'processed' : doc.zzz_processedStatus }"></span>
           <ul>
             <li>
-              <strong>Title ({{Number.parseInt(doc['-id'], 10) + 1}}):</strong> 
+              <strong>Title ({{Number.parseInt(doc.zzz_id, 10) + 1}}):</strong> 
               {{doc.Title}}
             </li>
             <li>
               <strong>Description:</strong> 
               {{doc.Description}}
             </li>
-            <li v-if="doc['-extension'] === 'pdf'" v-html="doc['-fileLink']"></li>
-            <li v-else="doc['-extension'] === 'pdf'">
-              <a href="#" target="_blank" @click.prevent="openWithShell(doc['-fullPath'])">{{doc['-path']}}</a>
+            <li v-if="doc.zzz_extension === 'pdf'" v-html="doc.zzz_fileLink"></li>
+            <li v-else="doc.zzz_extension === 'pdf'">
+              <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
             </li>
           </ul>
         </div>
