@@ -5,12 +5,9 @@ const name = require('./package.json').displayName;
 const path = require('path');
 const url = require('url');
 
-console.log(version);
-
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 
-//verify request below. Cant pass main to renderer
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   ep.open()
     .then(() => ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original']))
