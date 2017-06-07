@@ -85,7 +85,13 @@ vueContainer = new Vue({
         showFileList: false,
         showHelp: true
       },
-      data: []
+      data: [],
+      info: [
+        { name: 'Source', value: 'No file selected' },
+        { name: 'Count', value: 0 },
+        { name: 'Processed', value: 0 },
+        { name: 'Errors', value: 0 }
+      ]
     },
     buttons: [
       {
