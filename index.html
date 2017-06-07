@@ -46,19 +46,15 @@
             <i class="fa fa-play"></i>
           </a>
         </div>
-        <div v-if="state.page.showFileList" class="row" v-for="doc in state.data">
-          <span v-html="doc.zzz_icon" :class="{ 'processed' : doc.zzz_processedStatus }"></span>
+        <div v-if="state.page.showFileList" :class="{ 'row': true, 'processed': doc.zzz_processedStatus }" v-for="doc in state.data">
+          <span v-html="doc.zzz_icon"></span>
           <ul>
-            <li>
-              <strong>Title ({{Number.parseInt(doc.zzz_id, 10) + 1}}):</strong> 
-              {{doc.Title}}
-            </li>
-            <li>
-              <strong>Description:</strong> 
-              {{doc.Description}}
+            <li v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
+              <strong>{{key}} <span v-if="indx === 0">({{Number.parseInt(doc.zzz_id, 10) + 1}})</span>:</strong> 
+              {{doc[key]}}
             </li>
             <li v-if="doc.zzz_extension === 'pdf'" v-html="doc.zzz_fileLink"></li>
-            <li v-else="doc.zzz_extension === 'pdf'">
+            <li v-else>
               <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
             </li>
           </ul>

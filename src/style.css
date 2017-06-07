@@ -103,12 +103,17 @@ i.fa-file-powerpoint-o{
   position: relative;
   background-color: #fff;
   border-radius: 4px;
+  border: 2px solid #fff;
   margin: 15px 60px;
   padding: 20px;
   font-size: 1.0em;
   -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
   -moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
   box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
+}
+
+.row.processed{
+  border: 2px solid lightgreen;
 }
 
 .row ul{
