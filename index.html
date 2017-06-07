@@ -62,9 +62,13 @@
 
       </div>
 
-      <div id="info">
+      <div id="info" class="info">
         <i class="fa fa-info-circle"></i>
-        <span class="content"></span>
+        <ul class="content">
+          <li v-for="item in state.info">
+            <span>{{item.name}}</span>: {{item.value}}
+          </li>
+        </ul>
       </div>
     </div>
   </body>

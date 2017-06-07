@@ -86,12 +86,12 @@ vueContainer = new Vue({
         showHelp: true
       },
       data: [],
-      info: [
-        { name: 'Source', value: 'No file selected' },
-        { name: 'Count', value: 0 },
-        { name: 'Processed', value: 0 },
-        { name: 'Errors', value: 0 }
-      ]
+      info: {
+        sourceFile: { name: 'Source', value: 'No file selected' },
+        fileCount: { name: 'File Count', value: 0 },
+        filesProcessed: { name: 'Files Updated', value: 0 },
+        filesSkipped: { name: 'Files Skipped', value: 0 }
+      }
     },
     buttons: [
       {
@@ -121,6 +121,7 @@ vueContainer = new Vue({
     //saves a copy of the data from the selected csv to state
     cacheFile(data){
       this.state.csvCache = data;
+      this.state.info.fileCount.value = data.length;
     },
     //routing. determines what info to display
     changePage(selection){
@@ -185,7 +186,8 @@ vueContainer = new Vue({
          dir: dir,
          size: size
        };
-
+      
+      this.state.info.sourceFile.value = name;
       this.changePage('showImporter');
     },
     //handles/routes clicks on the nav bar
@@ -333,6 +335,11 @@ vueContainer = new Vue({
       let itemToUpdate = Object.assign({}, this.state.data[indx]);
       itemToUpdate.zzz_processedStatus = updateStatus;
       vueContainer.$set(this.state.data, indx, itemToUpdate);
+      if(updateStatus){
+        this.state.info.filesProcessed.value++;
+      }else{
+        this.state.info.filesProcessed.value--;
+      }
     },
     //write to file with exiftool
     updateMeta(filePath, data, indx){

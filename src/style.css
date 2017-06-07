@@ -93,10 +93,27 @@ i.fa-file-powerpoint-o{
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 5px 20px;
+  padding: 5px 20px 7px;
   font-size: 1.1em;
   background-color: #007ACC;
   color: #fff;
+}
+
+.info .content{
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  list-style: none;
+}
+
+.info li{
+  display: inline-block;
+  font-size: 0.85em;
+  margin-left: 2.5em;
+}
+
+.info li:first-child{
+  margin-left: 1em;
 }
 
 .row{
