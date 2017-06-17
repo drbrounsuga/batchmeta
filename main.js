@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const exiftool = require('node-exiftool');
 const version = require('./package.json').version;
 const name = require('./package.json').displayName;
@@ -7,7 +7,48 @@ const url = require('url');
 
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
+const mainMenuTemplate = [
+  {
+    label: 'File',
+    submenu:[
+      {
+        label: 'Import CSV',
+        click(){ mainWindow.webContents.send('import-csv') }
+      }
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [
+      {role: 'togglefullscreen'},
+      {role: 'minimize'},
+      {type: 'separator'},
+      {role: 'reload'},
+      {type: 'separator'},
+      {role: 'close'}
+    ]
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Learn More',
+        click(){ require('electron').shell.openExternal('https://electron.atom.io') }
+      }
+    ]
+  }
+];
 
+if(process.env.NODE_ENV !== 'production'){
+  mainMenuTemplate.push({
+    label: 'Development',
+    submenu: [
+      {role: 'toggledevtools'}
+    ]
+  });
+}
+
+//events
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   ep.open()
     .then(() => ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original']))
@@ -38,15 +79,16 @@ ipcMain.on('get-title', (event) => {
   event.sender.send('get-title-reply', res);
 });
 
-function createWindow(){
-  // Create the browser window.
+
+//app
+app.on('ready', () => {
+  
   mainWindow = new BrowserWindow({
     width: 850, 
     minWidth: 850,
     height: 550, 
     minHeight: 550,
-    backgroundColor: '#333333',
-    autoHideMenuBar: true
+    backgroundColor: '#333333'
   });
 
   mainWindow.loadURL(url.format({
@@ -55,23 +97,22 @@ function createWindow(){
     slashes: true
   }));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  const menu = Menu.buildFromTemplate(mainMenuTemplate);
+  Menu.setApplicationMenu(menu);
 
-  mainWindow.on('closed', function(){
+  mainWindow.on('closed', () => {
     mainWindow = null;
   });
-}
 
-app.on('ready', createWindow);
+});
 
-app.on('window-all-closed', function(){
+app.on('window-all-closed', () => {
   if (process.platform !== 'darwin'){
     app.quit();
   }
 });
 
-app.on('activate', function(){
+app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }

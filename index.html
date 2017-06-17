@@ -15,7 +15,7 @@
         </a>
         <div class="message" v-html="state.errorMessage"></div>
       </div>
-      <input type="file" id="file-input" @change="getInputFile">
+      <input type="file" id="file-input" accept=".csv" multiple="false" @change="getInputFile">
 
       <div class="menu">
         <ul>

@@ -54,6 +54,11 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   }
 });
 
+ipcRenderer.on('import-csv', (event) => {
+  //vueContainer.handleButtonClicks('upload');
+  alert('fix this!');
+});
+
 ipcRenderer.on('reload-reply', (event, res) => {
   if(res.error){
     vueContainer.updateErrorMessage(res.error);
