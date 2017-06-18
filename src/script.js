@@ -81,6 +81,16 @@ ipcRenderer.on('get-title-reply', (event, res) => {
   }
 });
 
+//prevent drag and drop files
+window.addEventListener("dragover", (e) => {
+  e = e || event;
+  e.preventDefault();
+}, false);
+window.addEventListener("drop", (e) => {
+  e = e || event;
+  e.preventDefault();
+}, false);
+
 //Vue Components
 //================================
 vueContainer = new Vue({
@@ -120,13 +130,6 @@ vueContainer = new Vue({
         class: 'fa fa-refresh',
         action: 'clear',
         displayOnStep: 1
-      },
-      {
-        id: 'helpButton',
-        title: 'Help',
-        class: 'fa fa-question',
-        action: 'help',
-        displayOnStep: 0
       }
     ]
   },
@@ -210,10 +213,6 @@ vueContainer = new Vue({
         document.getElementById('file-input').click();
       }else if(action === 'clear'){
         ipcRenderer.send('reload');
-      }else if(action === 'help'){
-        console.log('help button clicked');
-        this.readMetaAsync('./test/test.pdf');
-        //this.readMetaAsync('../pdf-meta-test.pdf');
       }
     },
     //translates the selected csv into a file list preview
