@@ -54,9 +54,17 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   }
 });
 
-ipcRenderer.on('import-csv', (event) => {
-  //vueContainer.handleButtonClicks('upload');
-  alert('fix this!');
+ipcRenderer.on('test-read-file', (event) => {
+  console.log('Test file being read...');
+  vueContainer.readMetaAsync('./test/test.pdf');
+});
+
+ipcRenderer.on('help-show', (event) => {
+  alert('show help files');
+});
+
+ipcRenderer.on('download-template', (event) => {
+  alert('download template');
 });
 
 ipcRenderer.on('reload-reply', (event, res) => {

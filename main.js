@@ -10,10 +10,10 @@ let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 const mainMenuTemplate = [
   {
     label: 'File',
-    submenu:[
-      {
-        label: 'Import CSV',
-        click(){ mainWindow.webContents.send('import-csv') }
+    submenu: [
+      { 
+        label: 'Download CSV Template',
+        click(){ mainWindow.webContents.send('download-template'); }
       }
     ]
   },
@@ -33,7 +33,7 @@ const mainMenuTemplate = [
     submenu: [
       {
         label: 'Learn More',
-        click(){ require('electron').shell.openExternal('https://electron.atom.io') }
+        click(){ mainWindow.webContents.send('help-show'); }
       }
     ]
   }
@@ -43,6 +43,11 @@ if(process.env.NODE_ENV !== 'production'){
   mainMenuTemplate.push({
     label: 'Development',
     submenu: [
+      {
+        label: 'Read File Test',
+        click(){ mainWindow.webContents.send('test-read-file'); }
+      },
+      {type: 'separator'},
       {role: 'toggledevtools'}
     ]
   });
@@ -79,7 +84,6 @@ ipcMain.on('get-title', (event) => {
   event.sender.send('get-title-reply', res);
 });
 
-
 //app
 app.on('ready', () => {
   
@@ -88,7 +92,8 @@ app.on('ready', () => {
     minWidth: 850,
     height: 550, 
     minHeight: 550,
-    backgroundColor: '#333333'
+    backgroundColor: '#333333',
+    webPreferences: { backgroundThrottling: false }
   });
 
   mainWindow.loadURL(url.format({
