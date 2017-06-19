@@ -15,17 +15,18 @@
         </a>
         <div class="message" v-html="state.errorMessage"></div>
       </div>
-      <input type="file" id="file-input" accept=".csv" multiple="false" @change="getInputFile">
 
-      <div class="menu">
-        <ul>
-          <li v-for="button in buttons" v-if="state.step >= button.displayOnStep">
-            <a href="#" :id="button.id" :title="button.title" @click="handleButtonClicks(button.action)">
-              <i :class="button.class"></i>
-            </a>
-          </li>
-        </ul>
+
+      <div class="dropzone-area" @dragenter="hovering = true" @dragleave="hovering = false" :class="{'hovered': hovering}">
+        <div class="dropzone-text">
+          <span class="dropzone-title">Drop CSV here or click to select</span>
+          <span class="dropzone-info" v-text="help"></span>
+        </div>
+        <input type="file" accept=".csv" multiple="false" @change="getInputFile">
       </div>
+
+
+
 
       <div id="list">
 

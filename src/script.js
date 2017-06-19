@@ -84,11 +84,16 @@ ipcRenderer.on('get-title-reply', (event, res) => {
 //prevent drag and drop files
 window.addEventListener("dragover", (e) => {
   e = e || event;
-  e.preventDefault();
+  if(e.target.type !== 'file'){
+    e.preventDefault();
+  }
 }, false);
+
 window.addEventListener("drop", (e) => {
   e = e || event;
-  e.preventDefault();
+  if(e.target.type !== 'file'){
+    e.preventDefault();
+  }
 }, false);
 
 //Vue Components
@@ -96,6 +101,8 @@ window.addEventListener("drop", (e) => {
 vueContainer = new Vue({
   el: '.container',
   data: {
+    hovering: false,
+    help: 'Specific requirements for this dropzone',
     state: {
       title: '...',
       csvObj: null,
@@ -190,10 +197,12 @@ vueContainer = new Vue({
     },
     //reads the selected csv in as an object then updates the view
     getInputFile(e){
-      if(e.target.files.length < 1){
-        return;
+      let fileList = e.target.files;
+      if(fileList.length < 1 || !fileList[0].name.endsWith('.csv')){
+        return false;
       }
-      let { name, path, size } = e.target.files[0];
+
+      let { name, path, size } = fileList[0];
       let pathLength = path.length - name.length;
       let dir = path.slice(0, pathLength);
       this.state.csvObj = {
