@@ -16,19 +16,22 @@
         <div class="message" v-html="state.errorMessage"></div>
       </div>
 
-
-      <div class="dropzone-area" @dragenter="hovering = true" @dragleave="hovering = false" :class="{'hovered': hovering}">
-        <div class="dropzone-text">
-          <span class="dropzone-title">Drop CSV here or click to select</span>
-          <span class="dropzone-info" v-text="help"></span>
+      <!-- @dragend check file and reset hovering, event need to bubble if dropped on text  -->
+      <div class="dropzone-area drop" 
+                  @dragover="hovering = true" 
+                  @dragleave="hovering = false" 
+                  @dragend="hovering = false" 
+                  :class="{'hovered': hovering}">
+        <div class="dropzone-text drop">
+          <span class="dropzone-title drop">Drop csv here or click to select</span>
+          <span class="dropzone-info drop" v-text="help"></span>
         </div>
         <input type="file" accept=".csv" multiple="false" @change="getInputFile">
       </div>
 
 
 
-
-      <div id="list">
+      <div id="list" style="border: 1px solid red; top: 30%;">
 
         <div v-if="state.page.showImporter" class="chosen-file">
           import "{{state.csvObj.name}}"?

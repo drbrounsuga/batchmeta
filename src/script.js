@@ -102,7 +102,7 @@ vueContainer = new Vue({
   el: '.container',
   data: {
     hovering: false,
-    help: 'Specific requirements for this dropzone',
+    badFile: false,
     state: {
       title: '...',
       csvObj: null,
@@ -199,12 +199,17 @@ vueContainer = new Vue({
     getInputFile(e){
       let fileList = e.target.files;
       if(fileList.length < 1 || !fileList[0].name.endsWith('.csv')){
+        this.hovering = false;
+        this.badFile = true;
         return false;
+      }else{
+        this.badFile = false;
       }
 
       let { name, path, size } = fileList[0];
       let pathLength = path.length - name.length;
       let dir = path.slice(0, pathLength);
+
       this.state.csvObj = {
          name: name,
          path: path,
@@ -366,6 +371,21 @@ vueContainer = new Vue({
     updateMeta(filePath, data, indx){
       ipcRenderer.send('exiftool-write', filePath, data, indx);
       return true;
+    }
+  },
+  computed: {
+    help: function(){
+      let returnString = 'Specific requirements for this dropzone';
+
+      if(this.badFile){
+        this.hovering = false;
+        returnString = 'This is not a valid csv file!!!';
+      }else if(this.state.csvObj && this.state.csvObj.name){
+        this.hovering = true;
+        returnString = `"${this.state.csvObj.name}" has been selected.`;
+      }
+
+      return returnString;
     }
   }
 });

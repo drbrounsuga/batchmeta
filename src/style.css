@@ -206,16 +206,20 @@ i.fa-file-powerpoint-o{
 
 
 .dropzone-area{
-  width: 80%;
-  height: 200px;
   position: relative;
-  margin: 20px auto;
-  border: 2px dashed #CBCBCB;
+  top: 50%;
+  left: 50%;
+  transform: translate( -50%, -55%) scale(1);
+  transition: all 300ms ease-in-out;
+  width: 600px;
+  height: 350px;
+  border: 3px dashed #CBCBCB;
   border-radius: 10px;
 }
 
 .dropzone-area.hovered{
-  border: 2px dashed #2E94C4;
+  border: 3px dashed #2E94C4;
+  transform: translate( -50%, -55%) scale(0.9);
 }
 
 .dropzone-area.hovered .dropzone-title{
@@ -224,13 +228,12 @@ i.fa-file-powerpoint-o{
 
 .dropzone-area input{
   position: absolute;
+  z-index: 10;
   cursor: pointer;
-  top: 0px;
+  top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   opacity: 0;
 }
 
@@ -244,19 +247,17 @@ i.fa-file-powerpoint-o{
 
 .dropzone-text span{
   display: block;
-  font-family: Arial, Helvetica;
-  line-height: 1.9;
 }
 
 .dropzone-title{
-  font-size: 13px;
-  color: #787878;
+  font-size: 28px;
   letter-spacing: 0.4px;
+  line-height: 40px;
+  color: #787878;
 }
 
 .dropzone-info{
-  font-size: 13px;
-  font-size: 0.8125rem;
+  font-size: 18px;
   color: #A8A8A8;
   letter-spacing: 0.4px;
 }
