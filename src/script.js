@@ -33,81 +33,34 @@
 const { ipcRenderer, shell } = require('electron');
 const csv = require('csvtojson');
 const Vue = require('../node_modules/vue/dist/vue.js');
-let vueContainer;
 
-//electron process event listeners
-//================================
-ipcRenderer.on('exiftool-read-reply', (event, res) => {
-  if(res.error){
-    vueContainer.updateErrorMessage(res.error);
-  }else{
-    console.log(res.data[0]);
-  }
+
+window.addEventListener('dragover', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragenter', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragleave', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragend', e =>  $vm.dragcheck(e) );
+
+window.addEventListener('drop', (e) => { 
+  $vm.dragcheck(e);
+  $vm.hovering = false;
 });
 
-ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
-  if(res.error && res.error !== '1 image files updated'){
-    vueContainer.updateErrorMessage(res.error);
-    vueContainer.updateListItemStatus(indx, false);
-  }else{
-    vueContainer.updateListItemStatus(indx, true);
-  }
-});
 
-ipcRenderer.on('test-read-file', (event) => {
-  console.log('Test file being read...');
-  vueContainer.readMetaAsync('./test/test.pdf');
-});
+let $vm;
 
-ipcRenderer.on('help-show', (event) => {
-  alert('show help files');
-});
-
-ipcRenderer.on('download-template', (event) => {
-  alert('download template');
-});
-
-ipcRenderer.on('reload-reply', (event, res) => {
-  if(res.error){
-    vueContainer.updateErrorMessage(res.error);
-  }
-});
-
-ipcRenderer.on('get-title-reply', (event, res) => {
-  if(res.error){
-    vueContainer.updateErrorMessage(res.error);
-  }else{
-    vueContainer.setTitle(res);
-  }
-});
-
-//prevent drag and drop files
-window.addEventListener("dragover", (e) => {
-  e = e || event;
-  if(e.target.type !== 'file'){
-    e.preventDefault();
-  }
-}, false);
-
-window.addEventListener("drop", (e) => {
-  e = e || event;
-  if(e.target.type !== 'file'){
-    e.preventDefault();
-  }
-}, false);
 
 //Vue Components
 //================================
-vueContainer = new Vue({
+$vm = new Vue({
   el: '.container',
   data: {
     hovering: false,
-    badFile: false,
+    message: '',
     state: {
       title: '...',
       csvObj: null,
       csvCache: null,
-      csvMaxSizeMB: 25,
+      csvMaxSizeMB: 30,
       errorMessage: '',
       step: 0,
       page: {
@@ -115,30 +68,9 @@ vueContainer = new Vue({
         showFileList: false,
         showHelp: true
       },
-      data: [],
-      info: {
-        sourceFile: { name: 'Source', value: 'No file selected' },
-        fileCount: { name: 'File Count', value: 0 },
-        filesProcessed: { name: 'Files Updated', value: 0 },
-        filesSkipped: { name: 'Files Skipped', value: 0 }
-      }
-    },
-    buttons: [
-      {
-        id: 'uploadFileButton',
-        title: 'Choose File',
-        class: 'fa fa-plus',
-        action: 'upload',
-        displayOnStep: 0
-      },
-      {
-        id: 'restartButton',
-        title: 'Clear Selections',
-        class: 'fa fa-refresh',
-        action: 'clear',
-        displayOnStep: 1
-      }
-    ]
+      step: 0,
+      data: []
+    }
   },
   methods: {
     //saves a copy of the data from the selected csv to state
@@ -161,6 +93,15 @@ vueContainer = new Vue({
 
       this.state.page = newPage;
     },
+    //drag and drop field validation
+    dragcheck(e){
+      if(e.target.type === 'file'){
+        this.hovering = true;
+      }else{
+        e.preventDefault();
+        this.hovering = false;
+      }
+    },
     //gets the extension of imported files
     getExtension(fileName){
       if(!fileName){
@@ -176,15 +117,6 @@ vueContainer = new Vue({
           case 'pdf':
             fileType = 'file-pdf-o';
             break;
-          case 'xls':
-            fileType = 'file-excel-o';
-            break;
-          case 'doc':
-            fileType = 'file-word-o';
-            break;
-          case 'ppt':
-            fileType = 'file-powerpoint-o';
-            break;
           case null:
            fileType = 'chain-broken';
            break;
@@ -197,18 +129,26 @@ vueContainer = new Vue({
     },
     //reads the selected csv in as an object then updates the view
     getInputFile(e){
-      let fileList = e.target.files;
-      if(fileList.length < 1 || !fileList[0].name.endsWith('.csv')){
-        this.hovering = false;
-        this.badFile = true;
-        return false;
-      }else{
-        this.badFile = false;
+      let { name, path, size } = e.target.files[0];
+      let message;
+      let pathLength;
+      let dir;
+
+      if(!name.endsWith('.csv')){
+        message = 'file must be a csv';
+      }else if(size >= this.csvMaxSizeMB * 1000000){
+        message = `file must be less than ${this.csvMaxSizeMB}MB`;
       }
 
-      let { name, path, size } = fileList[0];
-      let pathLength = path.length - name.length;
-      let dir = path.slice(0, pathLength);
+      if(message){
+        this.message = message;
+        document.querySelector('.drop-box').reset();
+        this.state.csvObj = null;
+        return false;
+      }
+
+      pathLength = path.length - name.length;
+      dir = path.slice(0, pathLength);
 
       this.state.csvObj = {
          name: name,
@@ -216,9 +156,8 @@ vueContainer = new Vue({
          dir: dir,
          size: size
        };
-      
-      this.state.info.sourceFile.value = name;
-      this.changePage('showImporter');
+
+      this.message = `"${name}" has been selected!`;
     },
     //handles/routes clicks on the nav bar
     handleButtonClicks(action){
@@ -360,7 +299,7 @@ vueContainer = new Vue({
     updateListItemStatus(indx, updateStatus){
       let itemToUpdate = Object.assign({}, this.state.data[indx]);
       itemToUpdate.zzz_processedStatus = updateStatus;
-      vueContainer.$set(this.state.data, indx, itemToUpdate);
+      $vm.$set(this.state.data, indx, itemToUpdate);
       if(updateStatus){
         this.state.info.filesProcessed.value++;
       }else{
@@ -374,19 +313,64 @@ vueContainer = new Vue({
     }
   },
   computed: {
-    help: function(){
-      let returnString = 'Specific requirements for this dropzone';
-
-      if(this.badFile){
-        this.hovering = false;
-        returnString = 'This is not a valid csv file!!!';
-      }else if(this.state.csvObj && this.state.csvObj.name){
-        this.hovering = true;
-        returnString = `"${this.state.csvObj.name}" has been selected.`;
-      }
-
-      return returnString;
+    info: function(){
+      return {
+        sourceFile: { 
+          name: 'Source', 
+          value: this.state.csvObj && this.state.csvObj.name || 'No file selected' 
+        },
+        fileCount: { name: 'File Count', value: 0 },
+        filesProcessed: { name: 'Files Updated', value: 0 },
+        filesSkipped: { name: 'Files Skipped', value: 0 }
+      };
     }
+  }
+});
+
+
+//electron process event listeners
+//================================
+ipcRenderer.on('exiftool-read-reply', (event, res) => {
+  if(res.error){
+    $vm.updateErrorMessage(res.error);
+  }else{
+    console.log(res.data[0]);
+  }
+});
+
+ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
+  if(res.error && res.error !== '1 image files updated'){
+    $vm.updateErrorMessage(res.error);
+    $vm.updateListItemStatus(indx, false);
+  }else{
+    $vm.updateListItemStatus(indx, true);
+  }
+});
+
+ipcRenderer.on('test-read-file', (event) => {
+  console.log('Test file being read...');
+  $vm.readMetaAsync('./test/test.pdf');
+});
+
+ipcRenderer.on('help-show', (event) => {
+  alert('show help files');
+});
+
+ipcRenderer.on('download-template', (event) => {
+  alert('download template');
+});
+
+ipcRenderer.on('reload-reply', (event, res) => {
+  if(res.error){
+    $vm.updateErrorMessage(res.error);
+  }
+});
+
+ipcRenderer.on('get-title-reply', (event, res) => {
+  if(res.error){
+    $vm.updateErrorMessage(res.error);
+  }else{
+    $vm.setTitle(res);
   }
 });
 

@@ -16,22 +16,25 @@
         <div class="message" v-html="state.errorMessage"></div>
       </div>
 
-      <!-- @dragend check file and reset hovering, event need to bubble if dropped on text  -->
-      <div class="dropzone-area drop" 
-                  @dragover="hovering = true" 
-                  @dragleave="hovering = false" 
-                  @dragend="hovering = false" 
-                  :class="{'hovered': hovering}">
-        <div class="dropzone-text drop">
-          <span class="dropzone-title drop">Drop csv here or click to select</span>
-          <span class="dropzone-info drop" v-text="help"></span>
+
+      <form class="drop-box" :class="{ hovered: hovering }">
+        <div class="drop-zone">
+          <div class="drop-info">
+            <label>Drop csv here or click to select</label>
+            <div class="help" v-text="message"></div>
+          </div>
+          <input type="file" class="file" multiple="false" accept=".csv" @change="getInputFile">
         </div>
-        <input type="file" accept=".csv" multiple="false" @change="getInputFile">
-      </div>
+        <button class="next" 
+                :class="{ active: state.csvObj }" 
+                v-if="state.csvObj && state.csvObj.name"
+                @click.prevent="changePage('showImporter')"><i class="fa fa-arrow-circle-o-right fa-4x"></i></button>
+      </form>
+ 
 
 
 
-      <div id="list" style="border: 1px solid red; top: 30%;">
+      <div id="list" style="border: 1px solid red; top: 30%;" v-if="false">
 
         <div v-if="state.page.showImporter" class="chosen-file">
           import "{{state.csvObj.name}}"?
@@ -69,7 +72,7 @@
       <div id="info" class="info">
         <i class="fa fa-info-circle"></i>
         <ul class="content">
-          <li v-for="item in state.info">
+          <li v-for="item in info">
             <span>{{item.name}}</span>: {{item.value}}
           </li>
         </ul>

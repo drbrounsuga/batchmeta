@@ -155,7 +155,7 @@ i.fa-file-powerpoint-o{
 
 #list{
   position: relative;
-  padding: 100px 0 300px;
+  padding: 100px 0;
   list-style: none;
 }
 
@@ -198,67 +198,74 @@ i.fa-file-powerpoint-o{
 
 
 
-
-
-
-
-
-
-
-.dropzone-area{
+.drop-box{
   position: relative;
-  top: 50%;
-  left: 50%;
-  transform: translate( -50%, -55%) scale(1);
-  transition: all 300ms ease-in-out;
   width: 600px;
-  height: 350px;
-  border: 3px dashed #CBCBCB;
-  border-radius: 10px;
+  height: 250px;
+  transform: translateY(50px);
+  padding: 10px;
+  margin: 0 auto;
+  background-color: #C8DADF;
 }
 
-.dropzone-area.hovered{
-  border: 3px dashed #2E94C4;
-  transform: translate( -50%, -55%) scale(0.9);
+.drop-box.hovered{
+  background-color: #fff;
 }
 
-.dropzone-area.hovered .dropzone-title{
-  color: #1975A0;
+.drop-box .help{
+  margin-top: 6px;
+  font-size: 18px;
 }
 
-.dropzone-area input{
+.drop-box label{
+  font-size: 28px;
+}
+
+.drop-zone{
+  position: relative;
+  width: 580px;
+  height: 230px;
+  border: 2px dashed #93B0B3;
+  transform: scale(1);
+  transition: transform 300ms ease-in-out;
+}
+
+.hovered .drop-zone{
+  transform: scale(0.98);
+}
+
+.drop-info{
   position: absolute;
-  z-index: 10;
-  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 20px;
+  width: 100%;
+  color: #93B0B3;
+  font-size: 20px;
+  text-align: center;
+  line-height: 25px;
+  font-weight: bold;
+}
+
+.file{
+  position: absolute;
   top: 0;
-  right: 0;
   bottom: 0;
   left: 0;
+  width: 100%;
   opacity: 0;
 }
 
-.dropzone-text{
+.next{
   position: absolute;
-  top: 50%;
-  text-align: center;
-  transform: translate(0, -50%);
-  width: 100%;
+  left: 50%;
+  bottom: -40%;
+  transform: translateX(-50%);
+  color: #1D9E74;
+  background-color: transparent;
+  border: none;
 }
 
-.dropzone-text span{
-  display: block;
+.next:hover{
+  cursor: pointer;
 }
-
-.dropzone-title{
-  font-size: 28px;
-  letter-spacing: 0.4px;
-  line-height: 40px;
-  color: #787878;
-}
-
-.dropzone-info{
-  font-size: 18px;
-  color: #A8A8A8;
-  letter-spacing: 0.4px;
-}
-
