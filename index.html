@@ -9,15 +9,15 @@
   </head>
   <body>
     <div class="container">
-      <div v-if="state.errorMessage !== ''" class="error-message">
+      <div v-if="errorMessage !== ''" class="error-message">
         <a href="#" id="close-error" title="Close message" @click.prevent="updateErrorMessage('')">
           <i class="fa fa-times"></i>
         </a>
-        <div class="message" v-html="state.errorMessage"></div>
+        <div class="message" v-html="errorMessage"></div>
       </div>
 
-
-      <form class="drop-box" :class="{ hovered: hovering }">
+      <!-- start upload -->
+      <form class="drop-box" :class="{ hovered: hovering }" v-if="page <= 2">
         <div class="drop-zone">
           <div class="drop-info">
             <label>Drop csv here or click to select</label>
@@ -26,34 +26,47 @@
           <input type="file" class="file" multiple="false" accept=".csv" @change="getInputFile">
         </div>
         <button class="next" 
-                :class="{ active: state.csvObj }" 
-                v-if="state.csvObj && state.csvObj.name"
-                @click.prevent="changePage('showImporter')"><i class="fa fa-arrow-circle-o-right fa-4x"></i></button>
+                :class="{ active: csvName }" 
+                v-if="page === 2 && csvName"
+                @click.prevent="preview"><i class="fa fa-arrow-circle-o-right fa-4x button-hover"></i></button>
       </form>
+      <!-- end upload -->
+
+      <!-- start import data -->
+      <div class="import-page" v-if="page === 3">
+        <template v-if="csvCache">
+          <div class="chosen-file">
+            import "<strong>{{csvName || 'testing123.js'}}</strong>"?
+          </div>
+          <div>
+            <a href="#" @click.prevent="importFile">
+              <i class="fa fa-upload fa-4x button-hover"></i>
+            </a>
+          </div>
+        </template>
+        <template v-else>
+          <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+          <span class="sr-only">Loading...</span>
+        </template>
+      </div>
+      <!-- end import data -->
  
 
 
 
       <div id="list" style="border: 1px solid red; top: 30%;" v-if="false">
 
-        <div v-if="state.page.showImporter" class="chosen-file">
-          import "{{state.csvObj.name}}"?
-        </div>
-        <div v-if="state.page.showImporter" class="chosen-file">
-          <a href="#" id="importFileButton" title="Import File" @click.prevent="importFile">
-            <i class="fa fa-upload"></i>
-          </a>
-        </div>
+        
 
-        <div v-if="state.page.showFileList && state.step < 3" class="chosen-file">
-          Process "{{state.csvObj.name}}"?
+        <div v-if="false" class="chosen-file">
+          Process "{{csvName}}"?
         </div>
-        <div v-if="state.page.showFileList && state.step < 3" class="chosen-file">
+        <div v-if="false" class="chosen-file">
           <a href="#" id="processFileButton" title="Process Tags" @click.prevent="updateFiles">
             <i class="fa fa-play"></i>
           </a>
         </div>
-        <div v-if="state.page.showFileList" :class="{ 'row': true, 'processed': doc.zzz_processedStatus }" v-for="doc in state.data">
+        <div v-if="false" :class="{ 'row': true, 'processed': doc.zzz_processedStatus }" v-for="doc in data">
           <span v-html="doc.zzz_icon"></span>
           <ul>
             <li v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">

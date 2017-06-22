@@ -54,46 +54,28 @@ let $vm;
 $vm = new Vue({
   el: '.container',
   data: {
+    errorMessage: '',
+    csvCache: null,
+    csvDir: null,
+    csvFileCount: 0,
+    csvFilesProcessed: 0,
+    csvMaxSizeMB: 30,
+    csvName: null,
+    csvPath: null,
+    csvSize: null,
+    data: [],
     hovering: false,
     message: '',
-    state: {
-      title: '...',
-      csvObj: null,
-      csvCache: null,
-      csvMaxSizeMB: 30,
-      errorMessage: '',
-      step: 0,
-      page: {
-        showImporter: false,
-        showFileList: false,
-        showHelp: true
-      },
-      step: 0,
-      data: []
-    }
+    page: 1,
+    title: '...'
   },
   methods: {
     //saves a copy of the data from the selected csv to state
     cacheFile(data){
-      this.state.csvCache = data;
-      this.state.info.fileCount.value = data.length;
+      this.csvCache = data;
+      this.info.fileCount.value = data.length;//###############
     },
-    //routing. determines what info to display
-    changePage(selection){
-      let keys = Object.keys(this.state.page);
-      let newPage = {};
-
-      keys.forEach(function(key, indx){
-        if(key === selection){
-          newPage[key] = true;
-        }else{
-          newPage[key] = false;
-        }
-      });
-
-      this.state.page = newPage;
-    },
-    //drag and drop field validation
+    //*drag and drop field validation
     dragcheck(e){
       if(e.target.type === 'file'){
         this.hovering = true;
@@ -127,7 +109,7 @@ $vm = new Vue({
       return `
       <i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
     },
-    //reads the selected csv in as an object then updates the view
+    //*reads the selected csv in as an object then updates the view
     getInputFile(e){
       let { name, path, size } = e.target.files[0];
       let message;
@@ -143,70 +125,64 @@ $vm = new Vue({
       if(message){
         this.message = message;
         document.querySelector('.drop-box').reset();
-        this.state.csvObj = null;
+        this.csvName = null;
+        this.csvPath = null;
+        this.csvDir = null;
+        this.csvSize = null;
         return false;
       }
 
       pathLength = path.length - name.length;
       dir = path.slice(0, pathLength);
 
-      this.state.csvObj = {
-         name: name,
-         path: path,
-         dir: dir,
-         size: size
-       };
-
+      this.csvName = name;
+      this.csvPath = path;
+      this.csvDir = dir;
+      this.csvSize = size;
       this.message = `"${name}" has been selected!`;
-    },
-    //handles/routes clicks on the nav bar
-    handleButtonClicks(action){
-      if(action === 'upload'){
-        this.state.step = 1;
-        document.getElementById('file-input').click();
-      }else if(action === 'clear'){
-        ipcRenderer.send('reload');
-      }
+      this.page = 2;
     },
     //translates the selected csv into a file list preview
     importFile(){
-      let errorMessage = '';     
-      let { path, name, size } = this.state.csvObj;
+      let errorMessage = '';
 
-      if(!path){
+      if(!this.csvPath){
         errorMessage = "File required: You must select a file";
-      }else if(!name.endsWith('.csv')){
+      }else if(!this.csvName.endsWith('.csv')){
         errorMessage = `Invalid extension: File must end with ".csv"`;
-      }else if(size > this.state.csvMaxSizeMB * 1000000){
-        errorMessage = `File too big: Please limit files to ${this.state.csvMaxSizeMB}MB`;
+      }else if(this.csvSize > this.csvMaxSizeMB * 1000000){
+        errorMessage = `File too big: Please limit files to ${this.csvMaxSizeMB}MB`;
       }
 
       this.updateErrorMessage(errorMessage);
 
       if(!errorMessage){
-        this.readCsvData(csv, path)
-          .then((data) => this.cacheFile(data))
-          .then(() => this.processCache())
-          .then(() => this.listFiles());
+        this.readCsvData(csv, this.csvPath)
+          .then((data) => this.cacheFile(data));
       }
     },
     //updates the view to show the file list
     listFiles(){
-      this.state.step = 2;
+      this.page = 2;
       this.changePage('showFileList');
     },
     //opens non-pdf files with the OS's defaul app
     openWithShell(path, extension){
       shell.openItem(path);
     },
+    //
+    preview(){
+      this.page++;
+      this.importFile();
+    },
     //mutates a copy of the selected csv's data for use in processing
     processCache(){
-      this.state.data = this.state.csvCache.map((doc, indx) => {
+      this.data = this.csvCache.map((doc, indx) => {
         //let name = doc['-Path'].replace(/\\/g, "/");
-        //let path = this.state.csvObj.dir.replace(/\\/g, "/");
+        //let path = this.csvDir.replace(/\\/g, "/");
         let name = doc['Path'];
         delete doc['Path'];
-        let path = this.state.csvObj.dir;
+        let path = this.csvDir;
         let extension = this.getExtension(name);
 
         doc['zzz_id'] = indx;
@@ -250,19 +226,19 @@ $vm = new Vue({
     },
     //sets the title of the application
     setTitle(str){
-      this.state.title = str;
+      this.title = str;
       let title = document.getElementById('app-title').innerText = str
     },
     //updates the error message display
     updateErrorMessage(err){
       err = err ? `<strong>Error:</strong> ${err}` : err;
-      this.state.errorMessage = err;
+      this.errorMessage = err;
     },
     //modifies the metadata of all files in the list
     updateFiles(){
       let data;
       let filePath;
-      let arr = this.state.data;
+      let arr = this.data;
 
       for(let i = 0, len = arr.length; i < len; i++){
         data = {};
@@ -291,19 +267,19 @@ $vm = new Vue({
           }
         });
 
-        this.state.step = 3;
+        this.page = 3;
         this.updateMeta(filePath, data, i);
       }
     },
     //update the status flag of items that were updated
     updateListItemStatus(indx, updateStatus){
-      let itemToUpdate = Object.assign({}, this.state.data[indx]);
+      let itemToUpdate = Object.assign({}, this.data[indx]);
       itemToUpdate.zzz_processedStatus = updateStatus;
-      $vm.$set(this.state.data, indx, itemToUpdate);
+      $vm.$set(this.data, indx, itemToUpdate);
       if(updateStatus){
-        this.state.info.filesProcessed.value++;
+        this.info.filesProcessed.value++;//#############
       }else{
-        this.state.info.filesProcessed.value--;
+        this.info.filesProcessed.value--;//#############
       }
     },
     //write to file with exiftool
@@ -317,11 +293,20 @@ $vm = new Vue({
       return {
         sourceFile: { 
           name: 'Source', 
-          value: this.state.csvObj && this.state.csvObj.name || 'No file selected' 
+          value: this.csvName || 'No file selected' 
         },
-        fileCount: { name: 'File Count', value: 0 },
-        filesProcessed: { name: 'Files Updated', value: 0 },
-        filesSkipped: { name: 'Files Skipped', value: 0 }
+        fileCount: { 
+          name: 'File Count', 
+          value: this.csvFileCount || 0 
+        },
+        filesProcessed: { 
+          name: 'Files Updated', 
+          value: this.csvFilesProcessed || 0 
+        },
+        filesSkipped: { 
+          name: 'Files Skipped', 
+          value: this.csvFileCount - this.csvFilesProcessed 
+        }
       };
     }
   }
