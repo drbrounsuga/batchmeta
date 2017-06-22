@@ -64,11 +64,11 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
     .catch(console.error);
 });
 
-ipcMain.on('exiftool-read', (event, filePath) => {
+ipcMain.on('exiftool-read', (event, filePath, indx) => {
   ep.open()
     .then(() => ep.readMetadata(filePath, []))
     .then((res) => {
-      event.sender.send('exiftool-read-reply', res);
+      event.sender.send('exiftool-read-reply', res, indx);
     })
     .then(() => ep.close())
     .catch(console.error);

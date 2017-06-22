@@ -77,7 +77,7 @@ $vm = new Vue({
     //saves a copy of the data from the selected csv to state
     cacheFile(data){
       this.csvCache = data;
-      this.info.fileCount.value = data.length;//###############
+      this.csvFileCount = data.length;
     },
     //*drag and drop field validation
     dragcheck(e){
@@ -148,6 +148,21 @@ $vm = new Vue({
     },
     //translates the selected csv into a file list preview
     importFile(){
+      this.page = 4;
+
+      this.processCache()
+        .then((data) => this.data = data)
+        .then(() => this.readImportedFiles())
+        .then(() => console.log('read each file for old data'))
+        .then(() => console.log('show the list'));
+    },
+    //opens non-pdf files with the OS's defaul app
+    openWithShell(path, extension){
+      shell.openItem(path);
+    },
+    //
+    preview(){
+      this.page++;
       let errorMessage = '';
 
       if(!this.csvPath){
@@ -165,45 +180,41 @@ $vm = new Vue({
           .then((data) => this.cacheFile(data));
       }
     },
-    //updates the view to show the file list
-    listFiles(){
-      this.page = 2;
-      this.changePage('showFileList');
-    },
-    //opens non-pdf files with the OS's defaul app
-    openWithShell(path, extension){
-      shell.openItem(path);
-    },
-    //
-    preview(){
-      this.page++;
-      this.importFile();
-    },
     //mutates a copy of the selected csv's data for use in processing
     processCache(){
-      this.data = this.csvCache.map((doc, indx) => {
-        //let name = doc['-Path'].replace(/\\/g, "/");
-        //let path = this.csvDir.replace(/\\/g, "/");
-        let name = doc['Path'];
-        delete doc['Path'];
-        let path = this.csvDir;
-        let extension = this.getExtension(name);
+      return new Promise((resolve, reject) => {
+        let result;
 
-        doc['zzz_id'] = indx;
-        doc['zzz_path'] = name;
-        doc['zzz_fullPath'] = `${path}${name}`;
-        if(name){
-          doc['zzz_fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
-        }else{
-          doc['zzz_fileLink'] = `<a class="bad-link">${name}</a>`;
+        try{
+          result = this.csvCache.map((doc, indx) => {
+            //let name = doc['-Path'].replace(/\\/g, "/");
+            //let path = this.csvDir.replace(/\\/g, "/");
+            let name = doc['Path'];
+            delete doc['Path'];
+            let path = this.csvDir;
+            let extension = this.getExtension(name);
+
+            doc['zzz_id'] = indx;
+            doc['zzz_path'] = name;
+            doc['zzz_fullPath'] = `${path}${name}`;
+            if(name){
+              doc['zzz_fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
+            }else{
+              doc['zzz_fileLink'] = `<a class="bad-link">${name}</a>`;
+            }
+            doc['zzz_extension'] = extension;
+            doc['zzz_icon'] = this.getIcon(extension);
+            doc['zzz_processedStatus'] = null;
+            doc['zzz_original'] = null;
+            return doc;
+          });
+
+          resolve(result);
+        }catch(e){
+          reject(e);
         }
-        doc['zzz_extension'] = extension;
-        doc['zzz_icon'] = this.getIcon(extension);
-        doc['zzz_processedStatus'] = null;
-        return doc;
-      });
 
-      return true;
+      });
     },
     //reads the csv file in as a json object
     readCsvData(npmModule, csvFilePath){
@@ -223,10 +234,27 @@ $vm = new Vue({
           });
       });
     },
+    //*
+    readImportedFiles(){
+      return new Promise((resolve, reject) => {
+        let data = this.data;
+        let filePath;
+
+        try{
+          for(let i = 0, len = data.length; i < len; i++){
+            filePath = data[i]['zzz_fullPath'];
+            console.log(filePath);
+            this.readMetaAsync('exiftool-read', filePath, i);
+          };
+          resolve(true);
+        }catch(e){
+          reject(e);
+        }
+      });
+    },
     //read file with exiftool
-    readMetaAsync(filePath){
-      ipcRenderer.send('exiftool-read', filePath);
-      return true;
+    readMetaAsync(channel, filePath, indx){
+      ipcRenderer.send(channel, filePath, indx);
     },
     //*reset app to default state
     reset(){
@@ -238,7 +266,7 @@ $vm = new Vue({
         this[key] = vmBackup[key];
       }
     },
-    //sets the title of the application
+    //*sets the title of the application
     setTitle(str){
       this.title = str;
       let title = document.getElementById('app-title').innerText = str
@@ -291,15 +319,14 @@ $vm = new Vue({
       itemToUpdate.zzz_processedStatus = updateStatus;
       $vm.$set(this.data, indx, itemToUpdate);
       if(updateStatus){
-        this.info.filesProcessed.value++;//#############
+        this.csvFilesProcessed++;
       }else{
-        this.info.filesProcessed.value--;//#############
+        this.csvFilesProcessed--;
       }
     },
     //write to file with exiftool
     updateMeta(filePath, data, indx){
       ipcRenderer.send('exiftool-write', filePath, data, indx);
-      return true;
     }
   },
   computed: {
@@ -329,8 +356,34 @@ $vm = new Vue({
 
 //electron process event listeners
 //================================
-ipcRenderer.on('exiftool-read-reply', (event, res) => {
-  if(res.error){
+ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
+  let result;
+  let keys;
+  let key;
+  let oldData = {};
+
+  if(res.error && indx !== -1 || indx !== -1){
+    result = Object.assign({}, $vm.data);
+
+    if(res.error){
+      oldData['title'] = res.error;
+    }else{
+      keys = Object.keys(result[indx]);
+      keys = keys.filter((key) => {
+        return !key.startsWith('zzz_');
+      });
+
+      for(let i = 0, len = keys.length; i < len; i++){
+        key = keys[i].split(':')[0];
+        if(res.data[0].hasOwnProperty(key)){
+          oldData[key] = res.data[0][key];
+        }
+      }
+    }
+
+    result[indx]['zzz_original'] = oldData;
+    $vm.data = result;
+  }else if(res.error){
     $vm.updateErrorMessage(res.error);
   }else{
     console.log(res.data[0]);
@@ -348,7 +401,7 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
 
 ipcRenderer.on('test-read-file', (event) => {
   console.log('Test file being read...');
-  $vm.readMetaAsync('./test/test.pdf');
+  $vm.readMetaAsync('exiftool-read', './test/test.pdf');
 });
 
 ipcRenderer.on('help-show', (event) => {

@@ -32,11 +32,12 @@
       </form>
       <!-- end upload -->
 
-      <!-- start import data -->
-      <div class="import-page" v-if="page === 3">
+      <!-- start preview data -->
+      <div class="preview-page" v-if="page === 3">
         <template v-if="csvCache">
           <div class="chosen-file">
-            import "<strong>{{csvName || 'testing123.js'}}</strong>"?
+            import data from "<strong>{{csvName}}</strong>"?
+            <div>Review info bar below for file information</div>
           </div>
           <div>
             <a href="#" @click.prevent="reset">
@@ -49,7 +50,17 @@
         </template>
         <template v-else>
           <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
-          <span class="sr-only">Loading...</span>
+        </template>
+      </div>
+      <!-- end preview data -->
+
+      <!-- start import data -->
+      <div class="import-page" v-if="page === 4">
+        <template v-if="data">
+          //
+        </template>
+        <template v-else>
+          <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
         </template>
       </div>
       <!-- end import data -->

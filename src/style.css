@@ -172,7 +172,12 @@ i.fa-file-powerpoint-o{
 ================================================================
 */
 
-.import-page{
+a,
+button{
+  outline: none;
+}
+
+.preview-page{
   position: absolute;
   top: 45%;
   transform: translateY(-50%);
@@ -191,7 +196,12 @@ i.fa-file-powerpoint-o{
   color: #93B0B3;
 }
 
-.import-page i{
+.chosen-file div{
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.preview-page i{
   margin: 20px 30px 0;
   color: #1D9E74;
   background-color: transparent;
