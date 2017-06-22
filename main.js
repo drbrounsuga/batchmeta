@@ -109,6 +109,12 @@ app.on('ready', () => {
     mainWindow = null;
   });
 
+  if (process.env.NODE_ENV !== 'production') {
+    require('vue-devtools').install();
+  }else{
+    require('vue-devtools').uninstall();
+  }
+
 });
 
 app.on('window-all-closed', () => {
