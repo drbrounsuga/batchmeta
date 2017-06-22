@@ -39,6 +39,9 @@
             import "<strong>{{csvName || 'testing123.js'}}</strong>"?
           </div>
           <div>
+            <a href="#" @click.prevent="reset">
+              <i class="fa fa-ban fa-4x button-hover"></i>
+            </a>
             <a href="#" @click.prevent="importFile">
               <i class="fa fa-upload fa-4x button-hover"></i>
             </a>

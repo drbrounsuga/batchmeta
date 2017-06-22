@@ -48,27 +48,31 @@ window.addEventListener('drop', (e) => {
 
 let $vm;
 
+const vmOptions = {
+  errorMessage: '',
+  csvCache: null,
+  csvDir: null,
+  csvFileCount: 0,
+  csvFilesProcessed: 0,
+  csvMaxSizeMB: 30,
+  csvName: null,
+  csvPath: null,
+  csvSize: null,
+  data: [],
+  hovering: false,
+  message: '',
+  page: 1,
+  title: '...'
+};
+
+const vmBackup = Object.assign({}, vmOptions);
+
 
 //Vue Components
 //================================
 $vm = new Vue({
   el: '.container',
-  data: {
-    errorMessage: '',
-    csvCache: null,
-    csvDir: null,
-    csvFileCount: 0,
-    csvFilesProcessed: 0,
-    csvMaxSizeMB: 30,
-    csvName: null,
-    csvPath: null,
-    csvSize: null,
-    data: [],
-    hovering: false,
-    message: '',
-    page: 1,
-    title: '...'
-  },
+  data: vmOptions,
   methods: {
     //saves a copy of the data from the selected csv to state
     cacheFile(data){
@@ -223,6 +227,16 @@ $vm = new Vue({
     readMetaAsync(filePath){
       ipcRenderer.send('exiftool-read', filePath);
       return true;
+    },
+    //*reset app to default state
+    reset(){
+      let keys = Object.keys(vmBackup);
+      let key;
+
+      for(let i = 0, len = keys.length; i < len; i++){
+        key = keys[i];
+        this[key] = vmBackup[key];
+      }
     },
     //sets the title of the application
     setTitle(str){
