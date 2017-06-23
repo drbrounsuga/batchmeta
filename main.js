@@ -7,6 +7,7 @@ const url = require('url');
 
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
+console.log(ep._open);
 const mainMenuTemplate = [
   {
     label: 'File',
@@ -65,6 +66,8 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
 });
 
 ipcMain.on('exiftool-read', (event, filePath, indx) => {
+  console.log(ep);
+  
   ep.open()
     .then(() => ep.readMetadata(filePath, []))
     .then((res) => {
