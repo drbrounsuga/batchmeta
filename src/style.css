@@ -115,6 +115,7 @@ i.fa-file-powerpoint-o{
 
 .info li:hover{
   background-color: #49A0DA;
+  cursor: default;
 }
 
 .info li:first-child{
