@@ -7,7 +7,7 @@ const url = require('url');
 
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
-console.log(ep._open);
+
 const mainMenuTemplate = [
   {
     label: 'File',
@@ -56,24 +56,18 @@ if(process.env.NODE_ENV !== 'production'){
 
 //events
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
-  ep.open()
-    .then(() => ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original']))
+  ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original'])
     .then((res) => {
       event.sender.send('exiftool-write-reply', res, indx);
     })
-    .then(() => ep.close())
     .catch(console.error);
 });
 
 ipcMain.on('exiftool-read', (event, filePath, indx) => {
-  console.log(ep);
-  
-  ep.open()
-    .then(() => ep.readMetadata(filePath, []))
+  ep.readMetadata(filePath, [])
     .then((res) => {
       event.sender.send('exiftool-read-reply', res, indx);
     })
-    .then(() => ep.close())
     .catch(console.error);
 });
 
@@ -112,10 +106,13 @@ app.on('ready', () => {
     mainWindow = null;
   });
 
+  ep.open();
+
 });
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin'){
+    ep.close();
     app.quit();
   }
 });
