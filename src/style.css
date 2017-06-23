@@ -36,18 +36,6 @@ i.fa-file-pdf-o{
   color: #E40B0B;
 }
 
-i.fa-file-word-o{
-  color: #295497;
-}
-
-i.fa-file-excel-o{
-  color: #207245;
-}
-
-i.fa-file-powerpoint-o{
-  color: #D14524;
-}
-
 .hide{
   display: none;
 }
@@ -121,6 +109,10 @@ i.fa-file-powerpoint-o{
 .info li:first-child{
   margin-left: 1em;
 }
+
+/*
+================================================================
+*/
 
 .row{
   position: relative;
@@ -204,7 +196,8 @@ button{
 
 .chosen-file div{
   margin-top: 8px;
-  font-size: 16px;
+  font-size: 18px;
+  color: #1D9E74;
 }
 
 .import-page i,
@@ -224,13 +217,15 @@ button{
 }
 
 .drop-box{
-  position: relative;
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 600px;
   height: 250px;
-  transform: translateY(50px);
   padding: 10px;
   margin: 0 auto;
-  background-color: #C8DADF;
+  background-color: #383E4A;
 }
 
 .drop-box.hovered{
@@ -240,6 +235,7 @@ button{
 .drop-box .help{
   margin-top: 6px;
   font-size: 18px;
+  color: #1D9E74;
 }
 
 .drop-box label{
@@ -284,7 +280,7 @@ button{
 .next{
   position: absolute;
   left: 50%;
-  bottom: -40%;
+  bottom: -32%;
   transform: translateX(-50%);
   color: #1D9E74;
   background-color: transparent;
@@ -315,7 +311,7 @@ button{
   top: 30px;
   left: 30px;
   right: 30px;
-  bottom: 190px;
+  bottom: 173px;
   background-color: #222;
   overflow-y: scroll;
 }
@@ -328,14 +324,14 @@ button{
   position: absolute;
   left: 30px;
   right: 30px;
-  bottom: 60px;
-  height: 100px;
+  bottom: 45px;
+  height: 98px;
   text-align: center;
 }
 
 .list-menu div{
   padding: 0 10px 20px 10px;
-  font-size: 22px;
+  font-size: 20px;
   color: #C8DADF;
 }
 
@@ -343,6 +339,10 @@ button{
   margin: 0 30px;
   color: #1D9E74;
   background-color: transparent;
+}
+
+.list-menu strong{
+  color: #1D9E74;
 }
 
 #scroll1::-webkit-scrollbar {
