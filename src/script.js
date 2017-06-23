@@ -50,6 +50,7 @@ let $vm;
 
 const vmOptions = {
   errorMessage: '',
+  conversionStarted: false,
   csvCache: null,
   csvDir: null,
   csvFileCount: 0,
@@ -207,6 +208,8 @@ $vm = new Vue({
             doc['zzz_icon'] = this.getIcon(extension);
             doc['zzz_processedStatus'] = null;
             doc['zzz_original'] = null;
+            doc['zzz_showDetails'] = false;
+            doc['zzz_showOldDetails'] = false;
             return doc;
           });
 
@@ -270,6 +273,12 @@ $vm = new Vue({
     setTitle(str){
       this.title = str;
       let title = document.getElementById('app-title').innerText = str
+    },
+    //*
+    toggleDetails(indx){
+      let obj = Object.assign({}, this.data);
+      obj[indx]['zzz_showDetails'] = !obj[indx]['zzz_showDetails'];
+      this.data = obj;
     },
     //updates the error message display
     updateErrorMessage(err){
@@ -346,7 +355,7 @@ $vm = new Vue({
         },
         filesSkipped: { 
           name: 'Files Skipped', 
-          value: this.csvFileCount - this.csvFilesProcessed 
+          value: this.conversionStarted ? this.csvFileCount - this.csvFilesProcessed : 0
         }
       };
     }
@@ -362,7 +371,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let key;
   let oldData = {};
 
-  if(res.error && indx !== -1 || indx !== -1){
+  if(res.error && indx !== -1 || indx >= 0){
     result = Object.assign({}, $vm.data);
 
     if(res.error){
@@ -403,7 +412,7 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
 
 ipcRenderer.on('test-read-file', (event) => {
   console.log('Test file being read...');
-  $vm.readMetaAsync('exiftool-read', './test/test.pdf');
+  $vm.readMetaAsync('exiftool-read', './test/test.pdf', -1);
 });
 
 ipcRenderer.on('help-show', (event) => {

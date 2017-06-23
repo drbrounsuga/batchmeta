@@ -65,13 +65,25 @@
                   <li class="header">
                     <div v-html="doc.zzz_icon"></div>
                     <div>
-                      {{ doc.Title || 'Document ' + indx }}
+                      [{{Number.parseInt(doc.zzz_id, 10) + 1}}] {{ doc.Title || 'Document ' + indx }} 
                     </div>
                     <div v-if="doc.zzz_extension === 'pdf'" v-html="doc.zzz_fileLink"></div>
                     <div v-else>
                       <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
                     </div>
-                    <i class="fa fa-toggle-off fa-2x toggle-details"></i>
+                    <a href="#" class="toggle-details" @click.prevent="toggleDetails(indx)">
+                      <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
+                    </a>
+                    <div class="details" v-if="doc.zzz_showDetails">
+                      <!-- move this to a function fot tag: splitting -->
+                      <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
+                        <strong>{{ key }}</span>:</strong>
+                        <div class="sub-row">
+                          <div class="half">{{ doc[key] }}</div>
+                          <div class="half"><del>{{ doc['zzz_original'][key] }}<del></div>
+                        </div>
+                      </div>
+                    </div>
                   </li>
                 </ul>
               </div>
