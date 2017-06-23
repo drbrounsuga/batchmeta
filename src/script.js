@@ -60,6 +60,7 @@ const vmOptions = {
   csvSize: null,
   data: [],
   hovering: false,
+  importCount: 0,
   message: '',
   page: 1,
   title: '...'
@@ -243,7 +244,6 @@ $vm = new Vue({
         try{
           for(let i = 0, len = data.length; i < len; i++){
             filePath = data[i]['zzz_fullPath'];
-            console.log(filePath);
             this.readMetaAsync('exiftool-read', filePath, i);
           };
           resolve(true);
@@ -367,6 +367,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
     if(res.error){
       oldData['title'] = res.error;
+      $vm.importCount++;
     }else{
       keys = Object.keys(result[indx]);
       keys = keys.filter((key) => {
@@ -383,6 +384,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
+    $vm.importCount++;
   }else if(res.error){
     $vm.updateErrorMessage(res.error);
   }else{

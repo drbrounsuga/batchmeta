@@ -28,7 +28,7 @@
         <button class="next" 
                 :class="{ active: csvName }" 
                 v-if="page === 2 && csvName"
-                @click.prevent="preview"><i class="fa fa-arrow-circle-o-right fa-4x button-hover"></i></button>
+                @click.prevent="preview"><i class="fa fa-arrow-circle-o-right fa-3x button-hover"></i></button>
       </form>
       <!-- end upload -->
 
@@ -41,10 +41,10 @@
           </div>
           <div>
             <a href="#" @click.prevent="reset">
-              <i class="fa fa-ban fa-4x button-hover"></i>
+              <i class="fa fa-ban fa-3x button-hover"></i>
             </a>
             <a href="#" @click.prevent="importFile">
-              <i class="fa fa-upload fa-4x button-hover"></i>
+              <i class="fa fa-upload fa-3x button-hover"></i>
             </a>
           </div>
         </template>
@@ -56,11 +56,26 @@
 
       <!-- start import data -->
       <div class="import-page" v-if="page === 4">
-        <template v-if="data">
-          //
+        <template v-if="importCount === csvFileCount">
+          <div class="scrollbar" id="scroll1">
+            <div class="list">
+              ###################
+            </div>
+          </div>
+          <div class="list-menu">
+            <div>Would you like to process <strong>{{csvFileCount}}</strong> files?</div>
+            <a href="#" @click.prevent="reset">
+              <i class="fa fa-ban fa-3x button-hover"></i>
+            </a>
+            <a href="#" @click.prevent="reset">
+              <i class="fa fa-play fa-3x button-hover"></i>
+            </a>
+          </div>
         </template>
         <template v-else>
-          <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+          <div class="center-center">
+            <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+          </div>
         </template>
       </div>
       <!-- end import data -->
