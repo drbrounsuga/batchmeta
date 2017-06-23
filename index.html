@@ -20,7 +20,7 @@
       <form class="drop-box" :class="{ hovered: hovering }" v-if="page <= 2">
         <div class="drop-zone">
           <div class="drop-info">
-            <label>Drop csv here or click to select</label>
+            <label>Drop a csv here or click to start</label>
             <div class="help" v-text="message"></div>
           </div>
           <input type="file" class="file" multiple="false" accept=".csv" @change="getInputFile">
@@ -28,7 +28,7 @@
         <button class="next" 
                 :class="{ active: csvName }" 
                 v-if="page === 2 && csvName"
-                @click.prevent="preview"><i class="fa fa-arrow-circle-o-right fa-3x button-hover"></i></button>
+                @click.prevent="preview"><i class="fa fa-hand-o-right fa-3x button-hover"></i></button>
       </form>
       <!-- end upload -->
 
@@ -36,15 +36,15 @@
       <div class="preview-page" v-if="page === 3">
         <template v-if="csvCache">
           <div class="chosen-file">
-            import data from "<strong>{{csvName}}</strong>"?
-            <div>Review info bar below for file information</div>
+            Do you want to use "<strong>{{csvName}}</strong>"?
+            <div>Review the blue info bar below for file information</div>
           </div>
           <div>
             <a href="#" @click.prevent="reset">
-              <i class="fa fa-ban fa-3x button-hover"></i>
+              <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
             </a>
             <a href="#" @click.prevent="importFile">
-              <i class="fa fa-upload fa-3x button-hover"></i>
+              <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
         </template>
@@ -102,12 +102,16 @@
             </div>
           </div>
           <div class="list-menu">
-            <div>Would you like to process <strong>{{csvFileCount}}</strong> files?</div>
+            <div>
+              Would you like to update {{ csvFileCount > 1 ? 'these' : 'this' }} 
+              <strong v-if="csvFileCount > 1">{{csvFileCount}}</strong> 
+              {{ csvFileCount > 1 ? 'files' : 'file' }}?
+            </div>
             <a href="#" @click.prevent="reset">
-              <i class="fa fa-ban fa-3x button-hover"></i>
+              <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
             </a>
             <a href="#" @click.prevent="reset">
-              <i class="fa fa-arrow-circle-o-right fa-3x button-hover"></i>
+              <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
         </template>
