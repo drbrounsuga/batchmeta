@@ -112,7 +112,7 @@ $vm = new Vue({
       }
 
       return `
-      <i class="fa fa-${fileType} fa-3x row-icon"><i class="fa fa-check"></i></i>`;
+      <i class="fa fa-${fileType} fa-2x row-icon"><i class="fa fa-check"></i></i>`;
     },
     //*reads the selected csv in as an object then updates the view
     getInputFile(e){

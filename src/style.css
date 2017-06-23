@@ -116,19 +116,14 @@ i.fa-file-pdf-o{
 
 .row{
   position: relative;
-  background-color: #fff;
-  border-radius: 4px;
-  border: 2px solid #fff;
-  margin: 15px 60px;
-  padding: 20px;
-  font-size: 1.0em;
-  -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
-  -moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
-  box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.53);
+  margin-top: 1px;
+  background-color: #383E4A;
+  padding: 10px;
+  font-size: 17px;
 }
 
 .row.processed{
-  border: 2px solid lightgreen;
+  background-color: lightgreen;
 }
 
 .row ul{
@@ -143,17 +138,20 @@ i.fa-file-pdf-o{
 
 .row-icon{
   position: absolute;
-  top: 25px;
-  left: 30px;
+  top: -3px;
+  left: -5px;
 }
 
 .row ul{
   padding-left: 80px;
 }
 
+.row a,
+.row{
+  color: #fff;
+}
 
-
-#list .fa-check{
+.row .fa-check{
   position: absolute;
   bottom: 100%;
   left: 100%;
@@ -162,8 +160,18 @@ i.fa-file-pdf-o{
   display: none;
 }
 
-#list .processed .fa-check{
+.row .processed .fa-check{
   display: inline-block;
+}
+
+.toggle-details{
+  position: absolute;
+  top: -10px;
+  right: -5px;
+}
+
+.toggle-details:hover{
+  cursor: pointer;
 }
 
 /*
@@ -317,7 +325,7 @@ button{
 }
 
 .list {
-  min-height: 550px;
+  min-height: 355px;
 }
 
 .list-menu{
