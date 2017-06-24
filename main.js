@@ -19,7 +19,7 @@ const mainMenuTemplate = [
     ]
   },
   {
-    role: 'window',
+    label: 'View',
     submenu: [
       {role: 'togglefullscreen'},
       {role: 'minimize'},
