@@ -71,7 +71,8 @@
                     <div v-else>
                       <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
                     </div>
-                    <a href="#" class="toggle-details" @click.prevent="toggleDetails(indx)">
+                    <a href="#" class="toggle-details" @click.prevent="toggleDetails(indx)"
+                    @click.ctrl.prevent="toggleAllDetails">
                       <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
                     </a>
                     <div class="details" v-if="doc.zzz_showDetails">
@@ -79,26 +80,14 @@
                       <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
                         <strong>{{ key }}</span>:</strong>
                         <div class="sub-row">
-                          <div class="half">{{ doc[key] }}</div>
-                          <div class="half"><del>{{ doc['zzz_original'][key] }}<del></div>
+                          <div class="left-half">{{ doc[key] }}</div>
+                          <div class="right-half"><del>{{ doc['zzz_original'][key] }}<del></div>
                         </div>
                       </div>
                     </div>
                   </li>
                 </ul>
               </div>
-              <!-- ====================== -->
-              <!--
-              <span v-html="doc.zzz_icon"></span>
-              <li v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
-                <strong>{{key}} <span v-if="indx === 0">({{Number.parseInt(doc.zzz_id, 10) + 1}})</span>:</strong> 
-                {{doc[key]}}
-              </li>
-              <li v-if="doc.zzz_extension === 'pdf'" v-html="doc.zzz_fileLink"></li>
-              <li v-else>
-                <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
-              </li>
-              -->
             </div>
           </div>
           <div class="list-menu">

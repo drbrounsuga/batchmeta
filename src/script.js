@@ -209,7 +209,24 @@ $vm = new Vue({
             doc['zzz_processedStatus'] = null;
             doc['zzz_original'] = null;
             doc['zzz_showDetails'] = false;
-            doc['zzz_showOldDetails'] = false;
+
+            /* 
+            * if the key contains a : then its an array prop:
+            * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
+            */
+            Object.keys(doc).map((key, n) => {
+              if(key.includes(':')){
+                let [ baseKey, propName ] = key.split(':');
+
+                if(!doc[baseKey]){
+                  doc[baseKey] = [];
+                }
+
+                doc[baseKey].push(`${propName}:${doc[key]}`);
+                delete doc[key];
+              }
+            });
+
             return doc;
           });
 
@@ -298,20 +315,7 @@ $vm = new Vue({
         if(!filePath){ continue; }
 
         Object.keys(arr[i]).forEach((key) => {
-          if(key.includes(':')){
-            /* 
-            * if the key contains a : then its an array prop:
-            * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
-            */
-            let [ arrKey, propName ] = key.split(':');
-
-            if(!data[arrKey]){
-              data[arrKey] = [];
-            }
-
-            data[arrKey].push(`${propName}:${arr[i][key]}`);
-
-          }else if(!key.startsWith('zzz_') && arr[i][key]){
+          if(!key.startsWith('zzz_') && arr[i][key]){
             data[key] = arr[i][key];
           }else if(arr[i][key] === 'DELETE'){
             data[key] = '';
