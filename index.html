@@ -79,7 +79,7 @@
                       <!-- move this to a function fot tag: splitting -->
                       <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
                         <strong>{{ key }}</span>:</strong>
-                        <div class="sub-row">
+                        <div class="sub-row" :title="doc.zzz_path">
                           <div class="left-half">{{ doc[key] }}</div>
                           <div class="right-half"><del>{{ doc['zzz_original'][key] }}<del></div>
                         </div>
