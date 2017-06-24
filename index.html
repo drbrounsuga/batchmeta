@@ -10,7 +10,7 @@
   <body>
     <div class="container">
       <div v-if="errorMessage !== ''" class="error-message">
-        <a href="#" id="close-error" title="Close message" @click.prevent="updateErrorMessage('')">
+        <a id="close-error" title="Close message" @click.prevent="updateErrorMessage('')">
           <i class="fa fa-times"></i>
         </a>
         <div class="message" v-html="errorMessage"></div>
@@ -25,10 +25,9 @@
           </div>
           <input type="file" class="file" multiple="false" accept=".csv" @change="getInputFile">
         </div>
-        <button class="next" 
-                :class="{ active: csvName }" 
+        <a class="next" 
                 v-if="page === 2 && csvName"
-                @click.prevent="preview"><i class="fa fa-hand-o-right fa-3x button-hover"></i></button>
+                @click.prevent="preview"><i class="fa fa-hand-o-right fa-3x button-hover"></i></a>
       </form>
       <!-- end upload -->
 
@@ -40,10 +39,10 @@
             <div>Review the blue info bar below for file information</div>
           </div>
           <div>
-            <a href="#" @click.prevent="reset">
+            <a @click.prevent="reset">
               <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
             </a>
-            <a href="#" @click.prevent="importFile">
+            <a @click.prevent="importFile">
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
@@ -69,9 +68,9 @@
                     </div>
                     <div v-if="doc.zzz_extension === 'pdf'" v-html="doc.zzz_fileLink"></div>
                     <div v-else>
-                      <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
+                      <a target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
                     </div>
-                    <a href="#" class="toggle-details" @click.prevent="toggleDetails($event, indx)"
+                    <a class="toggle-details" @click.prevent="toggleDetails($event, indx)"
                     title="ctrl+click to toggle all">
                       <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
                     </a>
@@ -96,10 +95,10 @@
               <strong v-if="csvFileCount > 1">{{csvFileCount}}</strong> 
               {{ csvFileCount > 1 ? 'files' : 'file' }}?
             </div>
-            <a href="#" @click.prevent="reset">
+            <a @click.prevent="reset">
               <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
             </a>
-            <a href="#" @click.prevent="reset">
+            <a @click.prevent="reset">
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>

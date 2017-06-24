@@ -16,6 +16,9 @@
 *::before,
 *::after{
   box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-app-region: drag;
 }
 
 html,
@@ -67,9 +70,6 @@ html{
 .container{
   position: relative;
   height: 100%;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-app-region: drag;
 }
 
 #info{
@@ -226,6 +226,7 @@ button{
 .button-hover{
   transform: scale(1);
   transition: transform 300ms ease-in-out;
+  cursor: pointer;
 }
 
 .button-hover:hover{
