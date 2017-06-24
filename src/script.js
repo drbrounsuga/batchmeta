@@ -292,9 +292,18 @@ $vm = new Vue({
       let title = document.getElementById('app-title').innerText = str
     },
     //*
-    toggleDetails(indx){
+    toggleDetails(e, indx){
       let obj = Object.assign({}, this.data);
-      obj[indx]['zzz_showDetails'] = !obj[indx]['zzz_showDetails'];
+      let bool = !obj[indx]['zzz_showDetails'];
+
+      if (e.ctrlKey){;
+        for(let i = 0, len = Object.keys(obj).length; i < len; i++){
+          obj[i]['zzz_showDetails'] = bool;
+        }
+      }else{
+        obj[indx]['zzz_showDetails'] = bool;
+      }
+
       this.data = obj;
     },
     //updates the error message display

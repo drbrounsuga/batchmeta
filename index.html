@@ -71,8 +71,8 @@
                     <div v-else>
                       <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
                     </div>
-                    <a href="#" class="toggle-details" @click.prevent="toggleDetails(indx)"
-                    @click.ctrl.prevent="toggleAllDetails">
+                    <a href="#" class="toggle-details" @click.prevent="toggleDetails($event, indx)"
+                    title="ctrl+click to toggle all">
                       <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
                     </a>
                     <div class="details" v-if="doc.zzz_showDetails">
