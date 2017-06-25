@@ -202,11 +202,6 @@ $vm = new Vue({
             doc['zzz_id'] = indx;
             doc['zzz_path'] = name;
             doc['zzz_fullPath'] = `${path}${name}`;
-            if(name){
-              doc['zzz_fileLink'] = `<a href="file://${path}${name}" target="_blank">${name}</a>`;
-            }else{
-              doc['zzz_fileLink'] = `<a class="bad-link">${name}</a>`;
-            }
             doc['zzz_extension'] = extension;
             doc['zzz_icon'] = this.getIcon(extension);
             doc['zzz_processedStatus'] = null;
