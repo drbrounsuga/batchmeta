@@ -426,7 +426,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
-    $vm.revertFile.push( Object.assign({}, backup, { path: result[indx]['zzz_path'] }) );
+    $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
   }else if(res.error){
     $vm.updateErrorMessage(res.error);
