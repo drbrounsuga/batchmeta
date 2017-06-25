@@ -121,6 +121,31 @@ ipcMain.on('get-title', (event) => {
   event.sender.send('get-title-reply', res);
 });
 
+ipcMain.on('save-backup', (event, data) => {
+  let fields = Object.keys(data[0]);
+  let csv = json2csv({ data: data, fields: fields });
+
+  dialog.showSaveDialog(null, 
+    { 
+      defaultPath: 'reversion-file.csv',
+      filters: [
+        { name: 'CSV Files', extensions: ['csv'] }
+      ] 
+    }, (fileName) => {
+    if (fileName === undefined){
+      return;
+    }else if(!fileName.endsWith('.csv')){
+      fileName = fileName + '.csv';
+    }
+
+    fs.writeFile(fileName, csv, (err) => {
+      if(err){
+        console.log("An error ocurred creating the file " + err.message);
+      } 
+    });
+  });
+});
+
 //app
 app.on('ready', () => {
   

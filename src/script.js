@@ -84,10 +84,7 @@ $vm = new Vue({
     },
     //*
     createBackup(){
-      //get fields
-      //create object without observables
-      //ipcRenderer.send('save-backup', this.revertFile);
-      console.log(this.revertFile);
+      ipcRenderer.send('save-backup', this.revertFile);
     },
     //*drag and drop field validation
     dragcheck(e){
@@ -391,6 +388,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let result;
   let keys;
   let key;
+  let backup = {};
   let oldData = {};
 
   if(res.error && indx !== -1 || indx >= 0){
@@ -406,16 +404,29 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
       });
 
       for(let i = 0, len = keys.length; i < len; i++){
+
         key = keys[i].split(':')[0];
         if(res.data[0].hasOwnProperty(key)){
-          oldData[key] = res.data[0][key];
+          if(Array.isArray(res.data[0][key])){
+            let arr = res.data[0][key];
+
+            for(let i = 0, len = arr.length; i < len; i++){
+              let [ k, v ] = arr[i].split(':');
+              backup[`${key}:${k}`] = v;
+            }
+
+            oldData[key] = res.data[0][key];
+          }else{
+            oldData[key] = res.data[0][key];
+            backup[key] = res.data[0][key];
+          }
         }
       }
     }
 
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
-    $vm.revertFile.push( Object.assign({}, oldData, { path: result[indx]['zzz_path'] } ) );
+    $vm.revertFile.push( Object.assign({}, backup, { path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
   }else if(res.error){
     $vm.updateErrorMessage(res.error);
