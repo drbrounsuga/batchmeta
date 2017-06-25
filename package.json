@@ -30,6 +30,7 @@
     "exiftool": "^0.0.3",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
+    "json2csv": "^3.7.3",
     "node-exiftool": "^2.1.5",
     "normalize.css": "^7.0.0",
     "vue": "^2.3.3"

@@ -50,6 +50,7 @@ let $vm;
 
 const vmOptions = {
   errorMessage: '',
+  revertFile: [],
   conversionStarted: false,
   csvCache: null,
   csvDir: null,
@@ -80,6 +81,13 @@ $vm = new Vue({
     cacheFile(data){
       this.csvCache = data;
       this.csvFileCount = data.length;
+    },
+    //*
+    createBackup(){
+      //get fields
+      //create object without observables
+      //ipcRenderer.send('save-backup', this.revertFile);
+      console.log(this.revertFile);
     },
     //*drag and drop field validation
     dragcheck(e){
@@ -154,9 +162,7 @@ $vm = new Vue({
 
       this.processCache()
         .then((data) => this.data = data)
-        .then(() => this.readImportedFiles())
-        .then(() => console.log('read each file for old data'))
-        .then(() => console.log('show the list'));
+        .then(() => this.readImportedFiles());
     },
     //opens non-pdf files with the OS's defaul app
     openWithShell(path, extension){
@@ -222,7 +228,7 @@ $vm = new Vue({
                   doc[baseKey] = [];
                 }
 
-                doc[baseKey].push(`${propName}:${doc[key]}`);
+                doc[baseKey].push(`${propName ? propName + ':' : ''}${doc[key]}`);
                 delete doc[key];
               }
             });
@@ -313,27 +319,30 @@ $vm = new Vue({
     },
     //modifies the metadata of all files in the list
     updateFiles(){
-      let data;
-      let filePath;
-      let arr = this.data;
 
-      for(let i = 0, len = arr.length; i < len; i++){
-        data = {};
-        filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
+      this.createBackup();
 
-        if(!filePath){ continue; }
+      // let data;
+      // let filePath;
+      // let arr = this.data;
 
-        Object.keys(arr[i]).forEach((key) => {
-          if(!key.startsWith('zzz_') && arr[i][key]){
-            data[key] = arr[i][key];
-          }else if(arr[i][key] === 'DELETE'){
-            data[key] = '';
-          }
-        });
+      // for(let i = 0, len = arr.length; i < len; i++){
+      //   data = {};
+      //   filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
 
-        this.page = 3;
-        this.updateMeta(filePath, data, i);
-      }
+      //   if(!filePath){ continue; }
+
+      //   Object.keys(arr[i]).forEach((key) => {
+      //     if(!key.startsWith('zzz_') && arr[i][key]){
+      //       data[key] = arr[i][key];
+      //     }else if(arr[i][key] === 'DELETE'){
+      //       data[key] = '';
+      //     }
+      //   });
+
+      //   this.page = 3;
+      //   this.updateMeta(filePath, data, i);
+      // }
     },
     //update the status flag of items that were updated
     updateListItemStatus(indx, updateStatus){
@@ -406,6 +415,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
+    $vm.revertFile.push( Object.assign({}, oldData, { path: result[indx]['zzz_path'] } ) );
     $vm.importCount++;
   }else if(res.error){
     $vm.updateErrorMessage(res.error);
@@ -430,10 +440,6 @@ ipcRenderer.on('test-read-file', (event) => {
 
 ipcRenderer.on('help-show', (event) => {
   alert('show help files');
-});
-
-ipcRenderer.on('download-template', (event) => {
-  alert('download template');
 });
 
 ipcRenderer.on('reload-reply', (event, res) => {

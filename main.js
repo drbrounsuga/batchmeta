@@ -1,12 +1,32 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
 const exiftool = require('node-exiftool');
 const version = require('./package.json').version;
 const name = require('./package.json').displayName;
 const path = require('path');
 const url = require('url');
+var json2csv = require('json2csv');
+const fs = require('fs');
 
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
+
+const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
+
+const csvData = [{
+  "Path": "path\\from\\this\\file.csv", 
+  "Title": "My File", 
+  "Description": "This is a description in 160 characters or less", 
+  "Tags:ROBOTS": "FOLLOW", 
+  "Tags:publishing_entity": "PT", 
+  "Creator": "Von Haynes", 
+  "Contributor": "ABA IPL", 
+  "Language": "en", 
+  "Rights": "Copyright \u00A9 2017", 
+  "Owner": "American Bar Association", 
+  "ExpirationDate": "2017:07:29 03:15"
+}];
+
+const csvContent = json2csv({ data: csvData, fields: csvFields });
 
 const mainMenuTemplate = [
   {
@@ -14,7 +34,27 @@ const mainMenuTemplate = [
     submenu: [
       { 
         label: 'Download CSV Template',
-        click(){ mainWindow.webContents.send('download-template'); }
+        click(){ 
+          dialog.showSaveDialog(null, 
+            { 
+              defaultPath: 'batch-template.csv',
+              filters: [
+                { name: 'CSV Files', extensions: ['csv'] }
+              ] 
+            }, (fileName) => {
+            if (fileName === undefined){
+              return;
+            }else if(!fileName.endsWith('.csv')){
+              fileName = fileName + '.csv';
+            }
+
+            fs.writeFile(fileName, csvContent, (err) => {
+              if(err){
+                console.log("An error ocurred creating the file " + err.message);
+              } 
+            });
+          }); 
+        }
       }
     ]
   },
