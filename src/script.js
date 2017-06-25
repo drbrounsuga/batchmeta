@@ -30,7 +30,7 @@
 
 //requires
 //================================
-const { ipcRenderer, shell } = require('electron');
+const { ipcRenderer } = require('electron');
 const csv = require('csvtojson');
 const Vue = require('../node_modules/vue/dist/vue.js');
 
@@ -49,7 +49,6 @@ window.addEventListener('drop', (e) => {
 let $vm;
 
 const vmOptions = {
-  errorMessage: '',
   revertFile: [],
   conversionStarted: false,
   csvCache: null,
@@ -153,7 +152,7 @@ $vm = new Vue({
       this.message = `"${name}" has been selected!`;
       this.page = 2;
     },
-    //translates the selected csv into a file list preview
+    //*
     importFile(){
       this.page = 4;
 
@@ -161,11 +160,11 @@ $vm = new Vue({
         .then((data) => this.data = data)
         .then(() => this.readImportedFiles());
     },
-    //opens non-pdf files with the OS's defaul app
-    openWithShell(path, extension){
-      shell.openItem(path);
+    //*opens non-pdf files with the OS's defaul app
+    openWithShell(filePath){
+      ipcRenderer.send('show-file', filePath);
     },
-    //
+    //*
     preview(){
       this.page++;
       let errorMessage = '';
@@ -178,11 +177,11 @@ $vm = new Vue({
         errorMessage = `File too big: Please limit files to ${this.csvMaxSizeMB}MB`;
       }
 
-      this.updateErrorMessage(errorMessage);
-
       if(!errorMessage){
         this.readCsvData(csv, this.csvPath)
           .then((data) => this.cacheFile(data));
+      }else{
+        this.updateErrorMessage('Preview Error', errorMessage);
       }
     },
     //mutates a copy of the selected csv's data for use in processing
@@ -305,9 +304,8 @@ $vm = new Vue({
       this.data = obj;
     },
     //updates the error message display
-    updateErrorMessage(err){
-      err = err ? `<strong>Error:</strong> ${err}` : err;
-      this.errorMessage = err;
+    updateErrorMessage(title, err){
+      ipcRenderer.send('show-error', title, err);
     },
     //modifies the metadata of all files in the list
     updateFiles(){
@@ -424,7 +422,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
   }else if(res.error){
-    $vm.updateErrorMessage(res.error);
+    $vm.updateErrorMessage('Read Reply Error', res.error);
   }else{
     console.log(res.data[0]);
   }
@@ -432,7 +430,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   if(res.error && res.error !== '1 image files updated'){
-    $vm.updateErrorMessage(res.error);
+    $vm.updateErrorMessage('Write Reply Error', res.error);
     $vm.updateListItemStatus(indx, false);
   }else{
     $vm.updateListItemStatus(indx, true);
@@ -450,13 +448,13 @@ ipcRenderer.on('help-show', (event) => {
 
 ipcRenderer.on('reload-reply', (event, res) => {
   if(res.error){
-    $vm.updateErrorMessage(res.error);
+    $vm.updateErrorMessage('Reload Reply Error', res.error);
   }
 });
 
 ipcRenderer.on('get-title-reply', (event, res) => {
   if(res.error){
-    $vm.updateErrorMessage(res.error);
+    $vm.updateErrorMessage('Get Title Error', res.error);
   }else{
     $vm.setTitle(res);
   }

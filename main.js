@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog, shell } = require('electron');
 const exiftool = require('node-exiftool');
 const version = require('./package.json').version;
 const name = require('./package.json').displayName;
@@ -50,7 +50,7 @@ const mainMenuTemplate = [
 
             fs.writeFile(fileName, csvContent, (err) => {
               if(err){
-                console.log("An error ocurred creating the file " + err.message);
+                dialog.showErrorBox('Download CSV Error', "An error ocurred creating the file " + err.message);
               } 
             });
           }); 
@@ -116,6 +116,16 @@ ipcMain.on('reload', (event) => {
   event.sender.send('reload-reply');
 });
 
+ipcMain.on('show-file', (event, filePath) => {
+  if( !shell.showItemInFolder(filePath) ){
+    dialog.showErrorBox('Show File Error', 'Problems were encountered showing file');
+  }
+});
+
+ipcMain.on('show-error', (event, title, content) => {
+  dialog.showErrorBox(title, content);
+});
+
 ipcMain.on('get-title', (event) => {
   let res = `${name} -v ${version}`;
   event.sender.send('get-title-reply', res);
@@ -140,7 +150,7 @@ ipcMain.on('save-backup', (event, data) => {
 
     fs.writeFile(fileName, csv, (err) => {
       if(err){
-        console.log("An error ocurred creating the file " + err.message);
+        dialog.showErrorBox('Backup Save Error', "An error ocurred creating the file " + err.message);
       } 
     });
   });

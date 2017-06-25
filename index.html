@@ -9,13 +9,6 @@
   </head>
   <body>
     <div class="container">
-      <div v-if="errorMessage !== ''" class="error-message">
-        <a id="close-error" title="Close message" @click.prevent="updateErrorMessage('')">
-          <i class="fa fa-times"></i>
-        </a>
-        <div class="message" v-html="errorMessage"></div>
-      </div>
-
       <!-- start upload -->
       <form class="drop-box" :class="{ hovered: hovering }" v-if="page <= 2">
         <div class="drop-zone">
@@ -74,7 +67,6 @@
                       <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
                     </a>
                     <div class="details" v-if="doc.zzz_showDetails">
-                      <!-- move this to a function fot tag: splitting -->
                       <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
                         <strong>{{ key }}</span>:</strong>
                         <div class="sub-row" :title="doc.zzz_path">
