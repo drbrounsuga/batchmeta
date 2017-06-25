@@ -11,8 +11,6 @@
 * .data["0"]["Rights-x-repair"] (String)
 * .data["0"].Owner (String)
 * .data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
-*
-* FilePermissions: "rw-rw-rw-"
 *================
 */
 
@@ -21,11 +19,7 @@
 * TO DO LIST
 *================
 * troubleshoot xslt (can't write)
-* check that all met is written
 * test for broken paths
-* capture all errors
-* write to the info bar
-* ...
 */
 
 //requires
@@ -184,15 +178,14 @@ $vm = new Vue({
         this.updateErrorMessage('Preview Error', errorMessage);
       }
     },
-    //mutates a copy of the selected csv's data for use in processing
+    //*mutates a copy of the selected csv's data for use in processing
     processCache(){
       return new Promise((resolve, reject) => {
         let result;
 
         try{
           result = this.csvCache.map((doc, indx) => {
-            //let name = doc['-Path'].replace(/\\/g, "/");
-            //let path = this.csvDir.replace(/\\/g, "/");
+
             let name = doc['Path'];
             delete doc['Path'];
             let path = this.csvDir;
@@ -440,10 +433,6 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
 ipcRenderer.on('test-read-file', (event) => {
   console.log('Test file being read...');
   $vm.readMetaAsync('exiftool-read', './test/test.pdf', -1);
-});
-
-ipcRenderer.on('help-show', (event) => {
-  alert('show help files');
 });
 
 ipcRenderer.on('reload-reply', (event, res) => {

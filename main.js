@@ -74,7 +74,12 @@ const mainMenuTemplate = [
     submenu: [
       {
         label: 'Learn More',
-        click(){ mainWindow.webContents.send('help-show'); }
+        click(){ 
+          let url = 'https://github.com/drbrounsuga/pdfmetadata#readme';
+          if( !shell.openExternal(url) ){
+            dialog.showErrorBox('Show Help Error', 'Problems were encountered opening: ' + url);
+          } 
+        }
       }
     ]
   }
