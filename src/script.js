@@ -302,30 +302,27 @@ $vm = new Vue({
     },
     //modifies the metadata of all files in the list
     updateFiles(){
+      let data;
+      let filePath;
+      let len = Object.keys(this.data).length;
+      let arr = Object.assign({}, this.data);
 
-      this.createBackup();
+      for(let i = 0; i < len; i++){
+        data = {};
+        filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
 
-      // let data;
-      // let filePath;
-      // let arr = this.data;
+        if(!filePath){ continue; }
 
-      // for(let i = 0, len = arr.length; i < len; i++){
-      //   data = {};
-      //   filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
+        Object.keys(arr[i]).forEach((key) => {
+          if(!key.startsWith('zzz_') && arr[i][key]){
+            data[key] = arr[i][key];
+          }else if(arr[i][key] === 'DELETE'){
+            data[key] = '';
+          }
+        });
 
-      //   if(!filePath){ continue; }
-
-      //   Object.keys(arr[i]).forEach((key) => {
-      //     if(!key.startsWith('zzz_') && arr[i][key]){
-      //       data[key] = arr[i][key];
-      //     }else if(arr[i][key] === 'DELETE'){
-      //       data[key] = '';
-      //     }
-      //   });
-
-      //   this.page = 3;
-      //   this.updateMeta(filePath, data, i);
-      // }
+        this.updateMeta(filePath, data, i);
+      }
     },
     //update the status flag of items that were updated
     updateListItemStatus(indx, updateStatus){
@@ -438,6 +435,12 @@ ipcRenderer.on('test-read-file', (event) => {
 ipcRenderer.on('reload-reply', (event, res) => {
   if(res.error){
     $vm.updateErrorMessage('Reload Reply Error', res.error);
+  }
+});
+
+ipcRenderer.on('save-backup-reply', (event, res) => {
+  if(!res.error && res){
+    $vm.updateFiles();
   }
 });
 

@@ -147,7 +147,8 @@ ipcMain.on('save-backup', (event, data) => {
         { name: 'CSV Files', extensions: ['csv'] }
       ] 
     }, (fileName) => {
-    if (fileName === undefined){
+    if(fileName === undefined){
+      event.sender.send('save-backup-reply', false);
       return;
     }else if(!fileName.endsWith('.csv')){
       fileName = fileName + '.csv';
@@ -156,9 +157,13 @@ ipcMain.on('save-backup', (event, data) => {
     fs.writeFile(fileName, csv, (err) => {
       if(err){
         dialog.showErrorBox('Backup Save Error', "An error ocurred creating the file " + err.message);
-      } 
+        event.sender.send('save-backup-reply', false);
+      }else{
+        event.sender.send('save-backup-reply', true);
+      }
     });
   });
+
 });
 
 //app
