@@ -1,0 +1,8 @@
++ alert when processing is complete
++ add text on dialogue box that says "saving backup"
++ verify taht it works
++ refactor
++ break test
++ refactor 
++ help files
++ git repo meta data
