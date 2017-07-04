@@ -1,6 +1,5 @@
 + alert when processing is complete
-+ add text on dialogue box that says "saving backup"
-+ verify taht it works
++ verify that it works
 + refactor
 + break test
 + refactor 

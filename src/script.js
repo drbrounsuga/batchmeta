@@ -81,7 +81,7 @@ $vm = new Vue({
     },
     //*
     createBackup(){
-      ipcRenderer.send('save-backup', this.revertFile);
+      ipcRenderer.send('save-backup', this.revertFile, this.csvDir);
     },
     //*drag and drop field validation
     dragcheck(e){

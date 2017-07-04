@@ -136,32 +136,25 @@ ipcMain.on('get-title', (event) => {
   event.sender.send('get-title-reply', res);
 });
 
-ipcMain.on('save-backup', (event, data) => {
+ipcMain.on('save-backup', (event, data, filePath) => {
   let fields = Object.keys(data[0]);
   let csv = json2csv({ data: data, fields: fields });
+  let today = new Date();
+  let year = today.getFullYear();
+  let month = today.getMonth() <= 8 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
+  let day = today.getDate() <= 8 ? '0' + today.getDate() : today.getDate();
+  let hours = today.getHours() <= 8 ? '0' + today.getHours() : today.getHours();
+  let mins = today.getMinutes() <= 8 ? '0' + today.getMinutes() : today.getMinutes();
+  let seconds = today.getSeconds() <= 8 ? '0' + today.getSeconds() : today.getSeconds(); 
+  let fileName = path.join(filePath, 'reversion-file-' + year + month + day + hours + mins + seconds + '.csv');
 
-  dialog.showSaveDialog(null, 
-    { 
-      defaultPath: 'reversion-file.csv',
-      filters: [
-        { name: 'CSV Files', extensions: ['csv'] }
-      ] 
-    }, (fileName) => {
-    if(fileName === undefined){
+  fs.writeFile(fileName, csv, (err) => {
+    if(err){
+      dialog.showErrorBox('Backup Save Error', "An error ocurred creating the file " + err.message);
       event.sender.send('save-backup-reply', false);
-      return;
-    }else if(!fileName.endsWith('.csv')){
-      fileName = fileName + '.csv';
+    }else{
+      event.sender.send('save-backup-reply', true);
     }
-
-    fs.writeFile(fileName, csv, (err) => {
-      if(err){
-        dialog.showErrorBox('Backup Save Error', "An error ocurred creating the file " + err.message);
-        event.sender.send('save-backup-reply', false);
-      }else{
-        event.sender.send('save-backup-reply', true);
-      }
-    });
   });
 
 });
