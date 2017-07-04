@@ -385,8 +385,8 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     result = Object.assign({}, $vm.data);
 
     if(res.error){
-      oldData['title'] = res.error;
-      $vm.importCount++;
+      result[indx]['zzz_path'] = res.error;
+      result[indx]['zzz_icon'] = $vm.getIcon(null);
     }else{
       keys = Object.keys(result[indx]);
       keys = keys.filter((key) => {

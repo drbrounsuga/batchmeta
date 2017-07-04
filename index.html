@@ -60,7 +60,12 @@
                       [{{Number.parseInt(doc.zzz_id, 10) + 1}}] {{ doc.Title || 'Document ' + indx }} 
                     </div>
                     <div>
-                      <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
+                      <template v-if="(doc.zzz_icon).includes('fa-chain-broken')">
+                        {{doc.zzz_path}}
+                      </template>
+                      <template v-else>
+                        <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
+                      </template>
                     </div>
                     <a class="toggle-details" @click.prevent="toggleDetails($event, indx)"
                     title="ctrl+click to toggle all">
