@@ -72,6 +72,10 @@ $vm = new Vue({
   methods: {
     //saves a copy of the data from the selected csv to state
     cacheFile(data){
+      data = data.filter((val, indx) => {
+        return val.hasOwnProperty('Path');
+      });
+
       this.csvCache = data;
       this.csvFileCount = data.length;
     },
@@ -185,11 +189,14 @@ $vm = new Vue({
 
         try{
           result = this.csvCache.map((doc, indx) => {
+            let name;
+            let path;
+            let extension;
 
-            let name = doc['Path'];
+            name = doc['Path'];
             delete doc['Path'];
-            let path = this.csvDir;
-            let extension = this.getExtension(name);
+            path = this.csvDir;
+            extension = this.getExtension(name);
 
             doc['zzz_id'] = indx;
             doc['zzz_path'] = name;

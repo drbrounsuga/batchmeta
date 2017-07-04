@@ -28,14 +28,14 @@
       <div class="preview-page" v-if="page === 3">
         <template v-if="csvCache">
           <div class="chosen-file">
-            <strong>{{ csvFileCount }}</strong> files have been detected. Is this correct?
+            The csv contains <strong>{{ csvFileCount }}</strong> valid file {{ csvFileCount === 1 ? 'reference' : 'references'}}. Is this correct?
             <div>Note: You can also review the blue info bar below for processing details</div>
           </div>
           <div>
             <a @click.prevent="reset">
               <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
             </a>
-            <a @click.prevent="importFile">
+            <a @click.prevent="importFile" v-if="csvFileCount && csvFileCount >= 1">
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
