@@ -49,6 +49,7 @@ const vmOptions = {
   csvDir: null,
   csvFileCount: 0,
   csvFilesProcessed: 0,
+  csvFilesSeen: 0,
   csvMaxSizeMB: 30,
   csvName: null,
   csvPath: null,
@@ -340,6 +341,12 @@ $vm = new Vue({
         this.csvFilesProcessed++;
       }else{
         this.csvFilesProcessed--;
+      }
+
+      this.csvFilesSeen++;
+
+      if(this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount){
+        ipcRenderer.send('show-message', 'Processing is complete. Please check the blue info bar for more information. To undo these actions, use the reversion file that was generated in the same directory as your csv file.');
       }
     },
     //write to file with exiftool
