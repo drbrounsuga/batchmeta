@@ -374,6 +374,10 @@ button{
   color: #1D9E74;
 }
 
+.file-path{
+  padding-right: 80px;
+}
+
 #scroll1::-webkit-scrollbar{
   width: 10px;
   background-color: #333;

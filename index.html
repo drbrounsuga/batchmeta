@@ -59,7 +59,7 @@
                     <div>
                       [{{Number.parseInt(doc.zzz_id, 10) + 1}}] {{ doc.Title || 'Document ' + indx }} 
                     </div>
-                    <div>
+                    <div class="file-path">
                       <template v-if="(doc.zzz_icon).includes('fa-chain-broken')">
                         {{doc.zzz_path}}
                       </template>
