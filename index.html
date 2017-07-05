@@ -9,8 +9,10 @@
   </head>
   <body>
     <div class="container">
+
       <!-- start upload -->
       <form class="drop-box" :class="{ hovered: hovering }" v-if="page <= 2">
+        <!-- start box -->
         <div class="drop-zone">
           <div class="drop-info">
             <label>Drop a csv here or click to start</label>
@@ -18,19 +20,25 @@
           </div>
           <input type="file" class="file" multiple="false" accept=".csv" @change="getInputFile">
         </div>
+        <!-- end box -->
+        <!-- start menu -->
         <a class="next" 
-                v-if="page === 2 && csvName"
-                @click.prevent="preview"><i class="fa fa-hand-o-right fa-3x button-hover"></i></a>
+            v-if="page === 2 && csvName"
+            @click.prevent="preview"><i class="fa fa-hand-o-right fa-3x button-hover"></i></a>
+        <!-- end menu -->
       </form>
       <!-- end upload -->
 
       <!-- start preview data -->
       <div class="preview-page" v-if="page === 3">
         <template v-if="csvCache">
+          <!-- start preview -->
           <div class="chosen-file">
             The csv contains <strong>{{ csvFileCount }}</strong> valid file {{ csvFileCount === 1 ? 'reference' : 'references'}}. Is this correct?
             <div>Note: You can also review the blue info bar below for processing details</div>
           </div>
+          <!-- end preview -->
+          <!-- start menu -->
           <div>
             <a @click.prevent="reset">
               <i class="fa fa-thumbs-o-down fa-3x button-hover"></i>
@@ -39,8 +47,10 @@
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
+          <!-- end menu -->
         </template>
         <template v-else>
+          <!-- loading icon -->
           <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
         </template>
       </div>
@@ -49,16 +59,21 @@
       <!-- start import data -->
       <div class="import-page" v-if="page === 4">
         <template v-if="importCount === csvFileCount">
+          <!-- start file list -->
           <div class="scrollbar" id="scroll1">
             <div class="list">
-              <!-- ====================== -->
+              <!-- start list item template -->
               <div :class="{ 'row': true, 'processed': doc.zzz_processedStatus === true, 'failed': doc.zzz_processedStatus === false }" v-for="(doc, indx) in data">
                 <ul>
                   <li class="header">
+                    <!-- item icon -->
                     <div v-html="doc.zzz_icon"></div>
+                    <!-- start title -->
                     <div>
                       [{{Number.parseInt(doc.zzz_id, 10) + 1}}] {{ doc.Title || 'Document ' + indx }} 
                     </div>
+                    <!-- end title -->
+                    <!-- start link -->
                     <div class="file-path">
                       <template v-if="(doc.zzz_icon).includes('fa-chain-broken')">
                         {{doc.zzz_path}}
@@ -67,10 +82,14 @@
                         <a href="#" target="_blank" @click.prevent="openWithShell(doc.zzz_fullPath)">{{doc.zzz_path}}</a>
                       </template>
                     </div>
+                    <!-- end link -->
+                    <!-- start toggle button -->
                     <a class="toggle-details" @click.prevent="toggleDetails($event, indx)"
                     title="ctrl+click to toggle all">
                       <i class="fa fa-2x" :class="{ 'fa-toggle-off': !doc.zzz_showDetails, 'fa-toggle-on': doc.zzz_showDetails }"></i>
                     </a>
+                    <!-- end toggle button -->
+                    <!-- start details template -->
                     <div class="details" v-if="doc.zzz_showDetails">
                       <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
                         <strong>{{ key }}</span>:</strong>
@@ -80,11 +99,15 @@
                         </div>
                       </div>
                     </div>
+                    <!-- end details template -->
                   </li>
                 </ul>
               </div>
+              <!-- end list item template -->
             </div>
           </div>
+          <!-- end file list -->
+          <!-- start menu -->
           <div class="list-menu" v-if="!isDone && validFileCount > 0">
             <div>
               Would you like to update {{ csvFileCount > 1 ? 'these' : 'this' }} 
@@ -98,14 +121,18 @@
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
+          <!-- end menu -->
+          <!-- start "done" message -->
           <div class="list-menu" v-if="isDone">
             <div>
               Processing is complete. See info bar for details. To undo these actions, use the reversion file that was generated in the same directory as your csv file.
             </div>
           </div>
+          <!-- end "done" message -->
         </template>
         <template v-else>
           <div class="center-center">
+            <!-- loading icon -->
             <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
           </div>
         </template>
