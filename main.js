@@ -127,12 +127,6 @@ ipcMain.on('exiftool-read', (event, filePath, indx) => {
     .catch(console.error);
 });
 
-// ipc - reload window
-ipcMain.on('reload', (event) => {
-  mainWindow.webContents.reloadIgnoringCache();
-  event.sender.send('reload-reply');
-});
-
 // ipc - show file in explorer
 ipcMain.on('show-file', (event, filePath) => {
   if( !shell.showItemInFolder(filePath) ){
