@@ -1,3 +1,0 @@
-+ refactor
-+ help files
-+ git repo meta data

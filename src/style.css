@@ -1,3 +1,8 @@
+/*
+=================================
+Generic styles
+=================================
+*/
 @font-face {
   font-family: "Open-sans";
   src: url("assets/web-fonts/OpenSans-Regular-webfont.woff") format("woff");
@@ -35,36 +40,9 @@ html{
   background-color: #252526;
 }
 
-.hide{
-  display: none;
-}
-
-.error-message{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
-  font-size: 1.5em;
-  text-align: center;
-  padding: 20px;
-  background-color: rgba(255, 0, 0, 0.8);
-  color: #fff;
-}
-
-.error-message .message{
-  width: 100%;
-  display: block;
-}
-
-#close-error{
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  width: 1.2em;
-  color: #fff;
-  font-size: 1.2em;
-  text-decoration: none;
+a,
+button{
+  outline: none;
 }
 
 .container{
@@ -72,6 +50,51 @@ html{
   height: 100%;
 }
 
+.button-hover{
+  transform: scale(1);
+  transition: transform 300ms ease-in-out;
+  cursor: pointer;
+}
+
+.button-hover:hover{
+  transform: scale(1.15);
+}
+
+.next{
+  position: absolute;
+  left: 50%;
+  bottom: -32%;
+  transform: translateX(-50%);
+  color: #1D9E74;
+  background-color: transparent;
+  border: none;
+}
+
+.next:hover{
+  cursor: pointer;
+}
+
+/*
+=================================
+helper styles
+=================================
+*/
+.hide{
+  display: none;
+}
+
+.center-center{
+  position: fixed;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/*
+=================================
+Info bar
+=================================
+*/
 #info{
   position: fixed;
   bottom: 0;
@@ -111,9 +134,92 @@ html{
 }
 
 /*
-================================================================
+=================================
+Dropbox page
+=================================
 */
+.drop-box{
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 250px;
+  padding: 10px;
+  margin: 0 auto;
+  background-color: #383E4A;
+}
 
+.drop-box.hovered{
+  background-color: #fff;
+}
+
+.drop-box .help{
+  margin-top: 6px;
+  font-size: 18px;
+  color: #1D9E74;
+}
+
+.drop-box label{
+  font-size: 28px;
+}
+
+.drop-zone{
+  position: relative;
+  width: 580px;
+  height: 230px;
+  border: 2px dashed #93B0B3;
+  transform: scale(1);
+  transition: transform 300ms ease-in-out;
+}
+
+.hovered .drop-zone{
+  transform: scale(0.98);
+}
+
+.drop-info{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 20px;
+  width: 100%;
+  color: #93B0B3;
+  font-size: 20px;
+  text-align: center;
+  line-height: 25px;
+  font-weight: bold;
+}
+
+.file{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+}
+
+.chosen-file{
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #C8DADF;
+}
+
+.chosen-file strong{
+  color: #93B0B3;
+}
+
+.chosen-file div{
+  margin-top: 8px;
+  font-size: 18px;
+  color: #1D9E74;
+}
+
+/*
+=================================
+List styles
+=================================
+*/
 .row{
   position: relative;
   margin-top: 1px;
@@ -179,6 +285,11 @@ html{
   color: #FFF;
 }
 
+/*
+=================================
+Toggle/detail styles
+=================================
+*/
 .toggle-details{
   position: absolute;
   top: -10px;
@@ -194,14 +305,10 @@ html{
 }
 
 /*
-================================================================
+=================================
+Preview Page
+=================================
 */
-
-a,
-button{
-  outline: none;
-}
-
 .preview-page{
   position: absolute;
   top: 45%;
@@ -211,112 +318,16 @@ button{
   text-align: center;
 }
 
-.chosen-file{
-  margin-bottom: 15px;
-  font-size: 24px;
-  color: #C8DADF;
-}
-
-.chosen-file strong{
-  color: #93B0B3;
-}
-
-.chosen-file div{
-  margin-top: 8px;
-  font-size: 18px;
-  color: #1D9E74;
-}
-
+/*
+=================================
+Import page
+=================================
+*/
 .import-page i,
 .preview-page i{
   margin: 20px 30px 0;
   color: #1D9E74;
   background-color: transparent;
-}
-
-.button-hover{
-  transform: scale(1);
-  transition: transform 300ms ease-in-out;
-  cursor: pointer;
-}
-
-.button-hover:hover{
-  transform: scale(1.15);
-}
-
-.drop-box{
-  position: absolute;
-  top: 42%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 250px;
-  padding: 10px;
-  margin: 0 auto;
-  background-color: #383E4A;
-}
-
-.drop-box.hovered{
-  background-color: #fff;
-}
-
-.drop-box .help{
-  margin-top: 6px;
-  font-size: 18px;
-  color: #1D9E74;
-}
-
-.drop-box label{
-  font-size: 28px;
-}
-
-.drop-zone{
-  position: relative;
-  width: 580px;
-  height: 230px;
-  border: 2px dashed #93B0B3;
-  transform: scale(1);
-  transition: transform 300ms ease-in-out;
-}
-
-.hovered .drop-zone{
-  transform: scale(0.98);
-}
-
-.drop-info{
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 20px;
-  width: 100%;
-  color: #93B0B3;
-  font-size: 20px;
-  text-align: center;
-  line-height: 25px;
-  font-weight: bold;
-}
-
-.file{
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  opacity: 0;
-}
-
-.next{
-  position: absolute;
-  left: 50%;
-  bottom: -32%;
-  transform: translateX(-50%);
-  color: #1D9E74;
-  background-color: transparent;
-  border: none;
-}
-
-.next:hover{
-  cursor: pointer;
 }
 
 .import-page{
@@ -327,13 +338,11 @@ button{
   right: 0;
 }
 
-.center-center{
-  position: fixed;
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
+/*
+=================================
+Scrollbar/list
+=================================
+*/
 .scrollbar {
   position: absolute;
   top: 30px;
@@ -343,6 +352,21 @@ button{
   background-color: #222;
   overflow-y: scroll;
   overflow-x: hidden;
+}
+
+#scroll1::-webkit-scrollbar{
+  width: 10px;
+  background-color: #333;
+  border-left: 1px solid #222;
+} 
+
+#scroll1::-webkit-scrollbar-thumb{
+  background-color: #1D9E74;
+  border-left: 1px solid #222;
+}
+
+#scroll1::-webkit-scrollbar-thumb:hover{
+  background-color: #13694D;
 }
 
 .list {
@@ -378,21 +402,11 @@ button{
   padding-right: 80px;
 }
 
-#scroll1::-webkit-scrollbar{
-  width: 10px;
-  background-color: #333;
-  border-left: 1px solid #222;
-} 
-
-#scroll1::-webkit-scrollbar-thumb{
-  background-color: #1D9E74;
-  border-left: 1px solid #222;
-}
-
-#scroll1::-webkit-scrollbar-thumb:hover{
-  background-color: #13694D;
-}
-
+/*
+=================================
+Details flex tables
+=================================
+*/
 .sub-row{
   display: flex;
   flex-direction: row-reverse;
