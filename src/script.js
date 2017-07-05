@@ -60,7 +60,8 @@ const vmOptions = {
   importCount: 0,
   message: '',
   page: 1,
-  title: '...'
+  title: '...',
+  validFileCount: 0
 };
 
 const vmBackup = Object.assign({}, vmOptions);
@@ -206,7 +207,7 @@ $vm = new Vue({
             doc['zzz_fullPath'] = `${path}${name}`;
             doc['zzz_extension'] = extension;
             doc['zzz_icon'] = this.getIcon(extension);
-            doc['zzz_processedStatus'] = null;
+            doc['zzz_processedStatus'] = extension === 'pdf' ? null : false;
             doc['zzz_original'] = null;
             doc['zzz_showDetails'] = false;
 
@@ -314,14 +315,20 @@ $vm = new Vue({
     updateFiles(){
       let data;
       let filePath;
+      let status;
       let len = Object.keys(this.data).length;
       let arr = Object.assign({}, this.data);
 
       for(let i = 0; i < len; i++){
         data = {};
         filePath = arr[i]['zzz_fullPath'];
+        processedStatus = arr[i]['zzz_processedStatus'];
 
-        if(!filePath){ continue; }
+        if(!filePath || processedStatus === false){ 
+          this.filesSkipped++;
+          this.csvFilesSeen++;
+          continue; 
+        }
 
         Object.keys(arr[i]).forEach((key) => {
           if(!key.startsWith('zzz_') && arr[i][key]){
@@ -340,16 +347,12 @@ $vm = new Vue({
       itemToUpdate.zzz_processedStatus = updateStatus;
       $vm.$set(this.data, indx, itemToUpdate);
       if(updateStatus){
-        this.csvFilesProcessed++;
+        this.csvFilesProcessed++; 
       }else{
         this.filesSkipped++;
       }
 
       this.csvFilesSeen++;
-
-      if(this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount){
-        ipcRenderer.send('show-message', "Processing is complete. Please check the blue info bar for more information.\n\n To undo these actions, use the reversion file that was generated in the same directory as your csv file.");
-      }
     },
     //write to file with exiftool
     updateMeta(filePath, data, indx){
@@ -376,6 +379,15 @@ $vm = new Vue({
           value: this.filesSkipped
         }
       };
+    },
+    isDone: function(){
+      let isDone = this.conversionStarted && this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount;
+
+      if(isDone){
+        ipcRenderer.send('show-message', "Processing is complete. Please check the blue info bar for more information.\n\n To undo these actions, use the reversion file that was generated in the same directory as your csv file.");
+      }
+
+      return isDone;
     }
   }
 });
@@ -397,6 +409,9 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
       result[indx]['zzz_path'] = res.error;
       result[indx]['zzz_icon'] = $vm.getIcon(null);
     }else{
+      if(result[indx]['zzz_extension'] === 'pdf'){
+        $vm.validFileCount++;
+      }
       keys = Object.keys(result[indx]);
       keys = keys.filter((key) => {
         return !key.startsWith('zzz_');
