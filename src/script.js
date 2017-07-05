@@ -1,47 +1,27 @@
 /*
-*================
-* CQ5 properties
-*================
-* .data["0"].Title (String)
-* .data["0"].Description (String)
-* .data["0"].Tags (Array)
-* .data["0"].Creator (String)
-* .data["0"].Contributor (String)
-* .data["0"].Language (String)
-* .data["0"]["Rights-x-repair"] (String)
-* .data["0"].Owner (String)
-* .data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
-*================
+================
+ CQ5 properties
+================
+ .data["0"].Title (String)
+ .data["0"].Description (String)
+ .data["0"].Tags (Array)
+ .data["0"].Creator (String)
+ .data["0"].Contributor (String)
+ .data["0"].Language (String)
+ .data["0"]["Rights-x-repair"] (String)
+ .data["0"].Owner (String)
+ .data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
+================
 */
 
-/*
-*================
-* TO DO LIST
-*================
-* troubleshoot xslt (can't write)
-* test for broken paths
-*/
-
-//requires
-//================================
+// variables
 const { ipcRenderer } = require('electron');
 const csv = require('csvtojson');
 const Vue = require('../node_modules/vue/dist/vue.js');
 
-
-window.addEventListener('dragover', e =>  $vm.dragcheck(e) );
-window.addEventListener('dragenter', e =>  $vm.dragcheck(e) );
-window.addEventListener('dragleave', e =>  $vm.dragcheck(e) );
-window.addEventListener('dragend', e =>  $vm.dragcheck(e) );
-
-window.addEventListener('drop', (e) => { 
-  $vm.dragcheck(e);
-  $vm.hovering = false;
-});
-
-
 let $vm;
 
+// options for vue instance
 const vmOptions = {
   revertFile: [],
   conversionStarted: false,
@@ -66,15 +46,26 @@ const vmOptions = {
 
 const vmBackup = Object.assign({}, vmOptions);
 
+// set up drag and drop functionality
+window.addEventListener('dragover', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragenter', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragleave', e =>  $vm.dragcheck(e) );
+window.addEventListener('dragend', e =>  $vm.dragcheck(e) );
 
-//Vue Components
-//================================
+window.addEventListener('drop', (e) => { 
+  $vm.dragcheck(e);
+  $vm.hovering = false;
+});
+
+
+// vue instance
 $vm = new Vue({
   el: '.container',
   data: vmOptions,
   methods: {
-    //saves a copy of the data from the selected csv to state
+    // saves a copy of the data from the selected csv to state
     cacheFile(data){
+      // remove items with no Path property
       data = data.filter((val, indx) => {
         return val.hasOwnProperty('Path');
       });
@@ -82,12 +73,12 @@ $vm = new Vue({
       this.csvCache = data;
       this.csvFileCount = data.length;
     },
-    //*
+    // creates a backup of current files metadata before editing them
     createBackup(){
       this.conversionStarted = true;
       ipcRenderer.send('save-backup', this.revertFile, this.csvDir);
     },
-    //*drag and drop field validation
+    // drag and drop visual feedback
     dragcheck(e){
       if(e.target.type === 'file'){
         this.hovering = true;
@@ -96,14 +87,14 @@ $vm = new Vue({
         this.hovering = false;
       }
     },
-    //gets the extension of imported files
+    // gets the extension of files
     getExtension(fileName){
       if(!fileName){
         return null;
       }
       return fileName.split('.').pop().substr(0, 3).toLowerCase();
     },
-    //generates an icon for imported files
+    // generates html for file icon
     getIcon(extension){
       let fileType;
 
@@ -121,7 +112,7 @@ $vm = new Vue({
       return `
       <i class="fa fa-${fileType} fa-2x row-icon"><i class="fa fa-check"></i></i>`;
     },
-    //*reads the selected csv in as an object then updates the view
+    // validates the csv and then caches it
     getInputFile(e){
       let { name, path, size } = e.target.files[0];
       let message;
@@ -154,7 +145,7 @@ $vm = new Vue({
       this.message = `"${name}" has been selected!`;
       this.page = 2;
     },
-    //*
+    // process cached csv data and then read in the files
     importFile(){
       this.page = 4;
 
@@ -162,11 +153,11 @@ $vm = new Vue({
         .then((data) => this.data = data)
         .then(() => this.readImportedFiles());
     },
-    //*opens non-pdf files with the OS's defaul app
+    // reveals the file in the explorer
     openWithShell(filePath){
       ipcRenderer.send('show-file', filePath);
     },
-    //*
+    // validate csv and then cache it
     preview(){
       this.page++;
       let errorMessage = '';
@@ -186,7 +177,7 @@ $vm = new Vue({
         this.updateErrorMessage('Preview Error', errorMessage);
       }
     },
-    //*mutates a copy of the selected csv's data for use in processing
+    // mutates and returns a copy of the selected csv's data for use in processing
     processCache(){
       return new Promise((resolve, reject) => {
         let result;
@@ -238,7 +229,7 @@ $vm = new Vue({
 
       });
     },
-    //reads the csv file in as a json object
+    // reads the csv file in as a json object
     readCsvData(npmModule, csvFilePath){
       return new Promise((resolve, reject) => {
         let result = [];
@@ -256,7 +247,7 @@ $vm = new Vue({
           });
       });
     },
-    //*
+    // reads meta from the files listed in the csv
     readImportedFiles(){
       return new Promise((resolve, reject) => {
         let data = this.data;
@@ -273,11 +264,11 @@ $vm = new Vue({
         }
       });
     },
-    //read file with exiftool
+    // make an asynchronus request 
     readMetaAsync(channel, filePath, indx){
       ipcRenderer.send(channel, filePath, indx);
     },
-    //*reset app to default state
+    // reset app to default state
     reset(){
       let keys = Object.keys(vmBackup);
       let key;
@@ -287,12 +278,12 @@ $vm = new Vue({
         this[key] = vmBackup[key];
       }
     },
-    //*sets the title of the application
+    // sets the title of the application
     setTitle(str){
       this.title = str;
       let title = document.getElementById('app-title').innerText = str
     },
-    //*
+    // toggles display of file details
     toggleDetails(e, indx){
       let obj = Object.assign({}, this.data);
       let bool = !obj[indx]['zzz_showDetails'];
@@ -307,11 +298,11 @@ $vm = new Vue({
 
       this.data = obj;
     },
-    //updates the error message display
+    // show and error message
     updateErrorMessage(title, err){
       ipcRenderer.send('show-error', title, err);
     },
-    //modifies the metadata of all files in the list
+    // modifies the metadata of all files in the list
     updateFiles(){
       let data;
       let filePath;
@@ -341,7 +332,7 @@ $vm = new Vue({
         this.updateMeta(filePath, data, i);
       }
     },
-    //update the status flag of items that were updated
+    // update the status flag of items that were reviewed and updated or skipped
     updateListItemStatus(indx, updateStatus){
       let itemToUpdate = Object.assign({}, this.data[indx]);
       itemToUpdate.zzz_processedStatus = updateStatus;
@@ -354,7 +345,7 @@ $vm = new Vue({
 
       this.csvFilesSeen++;
     },
-    //write to file with exiftool
+    // write to file with exiftool
     updateMeta(filePath, data, indx){
       ipcRenderer.send('exiftool-write', filePath, data, indx);
     }
@@ -387,8 +378,8 @@ $vm = new Vue({
 });
 
 
-//electron process event listeners
-//================================
+// electron process event listeners
+// once file is read, check it and update the array
 ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let result;
   let keys;
@@ -443,6 +434,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   }
 });
 
+// once a file has been written update the status regarding wether the operation was successful
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   if(res.error && res.error !== '1 image files updated'){
     //$vm.updateErrorMessage('Write Reply Error', res.error);
@@ -452,23 +444,20 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   }
 });
 
+// test read file
 ipcRenderer.on('test-read-file', (event) => {
   console.log('Test file being read...');
   $vm.readMetaAsync('exiftool-read', './test/test.pdf', -1);
 });
 
-ipcRenderer.on('reload-reply', (event, res) => {
-  if(res.error){
-    $vm.updateErrorMessage('Reload Reply Error', res.error);
-  }
-});
-
+// if the backup was successful then update the files
 ipcRenderer.on('save-backup-reply', (event, res) => {
   if(!res.error && res){
     $vm.updateFiles();
   }
 });
 
+// recieve title from the main process and update
 ipcRenderer.on('get-title-reply', (event, res) => {
   if(res.error){
     $vm.updateErrorMessage('Get Title Error', res.error);
@@ -477,4 +466,5 @@ ipcRenderer.on('get-title-reply', (event, res) => {
   }
 });
 
+// request page title from the main process
 ipcRenderer.send('get-title');
