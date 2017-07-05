@@ -10,8 +10,10 @@ const fs = require('fs');
 let mainWindow;
 let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
 
+// headers for csv template
 const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
 
+// default content for csv template
 const csvData = [{
   "Path": "path\\from\\this\\file.csv", 
   "Title": "My File", 
@@ -26,8 +28,10 @@ const csvData = [{
   "ExpirationDate": "2017:07:29 03:15"
 }];
 
+// create csv data
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
+// application menu template
 const mainMenuTemplate = [
   {
     label: 'File',
@@ -85,6 +89,7 @@ const mainMenuTemplate = [
   }
 ];
 
+// Add development menu if testing
 if(process.env.NODE_ENV !== 'production'){
   mainMenuTemplate.push({
     label: 'Development',
@@ -99,7 +104,8 @@ if(process.env.NODE_ENV !== 'production'){
   });
 }
 
-//events
+// IPC Events
+// ipc - write metadata
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   if(fs.existsSync(filePath)){
     ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original'])
@@ -112,6 +118,7 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   }
 });
 
+// ipc - read metadata
 ipcMain.on('exiftool-read', (event, filePath, indx) => {
   ep.readMetadata(filePath, [])
     .then((res) => {
@@ -120,29 +127,38 @@ ipcMain.on('exiftool-read', (event, filePath, indx) => {
     .catch(console.error);
 });
 
+// ipc - reload window
 ipcMain.on('reload', (event) => {
   mainWindow.webContents.reloadIgnoringCache();
   event.sender.send('reload-reply');
 });
 
+// ipc - show file in explorer
 ipcMain.on('show-file', (event, filePath) => {
   if( !shell.showItemInFolder(filePath) ){
     dialog.showErrorBox('Show File Error', 'Problems were encountered showing file');
   }
 });
 
+// ipc - open error dialog window
 ipcMain.on('show-error', (event, title, content) => {
   dialog.showErrorBox(title, content);
 });
 
+// ipc - get title from package.json
 ipcMain.on('get-title', (event) => {
   let res = `${name} -v ${version}`;
   event.sender.send('get-title-reply', res);
 });
 
+// ipc - write backup to file
 ipcMain.on('save-backup', (event, data, filePath) => {
+
+  // convert data to csv
   let fields = Object.keys(data[0]);
   let csv = json2csv({ data: data, fields: fields });
+
+  //get date for timestamp
   let today = new Date();
   let year = today.getFullYear();
   let month = today.getMonth() <= 8 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
@@ -150,8 +166,11 @@ ipcMain.on('save-backup', (event, data, filePath) => {
   let hours = today.getHours() <= 8 ? '0' + today.getHours() : today.getHours();
   let mins = today.getMinutes() <= 8 ? '0' + today.getMinutes() : today.getMinutes();
   let seconds = today.getSeconds() <= 8 ? '0' + today.getSeconds() : today.getSeconds(); 
+
+  // create path for new file
   let fileName = path.join(filePath, 'reversion-file-' + year + month + day + hours + mins + seconds + '.csv');
 
+  // write file
   fs.writeFile(fileName, csv, (err) => {
     if(err){
       dialog.showErrorBox('Backup Save Error', "An error ocurred creating the file " + err.message);
@@ -163,7 +182,7 @@ ipcMain.on('save-backup', (event, data, filePath) => {
 
 });
 
-//app
+// create new window
 app.on('ready', () => {
   
   mainWindow = new BrowserWindow({
