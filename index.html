@@ -52,7 +52,7 @@
           <div class="scrollbar" id="scroll1">
             <div class="list">
               <!-- ====================== -->
-              <div :class="{ 'row': true, 'processed': doc.zzz_processedStatus }" v-for="(doc, indx) in data">
+              <div :class="{ 'row': true, 'processed': doc.zzz_processedStatus === true, 'failed': doc.zzz_processedStatus === false }" v-for="(doc, indx) in data">
                 <ul>
                   <li class="header">
                     <div v-html="doc.zzz_icon"></div>
