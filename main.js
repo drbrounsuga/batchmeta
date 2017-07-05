@@ -101,11 +101,15 @@ if(process.env.NODE_ENV !== 'production'){
 
 //events
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
-  ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original'])
+  if(fs.existsSync(filePath)){
+    ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original'])
     .then((res) => {
       event.sender.send('exiftool-write-reply', res, indx);
     })
     .catch(console.error);
+  }else{
+    event.sender.send('exiftool-write-reply', { error: 'File Not Found' }, indx);
+  }
 });
 
 ipcMain.on('exiftool-read', (event, filePath, indx) => {

@@ -55,6 +55,7 @@ const vmOptions = {
   csvPath: null,
   csvSize: null,
   data: [],
+  filesSkipped: 0,
   hovering: false,
   importCount: 0,
   message: '',
@@ -82,6 +83,7 @@ $vm = new Vue({
     },
     //*
     createBackup(){
+      this.conversionStarted = true;
       ipcRenderer.send('save-backup', this.revertFile, this.csvDir);
     },
     //*drag and drop field validation
@@ -105,14 +107,14 @@ $vm = new Vue({
       let fileType;
 
       switch(extension){
-          case 'pdf':
-            fileType = 'file-pdf-o';
-            break;
-          case null:
-           fileType = 'chain-broken';
-           break;
-          default:
-            fileType = 'file-o';
+        case 'pdf':
+          fileType = 'file-pdf-o';
+          break;
+        case null:
+          fileType = 'chain-broken';
+          break;
+        default:
+          fileType = 'file-o';
       }
 
       return `
@@ -317,7 +319,7 @@ $vm = new Vue({
 
       for(let i = 0; i < len; i++){
         data = {};
-        filePath = arr[i]['zzz_fullPath']; //icon to empty file if this is empty
+        filePath = arr[i]['zzz_fullPath'];
 
         if(!filePath){ continue; }
 
@@ -340,13 +342,13 @@ $vm = new Vue({
       if(updateStatus){
         this.csvFilesProcessed++;
       }else{
-        this.csvFilesProcessed--;
+        this.filesSkipped++;
       }
 
       this.csvFilesSeen++;
 
       if(this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount){
-        ipcRenderer.send('show-message', 'Processing is complete. Please check the blue info bar for more information. To undo these actions, use the reversion file that was generated in the same directory as your csv file.');
+        ipcRenderer.send('show-message', "Processing is complete. Please check the blue info bar for more information.\n\n To undo these actions, use the reversion file that was generated in the same directory as your csv file.");
       }
     },
     //write to file with exiftool
@@ -371,7 +373,7 @@ $vm = new Vue({
         },
         filesSkipped: { 
           name: 'Files Skipped', 
-          value: this.conversionStarted ? this.csvFileCount - this.csvFilesProcessed : 0
+          value: this.filesSkipped
         }
       };
     }
@@ -434,7 +436,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   if(res.error && res.error !== '1 image files updated'){
-    $vm.updateErrorMessage('Write Reply Error', res.error);
+    //$vm.updateErrorMessage('Write Reply Error', res.error);
     $vm.updateListItemStatus(indx, false);
   }else{
     $vm.updateListItemStatus(indx, true);

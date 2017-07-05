@@ -85,7 +85,7 @@
               </div>
             </div>
           </div>
-          <div class="list-menu">
+          <div class="list-menu" v-if="!conversionStarted">
             <div>
               Would you like to update {{ csvFileCount > 1 ? 'these' : 'this' }} 
               <strong v-if="csvFileCount > 1">{{csvFileCount}}</strong> 
