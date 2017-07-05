@@ -98,6 +98,11 @@
               <i class="fa fa-thumbs-o-up fa-3x button-hover"></i>
             </a>
           </div>
+          <div class="list-menu" v-if="isDone">
+            <div>
+              Processing is complete. See info bar for details. To undo these actions, use the reversion file that was generated in the same directory as your csv file.
+            </div>
+          </div>
         </template>
         <template v-else>
           <div class="center-center">

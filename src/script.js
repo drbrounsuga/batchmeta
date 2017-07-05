@@ -381,13 +381,7 @@ $vm = new Vue({
       };
     },
     isDone: function(){
-      let isDone = this.conversionStarted && this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount;
-
-      if(isDone){
-        ipcRenderer.send('show-message', "Processing is complete. Please check the blue info bar for more information.\n\n To undo these actions, use the reversion file that was generated in the same directory as your csv file.");
-      }
-
-      return isDone;
+      return this.conversionStarted && this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount;
     }
   }
 });

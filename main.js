@@ -135,13 +135,6 @@ ipcMain.on('show-error', (event, title, content) => {
   dialog.showErrorBox(title, content);
 });
 
-ipcMain.on('show-message', (event, message) => {
-  dialog.showMessageBox(null, {
-    title: name,
-    message: message
-  });
-});
-
 ipcMain.on('get-title', (event) => {
   let res = `${name} -v ${version}`;
   event.sender.send('get-title-reply', res);
