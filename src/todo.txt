@@ -1,6 +1,3 @@
-+ verify that it works
 + refactor
-+ break test
-+ refactor 
 + help files
 + git repo meta data

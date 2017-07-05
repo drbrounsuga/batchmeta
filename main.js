@@ -55,18 +55,18 @@ const mainMenuTemplate = [
             });
           }); 
         }
-      }
+      },
+      {type: 'separator'},
+      {role: 'reload'},
+      {type: 'separator'},
+      {role: 'close'}
     ]
   },
   {
     label: 'View',
     submenu: [
       {role: 'togglefullscreen'},
-      {role: 'minimize'},
-      {type: 'separator'},
-      {role: 'reload'},
-      {type: 'separator'},
-      {role: 'close'}
+      {role: 'minimize'}
     ]
   },
   {
