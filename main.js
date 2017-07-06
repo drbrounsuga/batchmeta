@@ -90,7 +90,7 @@ const mainMenuTemplate = [
 ];
 
 // Add development menu if testing
-if(process.env.NODE_ENV.trim() !== 'production'){
+if(process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production'){
   mainMenuTemplate.push({
     label: 'Development',
     submenu: [
