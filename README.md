@@ -1,5 +1,7 @@
 # PDF Metadata Batch Processor
 
+![Demo](http://www.portfolio.bonvon.com/demo/pdf/batch-demo.gif)
+
 This is an Electron application used to batch edit metadata for PDF files.
 
 The user should select an index csv file that contains case sensitive columns and values for the metada that should be updated (e.g., Title, Description, Creator, ExpirationDate)
@@ -11,14 +13,12 @@ If the field contains a `:` then it's treated as an array
 
 The only column that is required is a `Path` column which should contain a relative path to a PDF file from the index csv. A template can be generated from the File menu.
 
-<img src="http://www.portfolio.bonvon.com/demo/pdf/menu.png" alt="Menu" />
+![Menu](http://www.portfolio.bonvon.com/demo/pdf/menu.png)
 
 Things to note:
 - The application can only edit PDF metada
 - The application will edit locked PDF metada
 - The application will NOT edit non-PDF files with a PDF extension
-
-<img src="http://www.portfolio.bonvon.com/demo/pdf/list.png" alt="List" />
 
 Before editing metadata, the app will generate a timestamped csv of the current state all PDFs in the index csv which can be used to "undo" the edits. It is still advised to edit copies and not the original files.
 
