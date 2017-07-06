@@ -22,6 +22,7 @@ Things to note:
 
 Before editing metadata, the app will generate a timestamped csv of the current state all PDFs in the index csv which can be used to "undo" the edits. It is still advised to edit copies and not the original files.
 
+
 ## CQ5 Tags
 ```bash
 .data["0"].Title (String)
@@ -42,6 +43,8 @@ Before editing metadata, the app will generate a timestamped csv of the current 
 - [npmjs.com/package/node-exiftool](https://www.npmjs.com/package/node-exiftool) - Exiftool
 - [sno.phy.queensu.ca/~phil/exiftool/config.html](http://www.sno.phy.queensu.ca/~phil/exiftool/config.html) - Exiftool Config
 - [npmjs.com/package/csv2json](https://www.npmjs.com/package/csv2json) - csv2json
+- [fontawesome.io](http://fontawesome.io/) - Fontawesome
+- [iconverticons.com](https://iconverticons.com/) - iConvert Icons
 - [vuejs.org](https://vuejs.org/) - Vue
 
 
