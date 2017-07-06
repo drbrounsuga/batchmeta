@@ -1,44 +1,49 @@
-# electron-quick-start
+# PDF Metadata Batch Processor
 
-**Clone and run for a quick way to see Electron in action.**
+This is an Electron application used to batch edit metadata for PDF files.
 
-This is a minimal Electron application based on the [Quick Start Guide](http://electron.atom.io/docs/tutorial/quick-start) within the Electron documentation.
+The user should select an index csv file that contains case sensitive columns and values for the metada that should be updated (e.g., Title, Description, Creator, ExpirationDate)
 
-**Use this app along with the [Electron API Demos](http://electron.atom.io/#get-started) app for API code examples to help you get started.**
+If the field contains a `:` then it's treated as an array 
 
-A basic Electron application needs just these files:
+- Tags: "One", Tags: "Two", Tags: "Three" => Tags["One", "Two", "Three"]
+- Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
 
-- `package.json` - Points to the app's main file and lists its details and dependencies.
-- `main.js` - Starts the app and creates a browser window to render HTML. This is the app's **main process**.
-- `index.html` - A web page to render. This is the app's **renderer process**.
+The only column that is required is a `Path` column which should contain a relative path to a PDF file from the index csv. A template can be generated from the File menu.
 
-You can learn more about each of these components within the [Quick Start Guide](http://electron.atom.io/docs/tutorial/quick-start).
+<img src="http://www.portfolio.bonvon.com/demo/pdf/menu.png" alt="Menu" />
 
-## To Use
+Things to note:
+- The application can only edit PDF metada
+- The application will edit locked PDF metada
+- The application will NOT edit non-PDF files with a PDF extension
 
-To clone and run this repository you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
+<img src="http://www.portfolio.bonvon.com/demo/pdf/list.png" alt="List" />
 
+Before editing metadata, the app will generate a timestamped csv of the current state all PDFs in the index csv which can be used to "undo" the edits. It is still advised to edit copies and not the original files.
+
+## CQ5 Tags
 ```bash
-# Clone this repository
-git clone https://github.com/electron/electron-quick-start
-# Go into the repository
-cd electron-quick-start
-# Install dependencies
-npm install
-# Run the app
-npm start
+.data["0"].Title (String)
+.data["0"].Description (String)
+.data["0"].Tags (Array)
+.data["0"].Creator (String)
+.data["0"].Contributor (String)
+.data["0"].Language (String)
+.data["0"]["Rights-x-repair"] (String)
+.data["0"].Owner (String)
+.data["0"].ExpirationDate (2017:05:19 03:15-05:00) => (5/19/17 3:15 AM)
 ```
 
-Note: If you're using Linux Bash for Windows, [see this guide](https://www.howtogeek.com/261575/how-to-run-graphical-linux-desktop-applications-from-windows-10s-bash-shell/) or use `node` from the command prompt.
 
-## Resources for Learning Electron
+## Resources
 
-- [electron.atom.io/docs](http://electron.atom.io/docs) - all of Electron's documentation
-- [electron.atom.io/community/#boilerplates](http://electron.atom.io/community/#boilerplates) - sample starter apps created by the community
-- [electron/electron-quick-start](https://github.com/electron/electron-quick-start) - a very basic starter Electron app
-- [electron/simple-samples](https://github.com/electron/simple-samples) - small applications with ideas for taking them further
-- [electron/electron-api-demos](https://github.com/electron/electron-api-demos) - an Electron app that teaches you how to use Electron
-- [hokein/electron-sample-apps](https://github.com/hokein/electron-sample-apps) - small demo apps for the various Electron APIs
+- [electron.atom.io](https://electron.atom.io/) - Electron
+- [npmjs.com/package/node-exiftool](https://www.npmjs.com/package/node-exiftool) - Exiftool
+- [sno.phy.queensu.ca/~phil/exiftool/config.html](http://www.sno.phy.queensu.ca/~phil/exiftool/config.html) - Exiftool Config
+- [npmjs.com/package/csv2json](https://www.npmjs.com/package/csv2json) - csv2json
+- [vuejs.org](https://vuejs.org/) - Vue
+
 
 ## License
 
