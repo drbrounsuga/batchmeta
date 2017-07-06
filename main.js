@@ -8,7 +8,7 @@ var json2csv = require('json2csv');
 const fs = require('fs');
 
 let mainWindow;
-let ep = new exiftool.ExiftoolProcess('./src/assets/exiftool');
+let ep = new exiftool.ExiftoolProcess(path.join(__dirname, 'src', 'assets', 'exiftool'));
 
 // headers for csv template
 const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
