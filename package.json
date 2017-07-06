@@ -5,7 +5,7 @@
   "description": "Batch edit file metadata",
   "main": "main.js",
   "scripts": {
-    "start": "NODE_ENV=production || SET NODE_ENV=production && electron .",
+    "start": "electron .",
     "test": "electron .",
     "reset-all": "rm -rf BatchMeta-win32-x64",
     "clean": "rm -rf BatchMeta-win32-x64/resources/app",
