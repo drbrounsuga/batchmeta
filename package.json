@@ -10,7 +10,8 @@
     "reset-all": "rm -rf BatchMeta-win32-x64",
     "clean": "rm -rf BatchMeta-win32-x64/resources/app",
     "package": "asar pack BatchMeta-win32-x64/resources/app BatchMeta-win32-x64/resources/app.asar && npm run clean",
-    "build": "npm run reset-all && electron-packager . BatchMeta --platform=win32 --arch=x64 --ignore=node_modules/electron-*"
+    "build": "npm run reset-all && electron-packager . BatchMeta --platform=win32 --arch=x64 --ignore=node_modules/electron-* --icon=src/assets/icons/ICO/icon.ico --prune=true",
+    "build-package": "npm run reset-all && electron-packager . BatchMeta --platform=win32 --arch=x64 --ignore=node_modules/electron-* --asar=true --icon=src/assets/icons/ICO/icon.ico --prune=true"
   },
   "repository": {
     "type": "git",
