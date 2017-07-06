@@ -13,7 +13,7 @@ If the field contains a `:` then it's treated as an array
 
 The only column that is required is a `Path` column which should contain a relative path to a PDF file from the index csv. A template can be generated from the File menu.
 
-![Menu](http://www.portfolio.bonvon.com/demo/pdf/menu.png)
+![Menu](http://www.portfolio.bonvon.com/demo/pdf/menu1.png)
 
 Things to note:
 - The application can only edit PDF metada
