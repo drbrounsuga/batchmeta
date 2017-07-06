@@ -185,7 +185,8 @@ app.on('ready', () => {
     height: 550, 
     minHeight: 550,
     backgroundColor: '#333333',
-    webPreferences: { backgroundThrottling: false }
+    webPreferences: { backgroundThrottling: false },
+    icon: path.join(__dirname, 'src', 'assets', 'icon.ico')
   });
 
   mainWindow.loadURL(url.format({
