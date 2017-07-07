@@ -5,8 +5,8 @@
   "description": "Batch edit file metadata",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
-    "test": "electron .",
+    "start": "NODE_ENV=production || SET NODE_ENV=development && electron .",
+    "test": "NODE_ENV=development || SET NODE_ENV=production && electron .",
     "reset-all": "rm -rf BatchMeta-win32-x64",
     "clean": "rm -rf BatchMeta-win32-x64/resources/app",
     "package": "asar pack BatchMeta-win32-x64/resources/app BatchMeta-win32-x64/resources/app.asar && npm run clean",
