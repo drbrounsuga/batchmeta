@@ -204,14 +204,19 @@ $vm = new Vue({
 
             /* 
             * if the key contains a : then its an array prop:
+            * Tags::1: "ONE", Tags::2: "TWO", Tags::3: "THREE" => Tags["ONE", "TWO", "THREE"]
             * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
             */
             Object.keys(doc).map((key, n) => {
               if(key.includes(':')){
-                let [ baseKey, propName ] = key.split(':');
+                let [ baseKey, propName ] = key.split(':', 1);
 
                 if(!doc[baseKey]){
                   doc[baseKey] = [];
+                }
+
+                if(propName && propName.startsWith(':')){
+                  propName = '';
                 }
 
                 doc[baseKey].push(`${propName ? propName + ':' : ''}${doc[key]}`);
