@@ -1,0 +1,3 @@
++ log errors to file
++ don't cross off old data unless new data is provided
++ check on electron caching issue
