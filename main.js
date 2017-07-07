@@ -108,7 +108,7 @@ if(process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production'){
 // ipc - write metadata
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   if(fs.existsSync(filePath)){
-    ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','overwrite_original'])
+    ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','htmlFormat','overwrite_original'])
     .then((res) => {
       event.sender.send('exiftool-write-reply', res, indx);
     })
