@@ -187,6 +187,7 @@ $vm = new Vue({
             let name;
             let path;
             let extension;
+            let val;
 
             name = doc['Path'];
             delete doc['Path'];
@@ -219,7 +220,11 @@ $vm = new Vue({
                   propName = '';
                 }
 
-                doc[baseKey].push(`${propName ? propName + ':' : ''}${doc[key]}`);
+                val = `${propName ? propName + ':' : ''}${doc[key]}`;
+
+                if(val){
+                  doc[baseKey].push(val);
+                }
                 delete doc[key];
               }
             });
@@ -314,6 +319,7 @@ $vm = new Vue({
       let status;
       let len = Object.keys(this.data).length;
       let arr = Object.assign({}, this.data);
+      let val;
 
       for(let i = 0; i < len; i++){
         data = {};
@@ -327,10 +333,11 @@ $vm = new Vue({
         }
 
         Object.keys(arr[i]).forEach((key) => {
-          if(!key.startsWith('zzz_') && arr[i][key]){
-            data[key] = arr[i][key];
-          }else if(arr[i][key] === 'DELETE'){
-            data[key] = '';
+          val = arr[i][key];
+          if((typeof val == 'string' || val instanceof String) && val === 'DELETE'){
+            data[key] = '&nbsp;';
+          }else if(val && !key.toLowerCase().startsWith('zzz_')){
+            data[key] = val;
           }
         });
 
