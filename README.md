@@ -16,9 +16,11 @@ The only column that is required is a `Path` column which should contain a relat
 ![Menu](http://www.portfolio.bonvon.com/demo/pdf/menu1.png)
 
 Things to note:
+- Empty fields will be ignored. To delete a field set the value to 'DELETE'
 - The application can only edit PDF metada
 - The application will edit locked PDF metada
 - The application will NOT edit non-PDF files with a PDF extension
+- The application will NOT edit files that are open in another application while processing
 - Columns that start with 'zzz_' will be ignored
 
 Before editing metadata, the app will generate a timestamped csv of the current state all PDFs in the index csv which can be used to "undo" the edits. It is still advised to edit copies and not the original files.
