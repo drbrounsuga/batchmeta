@@ -25,30 +25,30 @@ const Vue = require(vueModule);
 let $vm;
 
 // options for vue instance
-const vmOptions = {
-  revertFile: [],
-  conversionStarted: false,
-  csvCache: null,
-  csvDir: null,
-  csvFileCount: 0,
-  csvFilesProcessed: 0,
-  csvFilesSeen: 0,
-  csvMaxSizeMB: 30,
-  csvName: null,
-  csvPath: null,
-  csvSize: null,
-  data: [],
-  errorLog: [],
-  filesSkipped: 0,
-  hovering: false,
-  importCount: 0,
-  message: '',
-  page: 1,
-  title: '...',
-  validFileCount: 0
-};
-
-const vmBackup = Object.assign({}, vmOptions);
+function getInitialData(){
+  return {
+    revertFile: [],
+    conversionStarted: false,
+    csvCache: null,
+    csvDir: null,
+    csvFileCount: 0,
+    csvFilesProcessed: 0,
+    csvFilesSeen: 0,
+    csvMaxSizeMB: 30,
+    csvName: null,
+    csvPath: null,
+    csvSize: null,
+    data: [],
+    errorLog: [],
+    filesSkipped: 0,
+    hovering: false,
+    importCount: 0,
+    message: '',
+    page: 1,
+    title: '...',
+    validFileCount: 0
+  };
+}
 
 // set up drag and drop functionality
 window.addEventListener('dragover', e =>  $vm.dragcheck(e) );
@@ -65,7 +65,7 @@ window.addEventListener('drop', (e) => {
 // vue instance
 $vm = new Vue({
   el: '.container',
-  data: vmOptions,
+  data: getInitialData(),
   methods: {
     // saves a copy of the data from the selected csv to state
     cacheFile(data){
@@ -284,13 +284,7 @@ $vm = new Vue({
     },
     // reset app to default state
     reset(){
-      let keys = Object.keys(vmBackup);
-      let key;
-
-      for(let i = 0, len = keys.length; i < len; i++){
-        key = keys[i];
-        this[key] = vmBackup[key];
-      }
+      Object.assign(this.$data, getInitialData());
     },
     // sets the title of the application
     setTitle(str){
