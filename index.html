@@ -95,12 +95,12 @@
                         <strong>{{ key }}</span>:</strong>
                         <div class="sub-row" :title="doc.zzz_path">
                           <div class="left-half">
-                            <span v-if="doc[key] && doc[key].lenght >= 1">{{ doc[key] }}</span>
-                            <em v-else>{{ doc['zzz_original'][key] }}</em>
+                            <span v-if="doc[key] && doc[key] !== doc['zzz_original'][key]" v-html="doc[key]"></span>
+                            <em v-else v-html="doc['zzz_original'][key]"></em>
                           </div>
                           <div class="right-half">
-                            <del v-if="doc[key] && doc[key].lenght >= 1">{{ doc['zzz_original'][key] }}</del>
-                            <span v-else>{{ doc['zzz_original'][key] }}</span>
+                            <del v-if="doc[key] && doc[key] !== doc['zzz_original'][key]" v-html="doc['zzz_original'][key]"></del>
+                            <span v-else v-html="doc['zzz_original'][key]"></span>
                           </div>
                         </div>
                       </div>
