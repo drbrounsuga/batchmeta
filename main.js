@@ -111,7 +111,9 @@ if(isDevelopment){
         click(){ mainWindow.webContents.send('test-read-file'); }
       },
       {type: 'separator'},
-      {role: 'toggledevtools'}
+      {role: 'toggledevtools'},
+      {type: 'separator'},
+      {role: 'reload'}
     ]
   });
 }
