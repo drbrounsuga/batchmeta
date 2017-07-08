@@ -15,9 +15,11 @@
 */
 
 // variables
+const vueModule = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production' ? '../node_modules/vue/dist/vue.js' : '../node_modules/vue/dist/vue.min.js';
+
 const { ipcRenderer } = require('electron');
 const csv = require('csvtojson');
-const Vue = require('../node_modules/vue/dist/vue.js');
+const Vue = require(vueModule);
 
 let $vm;
 
