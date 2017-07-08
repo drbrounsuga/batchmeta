@@ -94,8 +94,14 @@
                       <div v-for="(key, indx) in Object.keys(doc)" v-if="!key.startsWith('zzz_')">
                         <strong>{{ key }}</span>:</strong>
                         <div class="sub-row" :title="doc.zzz_path">
-                          <div class="left-half">{{ doc[key] }}</div>
-                          <div class="right-half"><del>{{ doc['zzz_original'][key] }}<del></div>
+                          <div class="left-half">
+                            <span v-if="doc[key] && doc[key].lenght >= 1">{{ doc[key] }}</span>
+                            <em v-else>{{ doc['zzz_original'][key] }}</em>
+                          </div>
+                          <div class="right-half">
+                            <del v-if="doc[key] && doc[key].lenght >= 1">{{ doc['zzz_original'][key] }}</del>
+                            <span v-else>{{ doc['zzz_original'][key] }}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
