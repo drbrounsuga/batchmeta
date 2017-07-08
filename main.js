@@ -69,7 +69,7 @@ const mainMenuTemplate = [
         label: 'Reset',
         accelerator: 'CommandOrControl+Z',
         click(){
-          console.log(process.argv);
+          ep.close();
           app.relaunch({args: process.argv.slice(1)});
           app.exit(0);
         }
