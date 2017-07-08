@@ -1,0 +1,2 @@
++ remove error log menu on reload
++ fix revert when writing prop that didn't exist, maybe default nothing to DELETE
