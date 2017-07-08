@@ -67,7 +67,7 @@ const mainMenuTemplate = [
       {type: 'separator'},
       {
         label: 'Reset',
-        accelerator: 'CommandOrControl+R',
+        accelerator: 'CommandOrControl+Z',
         click(){
           console.log(process.argv);
           app.relaunch({args: process.argv.slice(1)});
