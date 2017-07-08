@@ -8,12 +8,15 @@ var json2csv = require('json2csv');
 const fs = require('fs');
 
 let mainWindow;
-let ep = new exiftool.ExiftoolProcess(path.join(__dirname, 'src', 'assets', 'exiftool'));
+const ep = new exiftool.ExiftoolProcess(path.join(__dirname, 'src', 'assets', 'exiftool'));
+const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production';
 
-// headers for csv template
+// headers for csv templates
+const csvErrorFields = ['Error'];
 const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
 
-// default content for csv template
+// default content for csv templates
+let csvErrorData;
 const csvData = [{
   "Path": "path\\from\\this\\file.csv", 
   "Title": "My File", 
@@ -29,6 +32,7 @@ const csvData = [{
 }];
 
 // create csv data
+let csvErrorContent;
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
 // application menu template
@@ -61,7 +65,15 @@ const mainMenuTemplate = [
         }
       },
       {type: 'separator'},
-      {role: 'reload'},
+      {
+        label: 'Reset',
+        accelerator: 'CommandOrControl+R',
+        click(){
+          console.log(process.argv);
+          app.relaunch({args: process.argv.slice(1)});
+          app.exit(0);
+        }
+      },
       {type: 'separator'},
       {role: 'close'}
     ]
@@ -90,7 +102,7 @@ const mainMenuTemplate = [
 ];
 
 // Add development menu if testing
-if(process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production'){
+if(isDevelopment){
   mainMenuTemplate.push({
     label: 'Development',
     submenu: [
@@ -103,6 +115,36 @@ if(process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production'){
     ]
   });
 }
+
+// Create error Menu
+const errorMenuTemplate = [...mainMenuTemplate];
+
+errorMenuTemplate.push({
+  label: 'Show Errors',
+  click(){ 
+    dialog.showSaveDialog(null, 
+      { 
+        defaultPath: 'error-log.csv',
+        filters: [
+          { name: 'CSV Files', extensions: ['csv'] }
+        ] 
+      }, (fileName) => {
+      if (fileName === undefined){
+        return;
+      }else if(!fileName.endsWith('.csv')){
+        fileName = fileName + '.csv';
+      }
+
+      fs.writeFile(fileName, csvErrorContent, (err) => {
+        if(err){
+          dialog.showErrorBox('Log Error', "An error ocurred creating the error log " + err.message);
+        } 
+      });
+    });
+  }
+});
+
+const errMenu = Menu.buildFromTemplate(errorMenuTemplate);
 
 // IPC Events
 // ipc - write metadata
@@ -142,40 +184,12 @@ ipcMain.on('show-error', (event, title, content) => {
 // ipc - show log error menu option
 ipcMain.on('log-errors', (event, errorsArr) => {
   if(errorsArr && errorsArr.length >= 1){
-    mainMenuTemplate.push({
-      label: 'Show Errors',
-      click(){ 
-        const csvFields = ['Error'];
-        const csvData = errorsArr.map((err, indx) => {
-          return { 
-            "Error": err
-          };
-        });
-        const csvContent = json2csv({ data: csvData, fields: csvFields });
-
-        dialog.showSaveDialog(null, 
-          { 
-            defaultPath: 'error-log.csv',
-            filters: [
-              { name: 'CSV Files', extensions: ['csv'] }
-            ] 
-          }, (fileName) => {
-          if (fileName === undefined){
-            return;
-          }else if(!fileName.endsWith('.csv')){
-            fileName = fileName + '.csv';
-          }
-
-          fs.writeFile(fileName, csvContent, (err) => {
-            if(err){
-              dialog.showErrorBox('Log Error', "An error ocurred creating the error log " + err.message);
-            } 
-          });
-        });
-      }
+    csvErrorData = errorsArr.map((err, indx) => {
+      return { 
+        "Error": err
+      };
     });
-
-    const errMenu = Menu.buildFromTemplate(mainMenuTemplate);
+    csvErrorContent = json2csv({ data: csvErrorData, fields: csvErrorFields });
     Menu.setApplicationMenu(errMenu);
   }
 });
@@ -242,6 +256,11 @@ app.on('ready', () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // require vue dev-tools
+  if(isDevelopment){
+    require('vue-devtools').install();
+  }
 
   ep.open();
 
