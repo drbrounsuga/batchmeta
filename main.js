@@ -139,6 +139,47 @@ ipcMain.on('show-error', (event, title, content) => {
   dialog.showErrorBox(title, content);
 });
 
+// ipc - show log error menu option
+ipcMain.on('log-errors', (event, errorsArr) => {
+  if(errorsArr && errorsArr.length >= 1){
+    mainMenuTemplate.push({
+      label: 'Show Errors',
+      click(){ 
+        const csvFields = ['Error'];
+        const csvData = errorsArr.map((err, indx) => {
+          return { 
+            "Error": err
+          };
+        });
+        const csvContent = json2csv({ data: csvData, fields: csvFields });
+
+        dialog.showSaveDialog(null, 
+          { 
+            defaultPath: 'error-log.csv',
+            filters: [
+              { name: 'CSV Files', extensions: ['csv'] }
+            ] 
+          }, (fileName) => {
+          if (fileName === undefined){
+            return;
+          }else if(!fileName.endsWith('.csv')){
+            fileName = fileName + '.csv';
+          }
+
+          fs.writeFile(fileName, csvContent, (err) => {
+            if(err){
+              dialog.showErrorBox('Log Error', "An error ocurred creating the error log " + err.message);
+            } 
+          });
+        });
+      }
+    });
+
+    const errMenu = Menu.buildFromTemplate(mainMenuTemplate);
+    Menu.setApplicationMenu(errMenu);
+  }
+});
+
 // ipc - get title from package.json
 ipcMain.on('get-title', (event) => {
   let res = `${name} -v ${version}`;

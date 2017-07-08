@@ -1,2 +1,0 @@
-+ log errors to file
-+ check on electron caching issue

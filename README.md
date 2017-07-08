@@ -22,6 +22,7 @@ Things to note:
 - The application will NOT edit non-PDF files with a PDF extension
 - The application will NOT edit files that are open in another application while processing
 - Columns that start with 'zzz_' will be ignored
+- If errors occour during processing, a 'Show Errors' item will appear in the menu
 
 Before editing metadata, the app will generate a timestamped csv of the current state all PDFs in the index csv which can be used to "undo" the edits. It is still advised to edit copies and not the original files.
 

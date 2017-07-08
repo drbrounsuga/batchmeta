@@ -15,7 +15,8 @@
 */
 
 // variables
-const vueModule = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production' ? '../node_modules/vue/dist/vue.js' : '../node_modules/vue/dist/vue.min.js';
+const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production';
+const vueModule = isDevelopment ? '../node_modules/vue/dist/vue.js' : '../node_modules/vue/dist/vue.min.js'
 
 const { ipcRenderer } = require('electron');
 const csv = require('csvtojson');
@@ -37,6 +38,7 @@ const vmOptions = {
   csvPath: null,
   csvSize: null,
   data: [],
+  errorLog: [],
   filesSkipped: 0,
   hovering: false,
   importCount: 0,
@@ -176,7 +178,7 @@ $vm = new Vue({
         this.readCsvData(csv, this.csvPath)
           .then((data) => this.cacheFile(data));
       }else{
-        this.updateErrorMessage('Preview Error', errorMessage);
+        this.showErrorMessage('Preview Error', errorMessage);
       }
     },
     // mutates and returns a copy of the selected csv's data for use in processing
@@ -311,7 +313,7 @@ $vm = new Vue({
       this.data = obj;
     },
     // show and error message
-    updateErrorMessage(title, err){
+    showErrorMessage(title, err){
       ipcRenderer.send('show-error', title, err);
     },
     // modifies the metadata of all files in the list
@@ -386,7 +388,13 @@ $vm = new Vue({
       };
     },
     isDone: function(){
-      return this.conversionStarted && this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount;
+      let isDone = this.conversionStarted && this.csvFilesSeen && this.csvFilesSeen === this.csvFileCount;
+
+      if(isDone && this.errorLog.length){
+        ipcRenderer.send('log-errors', this.errorLog);
+      }
+
+      return isDone;
     }
   }
 });
@@ -407,6 +415,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     if(res.error){
       result[indx]['zzz_path'] = res.error;
       result[indx]['zzz_icon'] = $vm.getIcon(null);
+      $vm.errorLog.push(res.error);
     }else{
       if(result[indx]['zzz_extension'] === 'pdf'){
         $vm.validFileCount++;
@@ -442,7 +451,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
   }else if(res.error){
-    $vm.updateErrorMessage('Read Reply Error', res.error);
+    $vm.showErrorMessage('Read Reply Error', res.error);
   }else{
     console.log(res.data[0]);
   }
@@ -451,7 +460,8 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 // once a file has been written update the status regarding wether the operation was successful
 ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   if(res.error && res.error !== '1 image files updated'){
-    //$vm.updateErrorMessage('Write Reply Error', res.error);
+    //$vm.showErrorMessage('Write Reply Error', res.error);
+    $vm.errorLog.push(res.error);
     $vm.updateListItemStatus(indx, false);
   }else{
     $vm.updateListItemStatus(indx, true);
@@ -474,7 +484,7 @@ ipcRenderer.on('save-backup-reply', (event, res) => {
 // recieve title from the main process and update
 ipcRenderer.on('get-title-reply', (event, res) => {
   if(res.error){
-    $vm.updateErrorMessage('Get Title Error', res.error);
+    $vm.showErrorMessage('Get Title Error', res.error);
   }else{
     $vm.setTitle(res);
   }
