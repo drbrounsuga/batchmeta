@@ -421,21 +421,33 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
       for(let i = 0, len = keys.length; i < len; i++){
 
-        key = keys[i].split(':')[0];
+        key = keys[i];
+
         if(res.data[0].hasOwnProperty(key)){
           if(Array.isArray(res.data[0][key])){
             let arr = res.data[0][key];
+            let num = 1;
 
             for(let i = 0, len = arr.length; i < len; i++){
-              let [ k, v ] = arr[i].split(':');
-              backup[`${key}:${k}`] = v;
+              let [ k, v ] = arr[i].split(':', 1);
+              
+              if(v && v.startsWith(':')){
+                // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                backup[`${key}::${num}`] = k ? k : 'DELETE';
+                num++;
+              }else{
+                // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                backup[`${key}:${k}`] = v ? v : 'DELETE';
+              }
             }
 
             oldData[key] = res.data[0][key];
           }else{
             oldData[key] = res.data[0][key];
-            backup[key] = res.data[0][key];
+            backup[key] = (res.data[0][key]).trim() ? res.data[0][key] : 'DELETE';
           }
+        }else{
+          backup[key] = 'DELETE';
         }
       }
     }

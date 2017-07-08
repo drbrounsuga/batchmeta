@@ -1,2 +1,1 @@
-+ test that revert when writing prop that didn't exist sets to DELETE
 + test and refactor
