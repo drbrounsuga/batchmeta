@@ -54,7 +54,7 @@ const mainMenuTemplate = [
                     { name: 'CSV Files', extensions: ['csv'] }
                   ] 
                 }, (fileName) => {
-                if (fileName === undefined){
+                if(fileName === undefined){
                   return;
                 }else if(!fileName.endsWith('.csv')){
                   fileName = fileName + '.csv';
@@ -71,7 +71,16 @@ const mainMenuTemplate = [
           {
             label: 'Generate from Folder',
             click(){
-              console.log('use fs to walk directory');
+              dialog.showOpenDialog(null,{
+                title: 'Generate template from directory',
+                properties: ['openDirectory']
+              }, (filePath) => {
+                if(filePath === undefined){
+                  return;
+                }
+
+                console.log('use fs to walk directory ' + filePath);
+              });
             }
           }
         ]
