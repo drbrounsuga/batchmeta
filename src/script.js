@@ -213,6 +213,8 @@ $vm = new Vue({
             * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
             */
             Object.keys(doc).map((key, n) => {
+              val = '';
+
               if(key.includes(':')){
                 let baseKey = key.substr(0, key.indexOf(':'));
                 let propName = key.substr(key.indexOf(':') + 1);
@@ -225,7 +227,9 @@ $vm = new Vue({
                   propName = '';
                 }
 
-                val = `${propName ? propName + ':' : ''}${doc[key]}`;
+                if(doc[key] !== 'DELETE'){
+                  val = `${propName ? propName + ':' : ''}${doc[key]}`;
+                }
 
                 if(val){
                   doc[baseKey].push(val);
@@ -329,7 +333,7 @@ $vm = new Vue({
         Object.keys(arr[i]).forEach((key) => {
           val = arr[i][key];
           if((typeof val == 'string' || val instanceof String) && val === 'DELETE'){
-            data[key] = '&nbsp;';
+            data[key] = ' ';
           }else if(val && !key.toLowerCase().startsWith('zzz_')){
             data[key] = val;
           }
@@ -444,7 +448,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
               
               if(v && v.startsWith(':')){
                 // case 1
-                backup[`${key}::${num}`] = k ? k : 'DELETE';
+                backup[`${key}::${num}`] = k;
                 num++;
               }else{
                 // case 2
