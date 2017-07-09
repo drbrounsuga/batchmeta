@@ -41,29 +41,40 @@ const mainMenuTemplate = [
   {
     label: 'File',
     submenu: [
-      { 
-        label: 'Download CSV Template',
-        click(){ 
-          dialog.showSaveDialog(null, 
-            { 
-              defaultPath: 'batch-template.csv',
-              filters: [
-                { name: 'CSV Files', extensions: ['csv'] }
-              ] 
-            }, (fileName) => {
-            if (fileName === undefined){
-              return;
-            }else if(!fileName.endsWith('.csv')){
-              fileName = fileName + '.csv';
-            }
+      {
+        label: 'CSV Template',
+        submenu: [
+          { 
+            label: 'Download Default',
+            click(){ 
+              dialog.showSaveDialog(null, 
+                { 
+                  defaultPath: 'batch-template.csv',
+                  filters: [
+                    { name: 'CSV Files', extensions: ['csv'] }
+                  ] 
+                }, (fileName) => {
+                if (fileName === undefined){
+                  return;
+                }else if(!fileName.endsWith('.csv')){
+                  fileName = fileName + '.csv';
+                }
 
-            fs.writeFile(fileName, csvContent, (err) => {
-              if(err){
-                dialog.showErrorBox('Download CSV Error', "An error ocurred creating the file " + err.message);
-              } 
-            });
-          }); 
-        }
+                fs.writeFile(fileName, csvContent, (err) => {
+                  if(err){
+                    dialog.showErrorBox('Download CSV Error', "An error ocurred creating the file " + err.message);
+                  } 
+                });
+              }); 
+            }
+          },
+          {
+            label: 'Generate from Folder',
+            click(){
+              console.log('use fs to walk directory');
+            }
+          }
+        ]
       },
       {type: 'separator'},
       {

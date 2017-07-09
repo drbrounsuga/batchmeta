@@ -1,1 +1,2 @@
++ generate template from directory
 + test and refactor
