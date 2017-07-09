@@ -399,30 +399,41 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let oldData = {};
 
   if(res.error && indx !== -1 || indx >= 0){
+    // get the data for all files
     result = Object.assign({}, $vm.data);
 
     if(res.error){
+      // update problem file with error info
       result[indx]['zzz_path'] = res.error;
       result[indx]['zzz_icon'] = $vm.getIcon(null);
       $vm.errorLog.push(res.error);
     }else{
+      // if pdf, mark as valid
       if(result[indx]['zzz_extension'] === 'pdf'){
         $vm.validFileCount++;
       }
+
+      // get keys and remove zzz keys
       keys = Object.keys(result[indx]);
       keys = keys.filter((key) => {
         return !key.startsWith('zzz_');
       });
 
+      // for all keys in stored data...
+      // (if the value is not present it should be set to DELETE in the backup file)
       for(let i = 0, len = keys.length; i < len; i++){
 
         key = keys[i];
 
+        // if the file to be edited has the key...
         if(res.data[0].hasOwnProperty(key)){
+
+          // ... and the value is an array...
           if(Array.isArray(res.data[0][key])){
             let arr = res.data[0][key];
             let num = 1;
 
+            // loop through each array item and parse out the values for the backup file
             for(let i = 0, len = arr.length; i < len; i++){
               let [ k, v ] = arr[i].split(':', 1);
               
@@ -436,8 +447,10 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
               }
             }
 
+            // save the file to be edited array data
             oldData[key] = res.data[0][key];
           }else{
+            // save the file to be edited non-array data and back it up
             oldData[key] = res.data[0][key];
             backup[key] = (res.data[0][key]).trim() ? res.data[0][key] : 'DELETE';
           }
@@ -447,13 +460,18 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
       }
     }
 
+    // add the file to be edited data to our file data
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
+
+    // push the file to be edited data to our file data's revertFile property array
     $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
   }else if(res.error){
+    // there was an error, show it
     $vm.showErrorMessage('Read Reply Error', res.error);
   }else{
+    // this was a test, log it
     console.log(res.data[0]);
   }
 });
