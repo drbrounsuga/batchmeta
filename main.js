@@ -12,7 +12,7 @@ const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'p
 
 // headers for csv templates
 const csvErrorFields = ['Error'];
-const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
+const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Tags::1', 'Tags::2', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
 
 // default content for csv templates
 let csvErrorData;
@@ -22,6 +22,8 @@ const csvData = [{
   "Description": "This is a description in 160 characters or less", 
   "Tags:ROBOTS": "FOLLOW", 
   "Tags:publishing_entity": "PT", 
+  "Tags::1": "membership:PT", 
+  "Tags::2": "ROBOTS:INDEX", 
   "Creator": "Von Haynes", 
   "Contributor": "ABA IPL", 
   "Language": "en", 
