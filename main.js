@@ -152,6 +152,10 @@ const errMenu = Menu.buildFromTemplate(errorMenuTemplate);
 // IPC Events
 // ipc - write metadata
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
+
+  //check data before written
+  //console.log(data);
+
   if(fs.existsSync(filePath)){
     ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','htmlFormat','overwrite_original'])
     .then((res) => {
