@@ -1,7 +1,6 @@
 const { app, BrowserWindow, ipcMain, Menu, dialog, shell } = require('electron');
 const exiftool = require('node-exiftool');
 const version = require('./package.json').version;
-const name = require('./package.json').displayName;
 const path = require('path');
 const url = require('url');
 var json2csv = require('json2csv');
@@ -243,7 +242,8 @@ app.on('ready', () => {
     minHeight: 550,
     backgroundColor: '#333333',
     webPreferences: { backgroundThrottling: false },
-    icon: path.join(__dirname, 'src', 'assets', 'icons', 'ICO', 'icon.ico')
+    icon: path.join(__dirname, 'src', 'assets', 'icons', 'ICO', 'icon.ico'),
+    title: app.getName()
   });
 
   mainWindow.loadURL(url.format({

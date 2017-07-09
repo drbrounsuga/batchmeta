@@ -1,6 +1,7 @@
 {
   "name": "pdf-metadata-editor",
-  "version": "1.0.0",
+  "productName": "PDF Metadata Editor v 1.0.1",
+  "version": "1.0.1",
   "displayName": "Metadata Batch Processor",
   "description": "Batch edit file metadata",
   "main": "main.js",

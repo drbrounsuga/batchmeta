@@ -286,11 +286,6 @@ $vm = new Vue({
     reset(){
       Object.assign(this.$data, getInitialData());
     },
-    // sets the title of the application
-    setTitle(str){
-      this.title = str;
-      let title = document.getElementById('app-title').innerText = str
-    },
     // toggles display of file details
     toggleDetails(e, indx){
       let obj = Object.assign({}, this.data);
@@ -486,15 +481,3 @@ ipcRenderer.on('save-backup-reply', (event, res) => {
     $vm.updateFiles();
   }
 });
-
-// recieve title from the main process and update
-ipcRenderer.on('get-title-reply', (event, res) => {
-  if(res.error){
-    $vm.showErrorMessage('Get Title Error', res.error);
-  }else{
-    $vm.setTitle(res);
-  }
-});
-
-// request page title from the main process
-ipcRenderer.send('get-title');
