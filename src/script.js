@@ -214,7 +214,8 @@ $vm = new Vue({
             */
             Object.keys(doc).map((key, n) => {
               if(key.includes(':')){
-                let [ baseKey, propName ] = key.split(':', 1);
+                let baseKey = key.substr(0, key.indexOf(':'));
+                let propName = key.substr(key.indexOf(':') + 1);
 
                 if(!doc[baseKey]){
                   doc[baseKey] = [];
@@ -435,14 +436,18 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
 
             // loop through each array item and parse out the values for the backup file
             for(let i = 0, len = arr.length; i < len; i++){
-              let [ k, v ] = arr[i].split(':', 1);
+              
+              // Case 1 = Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+              // Case 2 = Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+              let k = arr[i].substr(0, arr[i].indexOf(':'));
+              let v = arr[i].substr(arr[i].indexOf(':') + 1);
               
               if(v && v.startsWith(':')){
-                // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                // case 1
                 backup[`${key}::${num}`] = k ? k : 'DELETE';
                 num++;
               }else{
-                // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                // case 2
                 backup[`${key}:${k}`] = v ? v : 'DELETE';
               }
             }
