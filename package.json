@@ -39,6 +39,7 @@
     "json2csv": "^3.7.3",
     "node-exiftool": "^2.1.5",
     "normalize.css": "^7.0.0",
+    "recursive-readdir": "^2.2.1",
     "vue": "^2.3.3"
   }
 }
