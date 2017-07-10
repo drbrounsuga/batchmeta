@@ -46,8 +46,6 @@ let generatedCSVTemplate = {
   "ExpirationDate": ""
 };
 let generatedCSV = [];
-let generatedCache = {};
-let generatedUnprocessed = 0;
 
 // create csv data
 let csvErrorContent;
@@ -117,11 +115,11 @@ const mainMenuTemplate = [
           {
             label: 'Generate from Folder',
             click(){
+              // this needs to be cleaned up!!!
               dialog.showOpenDialog(mainWindow,{
                 title: 'Generate template from directory',
                 properties: ['openDirectory']
-              }, 
-              (filePath) => {
+              }, (filePath) => {
                 let localPath;
 
                 if(filePath === undefined){
@@ -146,42 +144,103 @@ const mainMenuTemplate = [
                 
                 walk
                 .then( files => {
-                  let count = 0;
-                  generatedUnprocessed = files.length;
+                  let key;
+                  let a1;
+                  let a2;
+                  let arr;
+                  let count;
+                  let data;
+                  let props;
+                  let propKeys;
+                  let result;
+                  let tempKey;
+                  let localPath;
+                  let filesRead = 0;
+                  let keys = Object.keys(generatedCSVTemplate);
 
-                  return files.map((file) => {
-                    let result = {};
+                  keys.map(key => {
+                    generatedFields[key] = 0;
+                  });
+
+                  files.map((file) => {
+                    localPath = path.relative(filePath[0], file);
+                    result = (() => { 
+                      return { "Path": localPath }; 
+                    })();
+                    props = {};
+                    console.log('*'+localPath);
+
+                    //---------------------------
                     ep
                     .readMetadata(file, [])
                     .then((res) => {
-                      let data = res.data[0];
-                      generatedCache[count] = data;
-                      generatedUnprocessed--;
-                    })
-                    .then(() => {
-                      console.log(generatedUnprocessed + ' down to 0');
-                    })
-                    .catch((err) => {
-                      generatedCache[count] = { "Error": err };
-                    });
+                      data = res.data[0];
 
-                    result.Path = path.relative(filePath[0], file);
-                    result.zzz_count = count;
-                    count++;
-                    return Object.assign({}, generatedCSVTemplate, result);
-                  });
-                  
-                })
-                .then( files => {
-                  generatedCSV = files;
-                  return files;
-                })
-                .then( files => {
-                  //console.log(generatedCSV);
-                  return files;
-                })
-                .then( files => {
-                  
+                      for(let i = 0, len = keys.length; i < len; i++){
+                        key = keys[i];
+
+                        if(!key.includes(':')){
+                          result[key] = data[key] ? data[key] : '';
+                        }else{
+                          props[key.substr(0, key.indexOf(':'))] = 1;
+                          result[key] = generatedCSVTemplate[key];
+                        }
+                      }
+                        
+                      propKeys = Object.keys(props);
+                      for(let p = 0, plen = propKeys.length; p < plen; p++){
+                        arr = data[propKeys[p]];
+                        count = 1;
+
+                        if(!generatedFields.hasOwnProperty(propKeys[p])){
+                          generatedFields[propKeys[p]] = 1;
+                        }
+
+                        //-----
+                        for(let a = 0, alen = arr.length; a < alen; a++){
+                          if(arr[a].includes(':')){
+                            // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                            a1 = arr[a].substr(0, arr[a].indexOf(':'));
+                            a2 = arr[a].substr(arr[a].indexOf(':') + 1);
+                            tempKey = `${propKeys[p]}:${a1}`;
+                            result[tempKey] = a2;
+                            //generatedCSVTemplate[tempKey] = generatedCSVTemplate[tempKey] ? generatedCSVTemplate[tempKey] : '';
+                          }else{
+                            // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+                            tempKey = `${propKeys[p]}::${count}`;
+                            result[tempKey] = arr[a];
+                            //generatedCSVTemplate[tempKey] = generatedCSVTemplate[tempKey] ? generatedCSVTemplate[tempKey] : '';
+                            count++;
+                          }
+                        }
+                        //-----
+
+                      }
+
+                      
+
+                      console.log(result);
+                      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+                      
+                      generatedCSV.push(result);
+                      filesRead++;
+                      if(filesRead === files.length){
+                        generateCSV(filePath[0]);
+                      }
+                    })
+                    .catch(error =>{
+                      result.Title = error;
+                      generatedCSV.push(result);
+                      filesRead++;
+                      if(filesRead === files.length){
+                        generateCSV(filePath[0]);
+                      }
+                    });
+                    //---------------------------
+
+                    
+                  })
+
                 })
                 .catch(err => {
                   dialog.showErrorBox('Error generating template', err);
