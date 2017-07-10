@@ -46,7 +46,7 @@ Before editing metadata, the app will generate a timestamped csv of the current 
 - [electron.atom.io](https://electron.atom.io/) - Electron
 - [npmjs.com/package/node-exiftool](https://www.npmjs.com/package/node-exiftool) - Exiftool
 - [sno.phy.queensu.ca/~phil/exiftool/config.html](http://www.sno.phy.queensu.ca/~phil/exiftool/config.html) - Exiftool Config
-- [npmjs.com/package/csv2json](https://www.npmjs.com/package/csv2json) - csv2json
+- [npmjs.com/package/json2csv](https://www.npmjs.com/package/json2csv) - json2csv
 - [fontawesome.io](http://fontawesome.io/) - Fontawesome
 - [iconverticons.com](https://iconverticons.com/) - iConvert Icons
 - [vuejs.org](https://vuejs.org/) - Vue
