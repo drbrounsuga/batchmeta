@@ -14,7 +14,7 @@ const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'p
 // headers for csv templates
 const csvErrorFields = ['Error'];
 const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Tags::1', 'Tags::2', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
-let generatedFields = {};
+let generatedFields;
 
 // default content for csv templates
 let csvErrorData;
@@ -45,8 +45,8 @@ let generatedCSVTemplate = {
   "Owner": "American Bar Association", 
   "ExpirationDate": ""
 };
-let generatedCache = {};
-let generatedUnprocessed = 0;
+let generatedCache;
+let generatedUnprocessed;
 
 // create csv data
 let csvErrorContent;
@@ -77,7 +77,7 @@ const csvContent = json2csv({ data: csvData, fields: csvFields });
       });
     }
   });
-  
+
 };
 
 
@@ -182,6 +182,10 @@ const mainMenuTemplate = [
           {
             label: 'Generate from Folder',
             click(){
+              generatedUnprocessed = 0;
+              generatedFields = {};
+              generatedCache = {};
+
               dialog.showOpenDialog(mainWindow,{
                 title: 'Generate template from directory',
                 properties: ['openDirectory']
