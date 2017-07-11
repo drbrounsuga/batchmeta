@@ -36,13 +36,13 @@ const csvData = [{
 let generatedCSVTemplate = {
   "Title": "", 
   "Description": "", 
-  "Tags:ROBOTS": "INDEX", 
-  "Tags:publishing_entity": "PT", 
+  "Tags:ROBOTS": "", 
+  "Tags:publishing_entity": "", 
   "Creator": "", 
   "Contributor": "", 
   "Language": "en", 
-  "Rights": "Copyright \u00A9 2017", 
-  "Owner": "American Bar Association", 
+  "Rights": "", 
+  "Owner": "", 
   "ExpirationDate": ""
 };
 let generatedCache;
@@ -94,6 +94,8 @@ function readFile(files, id, keys, filePath){
     let propKeys;
     let filteredData = {};
 
+    filteredData.Path = files[id].Path;
+
     for(let i = 0, len = keys.length; i < len; i++){
       key = keys[i];
 
@@ -110,22 +112,24 @@ function readFile(files, id, keys, filePath){
       arr = data[propKeys[p]];
       count = 1;
 
-      for(let a = 0, alen = arr.length; a < alen; a++){
-        if(arr[a].includes(':')){
-          // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
-          let a1 = arr[a].substr(0, arr[a].indexOf(':'));
-          let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
-          let tempKey = `${propKeys[p]}:${a1}`;
-          generatedFields[tempKey] = 1;
-          filteredData[tempKey] = a2;
-        }else{
-          // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
-          let tempKey = `${propKeys[p]}::${count}`;
-          generatedFields[tempKey] = 1;
-          filteredData[tempKey] = arr[a];
-          count++;
-        }
+      if(arr && arr.length){
+        for(let a = 0, alen = arr.length; a < alen; a++){
+          if(arr[a].includes(':')){
+            // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+            let a1 = arr[a].substr(0, arr[a].indexOf(':'));
+            let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
+            let tempKey = `${propKeys[p]}:${a1}`;
+            generatedFields[tempKey] = 1;
+            filteredData[tempKey] = a2;
+          }else{
+            // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+            let tempKey = `${propKeys[p]}::${count}`;
+            generatedFields[tempKey] = 1;
+            filteredData[tempKey] = arr[a];
+            count++;
+          }
 
+        }
       }
 
     }
@@ -140,9 +144,7 @@ function readFile(files, id, keys, filePath){
       generateCSV(filePath);
     }
   })
-  .catch((err) => {
-    generatedCache[key] = { "Error": error };
-  });
+  .catch(console.error);
 
 }
 
@@ -183,7 +185,7 @@ const mainMenuTemplate = [
             label: 'Generate from Folder',
             click(){
               generatedUnprocessed = 0;
-              generatedFields = {};
+              generatedFields = { "Path": 0 };
               generatedCache = {};
 
               dialog.showOpenDialog(mainWindow,{
@@ -223,7 +225,7 @@ const mainMenuTemplate = [
                   files.map((file) => {
                     localPath = path.relative(filePath[0], file);
                     generatedCache[count] = Object.assign({}, generatedCSVTemplate, { "Path": localPath });
-                    result[count] = Object.assign({}, { "zzz_path": file });
+                    result[count] = Object.assign({}, { "zzz_path": file, "Path": localPath });
                     count++;
                   });
 
