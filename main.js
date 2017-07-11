@@ -82,14 +82,58 @@ const csvContent = json2csv({ data: csvData, fields: csvFields });
 // };
 
 
-function readFile(files, key){
+function readFile(files, id, keys){
 
   ep
-  .readMetadata(files[key].zzz_path, [])
+  .readMetadata(files[id].zzz_path, [])
   .then((res) => {
     let data = res.data[0];
+    let key;
+    let arr;
+    let count;
+    let props = {};
+    let propKeys;
+    let filteredData = {};
 
-    generatedCache[key] = Object.assign({}, generatedCache[key], data);
+    for(let i = 0, len = keys.length; i < len; i++){
+      key = keys[i];
+
+      if(!key.includes(':')){
+        filteredData[key] = data[key] ? data[key] : '';
+      }else{
+        props[key.substr(0, key.indexOf(':'))] = 1;
+      }
+      
+    }
+
+    propKeys = Object.keys(props);
+    for(let p = 0, plen = propKeys.length; p < plen; p++){
+      arr = data[propKeys[p]];
+      count = 1;
+
+      if(!generatedFields.hasOwnProperty(propKeys[p])){
+        generatedFields[propKeys[p]] = 1;
+      }
+
+      for(let a = 0, alen = arr.length; a < alen; a++){
+        if(arr[a].includes(':')){
+          // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+          let a1 = arr[a].substr(0, arr[a].indexOf(':'));
+          let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
+          let tempKey = `${propKeys[p]}:${a1}`;
+          filteredData[tempKey] = a2;
+        }else{
+          // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+          let tempKey = `${propKeys[p]}::${count}`;
+          filteredData[tempKey] = arr[a];
+          count++;
+        }
+
+      }
+
+    }
+
+    generatedCache[id] = Object.assign({}, generatedCache[id], filteredData);
     generatedUnprocessed--;
   })
   .then(() => {
@@ -185,14 +229,23 @@ const mainMenuTemplate = [
                   
                 })
                 .then( files => {
+
+                  Object.keys(generatedCSVTemplate).map((key) => {
+                    generatedFields[key] = 0;
+                  });
+
+                  return files;
+                })
+                .then( files => {
                   let key;
                   let keys = Object.keys(files);
+                  let defaultKeys = Object.keys(generatedCSVTemplate);
 
 
                   for(let i = 0, len = keys.length; i < len; i++){
                     key = keys[i];
 
-                    readFile(files, key);                 
+                    readFile(files, key, defaultKeys);                 
                   }
 
                 })
