@@ -45,7 +45,6 @@ let generatedCSVTemplate = {
   "Owner": "American Bar Association", 
   "ExpirationDate": ""
 };
-let generatedCSV = [];
 let generatedCache = {};
 let generatedUnprocessed = 0;
 
@@ -54,33 +53,57 @@ let csvErrorContent;
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
 // generate csv for user
- function generateCSV(filePath){
-  let fields = ['Path'];
-  let keys = Object.keys(generatedFields);
-  for(let i = 0, len = keys.length; i < len; i++){
-    fields.push(keys[i]);
-  }
-  console.log('---------------------');
-  console.log(generatedCSV);
-  console.log('---------------------');
+//  function generateCSV(filePath){
+//   let fields = ['Path'];
+//   let keys = Object.keys(generatedFields);
+//   for(let i = 0, len = keys.length; i < len; i++){
+//     fields.push(keys[i]);
+//   }
+//   console.log('---------------------');
+//   console.log(generatedCSV);
+//   console.log('---------------------');
 
-  const generatedContent = json2csv({ data: generatedCSV, fields: fields });
-  console.log(generatedContent);
+//   const generatedContent = json2csv({ data: generatedCSV, fields: fields });
+//   console.log(generatedContent);
 
-  // create path for new file
-  let fileName = path.join(filePath, 'batch-index.csv');
+//   // create path for new file
+//   let fileName = path.join(filePath, 'batch-index.csv');
 
-  // write file
-  fs.writeFile(fileName, generatedContent, (err) => {
-    if(err){
-      dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
-    }else{
-      dialog.showMessageBox(mainWindow, {
-        message: 'A batch import template has been created from the directory that you selected!'
-      });
+//   // write file
+//   fs.writeFile(fileName, generatedContent, (err) => {
+//     if(err){
+//       dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
+//     }else{
+//       dialog.showMessageBox(mainWindow, {
+//         message: 'A batch import template has been created from the directory that you selected!'
+//       });
+//     }
+//   });
+// };
+
+
+function readFile(files, key){
+
+  ep
+  .readMetadata(files[key].zzz_path, [])
+  .then((res) => {
+    let data = res.data[0];
+
+    generatedCache[key] = Object.assign({}, generatedCache[key], data);
+    generatedUnprocessed--;
+  })
+  .then(() => {
+    if(generatedUnprocessed === 0){
+      console.log(generatedCache);
+      //console.log('done');
     }
+  })
+  .catch((err) => {
+    generatedCache[key] = { "Error": error };
   });
-};
+
+}
+
 
 // application menu template
 const mainMenuTemplate = [
@@ -149,42 +172,32 @@ const mainMenuTemplate = [
                   let count = 0;
                   generatedUnprocessed = files.length;
 
-                  return files.map((file) => {
-                    let result = {};
-                    ep
-                    .readMetadata(file, [])
-                    .then((res) => {
-                      let data = res.data[0];
-                      generatedCache[count] = data;
-                      generatedUnprocessed--;
-                    })
-                    .then(() => {
-                      console.log(generatedUnprocessed + ' down to 0');
-                    })
-                    .catch((err) => {
-                      generatedCache[count] = { "Error": err };
-                    });
+                  let result = {};
 
-                    result.Path = path.relative(filePath[0], file);
-                    result.zzz_count = count;
+                  files.map((file) => {
+                    localPath = path.relative(filePath[0], file);
+                    generatedCache[count] = Object.assign({}, generatedCSVTemplate, { "Path": localPath });
+                    result[count] = Object.assign({}, { "zzz_path": file });
                     count++;
-                    return Object.assign({}, generatedCSVTemplate, result);
                   });
+
+                  return result;
                   
                 })
                 .then( files => {
-                  generatedCSV = files;
-                  return files;
+                  let key;
+                  let keys = Object.keys(files);
+
+
+                  for(let i = 0, len = keys.length; i < len; i++){
+                    key = keys[i];
+
+                    readFile(files, key);                 
+                  }
+
                 })
-                .then( files => {
-                  //console.log(generatedCSV);
-                  return files;
-                })
-                .then( files => {
-                  
-                })
-                .catch(err => {
-                  dialog.showErrorBox('Error generating template', err);
+                .catch((error) => {
+                  dialog.showErrorBox('Error generating template', error);
                 });
 
               });
