@@ -53,36 +53,35 @@ let csvErrorContent;
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
 // generate csv for user
-//  function generateCSV(filePath){
-//   let fields = ['Path'];
-//   let keys = Object.keys(generatedFields);
-//   for(let i = 0, len = keys.length; i < len; i++){
-//     fields.push(keys[i]);
-//   }
-//   console.log('---------------------');
-//   console.log(generatedCSV);
-//   console.log('---------------------');
+ function generateCSV(filePath){
+  let data = [];
+  let fields = Object.keys(generatedFields);
+  let keys = Object.keys(generatedCache);
 
-//   const generatedContent = json2csv({ data: generatedCSV, fields: fields });
-//   console.log(generatedContent);
+  for(let i = 0, len = keys.length; i < len; i++){
+    data.push(generatedCache[keys[i]]);
+  }
+  
+  const generatedContent = json2csv({ data: data, fields: fields });
 
-//   // create path for new file
-//   let fileName = path.join(filePath, 'batch-index.csv');
+  // create path for new file
+  let fileName = path.join(filePath, 'batch-index.csv');
 
-//   // write file
-//   fs.writeFile(fileName, generatedContent, (err) => {
-//     if(err){
-//       dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
-//     }else{
-//       dialog.showMessageBox(mainWindow, {
-//         message: 'A batch import template has been created from the directory that you selected!'
-//       });
-//     }
-//   });
-// };
+  // write file
+  fs.writeFile(fileName, generatedContent, (err) => {
+    if(err){
+      dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
+    }else{
+      dialog.showMessageBox(mainWindow, {
+        message: 'A batch import template has been created from the directory that you selected!'
+      });
+    }
+  });
+  
+};
 
 
-function readFile(files, id, keys){
+function readFile(files, id, keys, filePath){
 
   ep
   .readMetadata(files[id].zzz_path, [])
@@ -111,20 +110,18 @@ function readFile(files, id, keys){
       arr = data[propKeys[p]];
       count = 1;
 
-      if(!generatedFields.hasOwnProperty(propKeys[p])){
-        generatedFields[propKeys[p]] = 1;
-      }
-
       for(let a = 0, alen = arr.length; a < alen; a++){
         if(arr[a].includes(':')){
           // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
           let a1 = arr[a].substr(0, arr[a].indexOf(':'));
           let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
           let tempKey = `${propKeys[p]}:${a1}`;
+          generatedFields[tempKey] = 1;
           filteredData[tempKey] = a2;
         }else{
           // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
           let tempKey = `${propKeys[p]}::${count}`;
+          generatedFields[tempKey] = 1;
           filteredData[tempKey] = arr[a];
           count++;
         }
@@ -135,11 +132,12 @@ function readFile(files, id, keys){
 
     generatedCache[id] = Object.assign({}, generatedCache[id], filteredData);
     generatedUnprocessed--;
+
+    return filePath;
   })
-  .then(() => {
+  .then((filePath) => {
     if(generatedUnprocessed === 0){
-      console.log(generatedCache);
-      //console.log('done');
+      generateCSV(filePath);
     }
   })
   .catch((err) => {
@@ -245,7 +243,7 @@ const mainMenuTemplate = [
                   for(let i = 0, len = keys.length; i < len; i++){
                     key = keys[i];
 
-                    readFile(files, key, defaultKeys);                 
+                    readFile(files, key, defaultKeys, filePath[0]);                 
                   }
 
                 })
