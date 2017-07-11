@@ -200,12 +200,8 @@ const mainMenuTemplate = [
                 }
                 
                 let walk = new Promise((resolve, reject) => {
-
-                  const ignoreFunc = (file) => {
-                    return !path.basename(file).endsWith('pdf');
-                  };
                   
-                  recursive(filePath[0], [ignoreFunc], (err, files) => {
+                  recursive(filePath[0], ["!*.pdf"], (err, files) => {
                     if(err){
                       reject(err);
                     }else{
