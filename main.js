@@ -184,10 +184,12 @@ const mainMenuTemplate = [
           {
             label: 'Generate from Folder',
             click(){
+              // reset generated data
               generatedUnprocessed = 0;
               generatedFields = { "Path": 0 };
               generatedCache = {};
 
+              // open dialog for directory selection
               dialog.showOpenDialog(mainWindow,{
                 title: 'Generate template from directory',
                 properties: ['openDirectory']
@@ -199,6 +201,7 @@ const mainMenuTemplate = [
                   return;
                 }
                 
+                // get the list of files
                 let walk = new Promise((resolve, reject) => {
                   
                   recursive(filePath[0], ["!*.pdf"], (err, files) => {
@@ -213,11 +216,13 @@ const mainMenuTemplate = [
                 
                 walk
                 .then( files => {
+                  // start at 0, set total num of files
                   let count = 0;
                   generatedUnprocessed = files.length;
 
                   let result = {};
 
+                  // loop through each file, cache object, send path data on for processing
                   files.map((file) => {
                     localPath = path.relative(filePath[0], file);
                     generatedCache[count] = Object.assign({}, generatedCSVTemplate, { "Path": localPath });
@@ -229,22 +234,22 @@ const mainMenuTemplate = [
                   
                 })
                 .then( files => {
-
-                  Object.keys(generatedCSVTemplate).map((key) => {
-                    generatedFields[key] = 0;
-                  });
-
-                  return files;
-                })
-                .then( files => {
                   let key;
+                  // files = { '0': object1, '1': object2 }
                   let keys = Object.keys(files);
                   let defaultKeys = Object.keys(generatedCSVTemplate);
 
+                  // get template keys for header
+                  defaultKeys.map((key) => {
+                    generatedFields[key] = 0;
+                  });
 
+
+                  // for each object in files, read the file meta
                   for(let i = 0, len = keys.length; i < len; i++){
                     key = keys[i];
 
+                    // note: func call prevents aync vars from being overriden
                     readFile(files, key, defaultKeys, filePath[0]);                 
                   }
 
