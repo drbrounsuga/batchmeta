@@ -156,7 +156,7 @@
         <i class="fa fa-info-circle"></i>
         <ul class="content">
           <li v-for="item in info">
-            <span>{{item.name}}</span>: {{item.value}}
+            <span>{{item.name}}</span>: <span :style="item.css">{{item.value}}</span>
           </li>
         </ul>
       </div>

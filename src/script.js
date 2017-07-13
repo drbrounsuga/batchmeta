@@ -372,18 +372,22 @@ $vm = new Vue({
       return {
         sourceFile: { 
           name: 'Source', 
+          css: {},
           value: this.csvName || 'No file selected' 
         },
         fileCount: { 
           name: 'File Count', 
+          css: {},
           value: this.csvFileCount || 0 
         },
         filesProcessed: { 
-          name: 'Files Updated', 
+          name: 'Updated', 
+          css: { color: '#FFCA28' },
           value: this.csvFilesProcessed || 0 
         },
         filesSkipped: { 
-          name: 'Files Skipped', 
+          name: 'Skipped', 
+          css: {},
           value: this.filesSkipped
         }
       };
