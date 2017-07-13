@@ -15,7 +15,7 @@
 */
 
 // variables
-const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production';
+const isDevelopment = process.env.NODE_ENV && `${process.env.NODE_ENV}`.trim() !== 'production';
 const vueModule = isDevelopment ? '../node_modules/vue/dist/vue.js' : '../node_modules/vue/dist/vue.min.js'
 
 const { ipcRenderer } = require('electron');
@@ -227,7 +227,7 @@ $vm = new Vue({
                   propName = '';
                 }
 
-                if(doc[key] !== 'DELETE'){
+                if(doc[key] !== 'DELETE' && `${doc[key]}`.trim()){
                   val = `${propName ? propName + ':' : ''}${doc[key]}`;
                 }
 
@@ -461,7 +461,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
           }else{
             // save the file to be edited non-array data and back it up
             oldData[key] = res.data[0][key];
-            backup[key] = (res.data[0][key]).trim() ? res.data[0][key] : 'DELETE';
+            backup[key] = `${res.data[0][key]}`.trim() ? res.data[0][key] : 'DELETE';
           }
         }else{
           backup[key] = 'DELETE';
