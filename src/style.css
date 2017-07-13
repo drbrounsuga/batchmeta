@@ -74,6 +74,18 @@ button{
   cursor: pointer;
 }
 
+.progress{
+  border: 1px solid #93B0B3;
+  padding: 1px;
+  width: 60%;
+  margin: 60px auto;
+}
+
+.progress-bar{
+  height: 6px;
+  background-color: #1D9E74;
+}
+
 /*
 =================================
 helper styles
