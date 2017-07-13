@@ -45,6 +45,8 @@ function getInitialData(){
     importCount: 0,
     message: '',
     page: 1,
+    progressBarRead: { width: '1%' },
+    progressBarLoad: { width: '1%' },
     title: '...',
     validFileCount: 0
   };
@@ -76,6 +78,7 @@ $vm = new Vue({
 
       this.csvCache = data;
       this.csvFileCount = data.length;
+      this.progressBarRead = { width: '100%' };
     },
     // creates a backup of current files metadata before editing them
     createBackup(){
@@ -175,6 +178,7 @@ $vm = new Vue({
       }
 
       if(!errorMessage){
+        this.progressBarRead = { width: '10%' };
         this.readCsvData(csv, this.csvPath)
           .then((data) => this.cacheFile(data));
       }else{
@@ -252,13 +256,16 @@ $vm = new Vue({
     readCsvData(npmModule, csvFilePath){
       return new Promise((resolve, reject) => {
         let result = [];
+        this.progressBarRead = { width: '20%' };
 
         npmModule()
           .fromFile(csvFilePath)
           .on('json', (jsonObj) => {
+            this.progressBarRead = { width: '60%' };
             result.push(jsonObj);
           })
           .on('done', (error) => {
+            this.progressBarRead = { width: '80%' };
             if(error){
               reject(error);
             }
@@ -403,6 +410,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let backup = {};
   let oldData = {};
 
+
   if(res.error && indx !== -1 || indx >= 0){
     // get the data for all files
     result = Object.assign({}, $vm.data);
@@ -476,6 +484,12 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     // push the file to be edited data to our file data's revertFile property array
     $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
     $vm.importCount++;
+
+    if(indx % 10 === 0 || $vm.csvFileCount < 100){
+      let percent = Math.floor(($vm.importCount/$vm.csvFileCount) * 100);
+      $vm.progressBarLoad = { width: percent + '%' };
+    }
+
   }else if(res.error){
     // there was an error, show it
     $vm.showErrorMessage('Read Reply Error', res.error);

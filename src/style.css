@@ -83,6 +83,8 @@ button{
 
 .progress-bar{
   height: 6px;
+  width: 0%;
+  transition: width 500ms ease-in;
   background-color: #1D9E74;
 }
 
@@ -99,7 +101,12 @@ helper styles
   position: fixed;
   top: 45%;
   left: 50%;
+  text-align: center;
   transform: translate(-50%, -50%);
+}
+
+.full-width{
+  width: 100%;
 }
 
 /*
@@ -330,24 +337,29 @@ Preview Page
   text-align: center;
 }
 
-/*
-=================================
-Import page
-=================================
-*/
-.import-page i,
 .preview-page i{
   margin: 20px 30px 0;
   color: #1D9E74;
   background-color: transparent;
 }
 
+/*
+=================================
+Import page
+=================================
+*/
 .import-page{
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
+}
+
+.import-page i{
+  margin: 20px auto 0;
+  color: #1D9E74;
+  background-color: transparent;
 }
 
 /*

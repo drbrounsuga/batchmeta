@@ -1,3 +1,2 @@
-+ progress bar on import
 + progress bar on generate csv
 + test and refactor

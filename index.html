@@ -52,6 +52,9 @@
         <template v-else>
           <!-- loading icon -->
           <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+          <div class="progress">
+            <div class="progress-bar" :style="progressBarRead"></div>
+          </div>
         </template>
       </div>
       <!-- end preview data -->
@@ -137,9 +140,12 @@
           <!-- end "done" message -->
         </template>
         <template v-else>
-          <div class="center-center">
+          <div class="center-center full-width">
             <!-- loading icon -->
             <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
+            <div class="progress">
+              <div class="progress-bar" :style="progressBarLoad"></div>
+            </div>
           </div>
         </template>
       </div>
