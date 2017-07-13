@@ -4,7 +4,7 @@
 ================
  .data["0"].Title (String)
  .data["0"].Description (String)
- .data["0"].Tags (Array)
+ .data["0"].tags (Array)
  .data["0"].Creator (String)
  .data["0"].Contributor (String)
  .data["0"].Language (String)
@@ -213,8 +213,8 @@ $vm = new Vue({
 
             /* 
             * if the key contains a : then its an array prop:
-            * Tags::1: "ONE", Tags::2: "TWO", Tags::3: "THREE" => Tags["ONE", "TWO", "THREE"]
-            * Tags:ROBOTS: "FOLLOW" => Tags['ROBOTS:FOLLOW']
+            * tags::1: "ONE", tags::2: "TWO", tags::3: "THREE" => tags["ONE", "TWO", "THREE"]
+            * tags:ROBOTS: "FOLLOW" => tags['ROBOTS:FOLLOW']
             */
             Object.keys(doc).map((key, n) => {
               val = '';
@@ -453,8 +453,8 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
             // loop through each array item and parse out the values for the backup file
             for(let i = 0, len = arr.length; i < len; i++){
               
-              // Case 1 = Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
-              // Case 2 = Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+              // Case 1 = tags::1: "ROBOTS:FOLLOW", tags::2: "FOO:BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
+              // Case 2 = tags:ROBOTS: "FOLLOW", tags:FOO: "BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
               let k = arr[i].substr(0, arr[i].indexOf(':'));
               let v = arr[i].substr(arr[i].indexOf(':') + 1);
               

@@ -13,8 +13,8 @@
   GROUPS => { 0 => 'XMP', 1 => 'XMP-cq', 2 => 'Image' },
   NAMESPACE => { 'cq' => 'http://www.day.com/jcr/cq/1.0' },
   WRITABLE => 'string',
-  Tags => { List => 'Bag' },
-  Subject => { List => 'Bag' },
+  tags => { List => 'Bag' },
+  subject => { List => 'Bag' },
 );
 
 

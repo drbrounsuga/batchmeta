@@ -13,7 +13,7 @@ const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'p
 
 // headers for csv templates
 const csvErrorFields = ['Error'];
-const csvFields = ['Path', 'Title', 'Description', 'Creator', 'Contributor', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Tags:membership', 'Tags:content_type', 'Tags:professional_interests', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
+const csvFields = ['Path', 'Title', 'Description', 'Creator', 'Contributor', 'tags:ROBOTS', 'tags:publishing_entity', 'tags:membership', 'tags:content_type', 'tags:professional_interests', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
 let generatedFields;
 
 // default content for csv templates
@@ -24,11 +24,11 @@ const csvData = [{
   "Description": "This is a description in 160 characters or less. See CQ5 for available tags", 
   "Creator": "Von Haynes", 
   "Contributor": "ABA-IPL", 
-  "Tags:ROBOTS": "INDEX", 
-  "Tags:publishing_entity": "PT", 
-  "Tags:membership": "PT", 
-  "Tags:content_type": "article",
-  "Tags:professional_interests": "intellectual_property_technology_law",
+  "tags:ROBOTS": "INDEX", 
+  "tags:publishing_entity": "PT", 
+  "tags:membership": "PT", 
+  "tags:content_type": "article",
+  "tags:professional_interests": "intellectual_property_technology_law",
   "Language": "en-US", 
   "Rights": "Copyright 2017", 
   "Owner": "American Bar Association", 
@@ -39,11 +39,11 @@ let generatedCSVTemplate = {
   "Description": "", 
   "Creator": "", 
   "Contributor": "", 
-  "Tags:ROBOTS": "", 
-  "Tags:publishing_entity": "",
-  "Tags:membership": "",
-  "Tags:content_type": "",
-  "Tags:professional_interests": "",
+  "tags:ROBOTS": "", 
+  "tags:publishing_entity": "",
+  "tags:membership": "",
+  "tags:content_type": "",
+  "tags:professional_interests": "",
   "Language": "", 
   "Rights": "", 
   "Owner": "", 
@@ -119,7 +119,7 @@ function readFile(files, id, keys, filePath){
       if(arr && arr.length){
         for(let a = 0, alen = arr.length; a < alen; a++){
           if(arr[a].includes(':')){
-            // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+            // tags:ROBOTS: "FOLLOW", tags:FOO: "BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
             let a1 = arr[a].substr(0, arr[a].indexOf(':'));
             let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
             if(`${a2}`.trim()){
@@ -128,7 +128,7 @@ function readFile(files, id, keys, filePath){
               filteredData[tempKey] = a2;
             }
           }else{
-            // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
+            // tags::1: "ROBOTS:FOLLOW", tags::2: "FOO:BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
             if(`${arr[a]}`.trim()){
               let tempKey = `${propKeys[p]}::${count}`;
               generatedFields[tempKey] = 1;
