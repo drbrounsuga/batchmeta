@@ -1,11 +1,3 @@
 + progress bar on import
 + progress bar on generate csv
-+ Contributor: ABA-IPL (default)
-+ ROBOTS:INDEX not FOLLOW
-+ Tags:content_type
-+ Tags:membership
-+ Tags:professional_interests
-+ Copyright 2017
-+ en-US
-+ Log or error output for process
 + test and refactor

@@ -13,7 +13,7 @@ const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'p
 
 // headers for csv templates
 const csvErrorFields = ['Error'];
-const csvFields = ['Path', 'Title', 'Description', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Tags::1', 'Tags::2', 'Creator', 'Contributor', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
+const csvFields = ['Path', 'Title', 'Description', 'Creator', 'Contributor', 'Tags:ROBOTS', 'Tags:publishing_entity', 'Tags:membership', 'Tags:content_type', 'Tags:professional_interests', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
 let generatedFields;
 
 // default content for csv templates
@@ -21,26 +21,30 @@ let csvErrorData;
 const csvData = [{
   "Path": "path\\from\\this\\file.csv", 
   "Title": "My File", 
-  "Description": "This is a description in 160 characters or less", 
-  "Tags:ROBOTS": "FOLLOW", 
-  "Tags:publishing_entity": "PT", 
-  "Tags::1": "membership:PT", 
-  "Tags::2": "ROBOTS:INDEX", 
+  "Description": "This is a description in 160 characters or less. See CQ5 for available tags", 
   "Creator": "Von Haynes", 
-  "Contributor": "ABA IPL", 
-  "Language": "en", 
-  "Rights": "Copyright \u00A9 2017", 
+  "Contributor": "ABA-IPL", 
+  "Tags:ROBOTS": "INDEX", 
+  "Tags:publishing_entity": "PT", 
+  "Tags:membership": "PT", 
+  "Tags:content_type": "article",
+  "Tags:professional_interests": "intellectual_property_technology_law",
+  "Language": "en-US", 
+  "Rights": "Copyright 2017", 
   "Owner": "American Bar Association", 
   "ExpirationDate": "2017:07:29 03:15"
 }];
 let generatedCSVTemplate = {
   "Title": "", 
   "Description": "", 
-  "Tags:ROBOTS": "", 
-  "Tags:publishing_entity": "", 
   "Creator": "", 
   "Contributor": "", 
-  "Language": "en", 
+  "Tags:ROBOTS": "", 
+  "Tags:publishing_entity": "",
+  "Tags:membership": "",
+  "Tags:content_type": "",
+  "Tags:professional_interests": "",
+  "Language": "", 
   "Rights": "", 
   "Owner": "", 
   "ExpirationDate": ""
@@ -118,14 +122,18 @@ function readFile(files, id, keys, filePath){
             // Tags:ROBOTS: "FOLLOW", Tags:FOO: "BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
             let a1 = arr[a].substr(0, arr[a].indexOf(':'));
             let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
-            let tempKey = `${propKeys[p]}:${a1}`;
-            generatedFields[tempKey] = 1;
-            filteredData[tempKey] = a2;
+            if(`${a2}`.trim()){
+              let tempKey = `${propKeys[p]}:${a1}`;
+              generatedFields[tempKey] = 1;
+              filteredData[tempKey] = a2;
+            }
           }else{
             // Tags::1: "ROBOTS:FOLLOW", Tags::2: "FOO:BAR" => Tags['ROBOTS:FOLLOW', 'FOO:BAR']
-            let tempKey = `${propKeys[p]}::${count}`;
-            generatedFields[tempKey] = 1;
-            filteredData[tempKey] = arr[a];
+            if(`${arr[a]}`.trim()){
+              let tempKey = `${propKeys[p]}::${count}`;
+              generatedFields[tempKey] = 1;
+              filteredData[tempKey] = arr[a];
+            }
             count++;
           }
 
