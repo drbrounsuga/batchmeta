@@ -402,6 +402,10 @@ Scrollbar/list
   padding-right: 80px;
 }
 
+.file-name{
+  margin-right: 70px;
+}
+
 /*
 =================================
 Details flex tables
@@ -419,6 +423,7 @@ Details flex tables
   padding: 10px;
   border: 1px solid #1D9E74;
   flex-grow: 1;
+  overflow: hidden;
 }
 
 .left-half:hover,
