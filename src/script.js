@@ -414,6 +414,8 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let backup = {};
   let oldData = {};
 
+  //console.log(res);
+
 
   if(res.error && indx !== -1 || indx >= 0){
     // get the data for all files
@@ -476,12 +478,14 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
             backup[key] = `${res.data[0][key]}`.trim() ? res.data[0][key] : 'DELETE';
           }
         }else{
+          //console.log(key+' not present');
           backup[key] = 'DELETE';
         }
       }
     }
 
     // add the file to be edited data to our file data
+    //console.log(oldData);
     result[indx]['zzz_original'] = oldData;
     $vm.data = result;
 
