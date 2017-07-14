@@ -65,6 +65,8 @@ const csvContent = json2csv({ data: csvData, fields: csvFields });
   for(let i = 0, len = keys.length; i < len; i++){
     data.push(generatedCache[keys[i]]);
   }
+
+  //console.log(data);
   
   const generatedContent = json2csv({ data: data, fields: fields });
 
@@ -363,7 +365,7 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   //console.log(data);
 
   if(fs.existsSync(filePath)){
-    ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','htmlFormat','overwrite_original'])
+    ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','htmlFormat','overwrite_original','-duplicates'])
     .then((res) => {
       event.sender.send('exiftool-write-reply', res, indx);
     })
