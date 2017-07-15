@@ -1,2 +1,1 @@
-+ clear file before writing
 + test and refactor
