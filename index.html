@@ -12,7 +12,7 @@
 
       <!-- start generating file loader -->
       <div class="preview-page" v-if="isGeneratingFile">
-        <template>
+        <template v-if="progressBarGenerating.width !== '1%'">
           <!-- loading icon -->
           <i class="fa fa-refresh fa-spin fa-5x fa-fw"></i>
           <div class="progress">

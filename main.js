@@ -85,7 +85,7 @@ csv variables
 let generatedUnprocessed;
 
 // indicates the total number of files
-let fileTotal = 0;
+let fileTotal;
 
 // create the csv content for the default csv template
 const csvContent = json2csv({ data: csvData, fields: csvFields });
@@ -152,6 +152,7 @@ function processDirToObj(){
   generatedUnprocessed = 0;
   generatedFields = { "Path": 0 };
   generatedCache = {};
+  fileTotal = 0;
 
   // open dialog for directory selection
   dialog.showOpenDialog(mainWindow,{
@@ -273,6 +274,9 @@ function processDirToObj(){
       });
     }
 
+    // reset the progress bar
+    mainWindow.webContents.send('generate-updated', '1%');
+
   });
 
 };
@@ -382,7 +386,7 @@ function readFile(files, id, keys, filePath){
     // save a new object to our generatedCache and update the counter
     generatedCache[id] = Object.assign({}, generatedCache[id], filteredData);
     generatedUnprocessed--;
-
+   
     return filePath;
   })
   .then((filePath) => {
@@ -395,14 +399,21 @@ function readFile(files, id, keys, filePath){
 
       generateCSV(filePath);
     }else{
-
       // get the percent complete
       let percent = Math.floor(((fileTotal - generatedUnprocessed) / fileTotal) * 100);
-      
-      // return feedback on the status of the generating the csv
-      mainWindow.webContents.send('generate-updated', percent+'%');
 
+      // return feedback on the status of the generating the csv
+      if(percent <= 25){
+        mainWindow.webContents.send('generate-updated', '25%');
+      }else if(percent <= 50 ){
+        mainWindow.webContents.send('generate-updated', '50%');
+      }else if(percent <= 75 ){
+        mainWindow.webContents.send('generate-updated', '75%');
+      }else{
+        mainWindow.webContents.send('generate-updated', '95%');
+      }
     }
+    
   })
   .catch(console.error);
 

@@ -510,6 +510,7 @@ ipcRenderer.on('save-backup-reply', (event, res) => {
 
 // the process of generating a csv has ended
 ipcRenderer.on('generate-ended', (event, res) => {
+  $vm.progressBarGenerating = { width: '100%' };
   $vm.isGeneratingFile = false;
 });
 
