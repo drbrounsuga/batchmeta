@@ -152,6 +152,19 @@ Info bar
   transform: translateY(10%);
 }
 
+.info .did-update{
+  /*color: '#FFCA28';*/
+  display: inline-block;
+  background-color: #B80000;
+  color: #fff;
+  border-radius: 40%;
+  padding: 3px 8px;
+}
+
+.info .will-update{
+  color: #FFCA28;
+}
+
 /*
 =================================
 Dropbox page
