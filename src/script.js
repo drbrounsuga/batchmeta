@@ -282,17 +282,13 @@ $vm = new Vue({
         try{
           for(let i = 0, len = data.length; i < len; i++){
             filePath = data[i]['zzz_fullPath'];
-            this.readMetaAsync('exiftool-read', filePath, i);
+            ipcRenderer.send('exiftool-read', filePath, i);
           };
           resolve(true);
         }catch(e){
           reject(e);
         }
       });
-    },
-    // make an asynchronus request 
-    readMetaAsync(channel, filePath, indx){
-      ipcRenderer.send(channel, filePath, indx);
     },
     // reset app to default state
     reset(){
@@ -501,10 +497,8 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   }else if(res.error){
     // there was an error, show it
     $vm.showErrorMessage('Read Reply Error', res.error);
-  }else{
-    // this was a test, log it
-    console.log(res.data[0]);
   }
+  
 });
 
 // once a file has been written update the status regarding wether the operation was successful
@@ -516,12 +510,6 @@ ipcRenderer.on('exiftool-write-reply', (event, res, indx) => {
   }else{
     $vm.updateListItemStatus(indx, true);
   }
-});
-
-// test read file
-ipcRenderer.on('test-read-file', (event) => {
-  console.log('Test file being read...');
-  $vm.readMetaAsync('exiftool-read', './test/test.pdf', -1);
 });
 
 // if the backup was successful then update the files

@@ -315,11 +315,6 @@ if(isDevelopment){
   mainMenuTemplate.push({
     label: 'Development',
     submenu: [
-      {
-        label: 'Read File Test',
-        click(){ mainWindow.webContents.send('test-read-file'); }
-      },
-      {type: 'separator'},
       {role: 'toggledevtools'},
       {type: 'separator'},
       {role: 'reload'}
