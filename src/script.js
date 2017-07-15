@@ -447,7 +447,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
           for(let v = 0, vlen = val.length; v < vlen; v++){
 
             // if element has a colon...
-            if(val[v].includes(':')){
+            if(typeof val[v] === 'string' && (val[v]).includes(':')){
               // tags['foo:bar'] = 'tags:foo': 'bar'
               let baseKey = val[v].substr(0, val[v].indexOf(':')),
                   propName = val[v].substr(val[v].indexOf(':') + 1);
