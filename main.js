@@ -11,13 +11,28 @@ let mainWindow;
 const ep = new exiftool.ExiftoolProcess(path.join(__dirname, 'src', 'assets', 'exiftool'));
 const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.trim() !== 'production';
 
-// headers for csv templates
+
+/*
+======================
+headers for csv templates
+====================== */
+// csv headers as arrays
 const csvErrorFields = ['Error'];
 const csvFields = ['Path', 'Title', 'Description', 'Creator', 'Contributor', 'tags:ROBOTS', 'tags:publishing_entity', 'tags:membership', 'tags:content_type', 'tags:professional_interests', 'Language', 'Rights', 'Owner', 'ExpirationDate'];
-let generatedFields;
 
-// default content for csv templates
+// csv headers as objects
+let generatedFields;
+let backupFields;
+
+
+/*
+======================
+content for csv templates
+====================== */
+// logging errors
 let csvErrorData;
+
+// template with default values for saving an example template to start from scratch
 const csvData = [{
   "Path": "path\\from\\this\\file.csv", 
   "Title": "My File", 
@@ -34,46 +49,201 @@ const csvData = [{
   "Owner": "American Bar Association", 
   "ExpirationDate": "2017:07:29 03:15"
 }];
+//************************** change below Tags back to tags */
+// empty template for generating a template from actual user files
 let generatedCSVTemplate = {
   "Title": "", 
   "Description": "", 
   "Creator": "", 
   "Contributor": "", 
-  "tags:ROBOTS": "", 
-  "tags:publishing_entity": "",
-  "tags:membership": "",
-  "tags:content_type": "",
-  "tags:professional_interests": "",
+  "Tags:ROBOTS": "", 
+  "Tags:publishing_entity": "",
+  "Tags:membership": "",
+  "Tags:content_type": "",
+  "Tags:professional_interests": "",
   "Language": "", 
   "Rights": "", 
   "Owner": "", 
   "ExpirationDate": ""
 };
+
+// init object template to hold data from actual user files
 let generatedCache;
+
+// init object template to hold errors from the actual user files
+let csvErrorContent;
+
+
+/*
+======================
+csv variables 
+====================== */
+// a counter unsed to calculate how many files are left to process
 let generatedUnprocessed;
 
-// create csv data
-let csvErrorContent;
+// create the csv content for the default csv template
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
-// generate csv for user
- function generateCSV(filePath){
-  let data = [];
-  let fields = Object.keys(generatedFields);
-  let keys = Object.keys(generatedCache);
 
+/*
+======================
+functions
+====================== */
+// get date object 
+function getAppDateObject(){
+  //get date for timestamp
+  const today = new Date(),
+      year = today.getFullYear(),
+      month = today.getMonth() <= 8 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1,
+      day = today.getDate() <= 8 ? '0' + today.getDate() : today.getDate(),
+      hours = today.getHours() <= 8 ? '0' + today.getHours() : today.getHours(),
+      mins = today.getMinutes() <= 8 ? '0' + today.getMinutes() : today.getMinutes(),
+      seconds = today.getSeconds() <= 8 ? '0' + today.getSeconds() : today.getSeconds(); 
+
+  return { year, month, day, hours, mins, seconds };
+}
+
+// download the default csv
+function downloadDefaultCSV(){
+
+  dialog.showSaveDialog(mainWindow, 
+    { 
+      defaultPath: 'batch-template.csv',
+      filters: [
+        { name: 'CSV Files', extensions: ['csv'] }
+      ] 
+    }, 
+    (fileName) => {
+
+      // make sure we have a valid name
+      if(fileName === undefined){
+        return;
+      }else if(!fileName.endsWith('.csv')){
+        fileName = fileName + '.csv';
+      }
+
+      // write the file
+      fs.writeFile(fileName, csvContent, (err) => {
+        if(err){
+          dialog.showErrorBox('Download CSV Error', "An error ocurred creating the file " + err.message);
+        }
+      });
+
+    }
+  );
+
+}
+
+// read directory files to generate CSV
+function processDirToObj(){
+
+  // reset generated data
+  generatedUnprocessed = 0;
+  generatedFields = { "Path": 0 };
+  generatedCache = {};
+
+  // open dialog for directory selection
+  dialog.showOpenDialog(mainWindow,{
+    title: 'Generate template from directory',
+    properties: ['openDirectory']
+  }, 
+  (filePath) => {
+    let localPath;
+
+    if(filePath === undefined){
+      return;
+    }
+    
+    // get the list of files
+    let walk = new Promise((resolve, reject) => {
+      
+      // ignore files that are not pdf
+      recursive(filePath[0], ["!*.pdf"], (err, files) => {
+        if(err){
+          reject(err);
+        }else{
+          resolve(files);
+        }
+      });
+
+    });
+    
+    walk
+    .then( files => {
+
+      // start at 0, set total num of files
+      let count = 0;
+
+      // set the counter for processed files to the number of files
+      generatedUnprocessed = files.length;
+
+      // object to pass to next part of promise
+      let result = {};
+
+      // loop through each file, cache object, send path data on for processing
+      files.map((file) => {
+        localPath = path.relative(filePath[0], file);
+        generatedCache[count] = Object.assign({}, generatedCSVTemplate, { "Path": localPath });
+        result[count] = Object.assign({}, { "zzz_path": file, "Path": localPath });
+        count++;
+      });
+
+      return result;
+      
+    })
+    .then( files => {
+      let key;
+
+      // files = { '0': object1, '1': object2 }
+      let keys = Object.keys(files);
+      let defaultKeys = Object.keys(generatedCSVTemplate);
+
+      // get template keys for header
+      defaultKeys.map((key) => {
+        generatedFields[key] = 0;
+      });
+
+
+      // for each object in files, read the file meta
+      for(let i = 0, len = keys.length; i < len; i++){
+        key = keys[i];
+
+        // note: func call prevents aync vars from being overriden
+        readFile(files, key, defaultKeys, filePath[0]);                 
+      }
+
+    })
+    .catch((error) => {
+      dialog.showErrorBox('Error generating template', error);
+    });
+
+  });
+
+}
+
+// save the csv for file
+ function generateCSV(filePath){
+  let data = [],
+      fields = Object.keys(generatedFields),
+      keys = Object.keys(generatedCache);
+
+  // converting our object to an array: { 0: object1, 1: object2 } = [ object1, object2 ]
+  // each key in our generatedCache represents a file, like an array index
+  // loop through them and add them to the data array 
   for(let i = 0, len = keys.length; i < len; i++){
     data.push(generatedCache[keys[i]]);
   }
 
-  //console.log(data);
-  
+  // testing generated csv output
+  // console.log(data);
+
+  // create the csv content for the generated csv template
   const generatedContent = json2csv({ data: data, fields: fields });
 
   // create path for new file
   let fileName = path.join(filePath, 'batch-index.csv');
 
-  // write file
+  // write the file file
   fs.writeFile(fileName, generatedContent, (err) => {
     if(err){
       dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
@@ -86,25 +256,37 @@ const csvContent = json2csv({ data: csvData, fields: csvFields });
 
 };
 
-
+// read a file and save it to our generatedCache object using a unique id as the key
 function readFile(files, id, keys, filePath){
+
+  // files = an array of all of the files 
+  // id = the unique id (key) of the file being processed, { 0: object1 } = id of 0
+  // keys = an array of the keys for the default template
+  // filePath = root directory for all of the files
 
   ep
   .readMetadata(files[id].zzz_path, [])
   .then((res) => {
-    let data = res.data[0];
-    let key;
-    let arr;
-    let count;
-    let props = {};
-    let propKeys;
-    let filteredData = {};
+    let data = res.data[0],
+        key,
+        arr,
+        count,
+        props = {},
+        propKeys,
+        filteredData = {};
 
+    // filteredData is a modified version of the object represents the file.
+    // we start by saving the path of the file to it
     filteredData.Path = files[id].Path;
 
+    // process non-arrays:
+    // loop through the keys of the default template...
     for(let i = 0, len = keys.length; i < len; i++){
       key = keys[i];
 
+      // if not array, save it, else add it to the props object.
+      // the props object will used to process array keys later.
+      // by using an object we avoid duplicates as duplicate keys overwrite each other
       if(!key.includes(':')){
         filteredData[key] = data[key] ? data[key] : '';
       }else{
@@ -113,30 +295,59 @@ function readFile(files, id, keys, filePath){
       
     }
 
+    // process arrays:
+    // here we get the keys of the props object to process the arrays
     propKeys = Object.keys(props);
+    // for each key...
     for(let p = 0, plen = propKeys.length; p < plen; p++){
+
+      // save the array property of the data passed in as "arr"
+      // example: 'tags:ROBOTS': 'INDEX' or 'tags::1': 'FOO'
       arr = data[propKeys[p]];
+
+      // start a counter for properties in the format tags::[[counter]]
       count = 1;
 
+      // if the array is not empty...
       if(arr && arr.length){
+        // loop through each element...
         for(let a = 0, alen = arr.length; a < alen; a++){
+          // if the element includes a colon...
           if(arr[a].includes(':')){
-            // tags:ROBOTS: "FOLLOW", tags:FOO: "BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
+            // format is 'ROBOTS:INDEX' so save as 'tags:ROBOTS': "INDEX"
+            // lets split the element value into two parts
             let a1 = arr[a].substr(0, arr[a].indexOf(':'));
             let a2 = arr[a].substr(arr[a].indexOf(':') + 1);
-            if(`${a2}`.trim()){
+
+            if(`${a1}`.trim() && `${a2}`.trim()){
+
+              // the csv key should be the array key + colon + the first half of the split
               let tempKey = `${propKeys[p]}:${a1}`;
+
+              // add the key to the field object
               generatedFields[tempKey] = 1;
+
+              // add the data to filteredData
               filteredData[tempKey] = a2;
+            }else{
+              // the key is invalid. Example: 'ROBOTS:'
             }
-          }else{
-            // tags::1: "ROBOTS:FOLLOW", tags::2: "FOO:BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
-            if(`${arr[a]}`.trim()){
-              let tempKey = `${propKeys[p]}::${count}`;
-              generatedFields[tempKey] = 1;
-              filteredData[tempKey] = arr[a];
-            }
+
+          }else if(`${arr[a]}`.trim()){
+
+            // else format is 'FOO' so save as 'tags::1': 'FOO'
+            // the csv key should be the array key + colon + colon + the count
+            let tempKey = `${propKeys[p]}::${count}`;
+
+            // add the key to the field object
+            generatedFields[tempKey] = 1;
+
+            // add the data to filteredData
+            filteredData[tempKey] = arr[a];
+
+            // increment the count
             count++;
+
           }
 
         }
@@ -144,12 +355,14 @@ function readFile(files, id, keys, filePath){
 
     }
 
+    // save a new object to our generatedCache and update the counter
     generatedCache[id] = Object.assign({}, generatedCache[id], filteredData);
     generatedUnprocessed--;
 
     return filePath;
   })
   .then((filePath) => {
+    // if all files have been processed save the csv
     if(generatedUnprocessed === 0){
       generateCSV(filePath);
     }
@@ -159,6 +372,10 @@ function readFile(files, id, keys, filePath){
 }
 
 
+/*
+======================
+Menu Template
+====================== */
 // application menu template
 const mainMenuTemplate = [
   {
@@ -170,105 +387,13 @@ const mainMenuTemplate = [
           { 
             label: 'Download Default',
             click(){ 
-              dialog.showSaveDialog(mainWindow, 
-                { 
-                  defaultPath: 'batch-template.csv',
-                  filters: [
-                    { name: 'CSV Files', extensions: ['csv'] }
-                  ] 
-                }, (fileName) => {
-                if(fileName === undefined){
-                  return;
-                }else if(!fileName.endsWith('.csv')){
-                  fileName = fileName + '.csv';
-                }
-
-                fs.writeFile(fileName, csvContent, (err) => {
-                  if(err){
-                    dialog.showErrorBox('Download CSV Error', "An error ocurred creating the file " + err.message);
-                  }
-                });
-              }); 
+              downloadDefaultCSV(); 
             }
           },
           {
             label: 'Generate from Folder',
             click(){
-              // reset generated data
-              generatedUnprocessed = 0;
-              generatedFields = { "Path": 0 };
-              generatedCache = {};
-
-              // open dialog for directory selection
-              dialog.showOpenDialog(mainWindow,{
-                title: 'Generate template from directory',
-                properties: ['openDirectory']
-              }, 
-              (filePath) => {
-                let localPath;
-
-                if(filePath === undefined){
-                  return;
-                }
-                
-                // get the list of files
-                let walk = new Promise((resolve, reject) => {
-                  
-                  recursive(filePath[0], ["!*.pdf"], (err, files) => {
-                    if(err){
-                      reject(err);
-                    }else{
-                      resolve(files);
-                    }
-                  });
-
-                });
-                
-                walk
-                .then( files => {
-                  // start at 0, set total num of files
-                  let count = 0;
-                  generatedUnprocessed = files.length;
-
-                  let result = {};
-
-                  // loop through each file, cache object, send path data on for processing
-                  files.map((file) => {
-                    localPath = path.relative(filePath[0], file);
-                    generatedCache[count] = Object.assign({}, generatedCSVTemplate, { "Path": localPath });
-                    result[count] = Object.assign({}, { "zzz_path": file, "Path": localPath });
-                    count++;
-                  });
-
-                  return result;
-                  
-                })
-                .then( files => {
-                  let key;
-                  // files = { '0': object1, '1': object2 }
-                  let keys = Object.keys(files);
-                  let defaultKeys = Object.keys(generatedCSVTemplate);
-
-                  // get template keys for header
-                  defaultKeys.map((key) => {
-                    generatedFields[key] = 0;
-                  });
-
-
-                  // for each object in files, read the file meta
-                  for(let i = 0, len = keys.length; i < len; i++){
-                    key = keys[i];
-
-                    // note: func call prevents aync vars from being overriden
-                    readFile(files, key, defaultKeys, filePath[0]);                 
-                  }
-
-                })
-                .catch((error) => {
-                  dialog.showErrorBox('Error generating template', error);
-                });
-
-              });
+              processDirToObj();
             }
           }
         ]
@@ -352,7 +477,11 @@ errorMenuTemplate.push({
 
 const errMenu = Menu.buildFromTemplate(errorMenuTemplate);
 
-// IPC Events
+
+/*
+======================
+IPC Events
+====================== */
 // ipc - write metadata
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
 
@@ -416,15 +545,7 @@ ipcMain.on('save-backup', (event, data, filePath) => {
   // convert data to csv
   let fields = Object.keys(data[0]);
   let csv = json2csv({ data: data, fields: fields });
-
-  //get date for timestamp
-  let today = new Date();
-  let year = today.getFullYear();
-  let month = today.getMonth() <= 8 ? '0' + (today.getMonth() + 1) : today.getMonth() + 1;
-  let day = today.getDate() <= 8 ? '0' + today.getDate() : today.getDate();
-  let hours = today.getHours() <= 8 ? '0' + today.getHours() : today.getHours();
-  let mins = today.getMinutes() <= 8 ? '0' + today.getMinutes() : today.getMinutes();
-  let seconds = today.getSeconds() <= 8 ? '0' + today.getSeconds() : today.getSeconds(); 
+  let { year, month, day, hours, mins, seconds } = getAppDateObject();
 
   // create path for new file
   let fileName = path.join(filePath, 'reversion-file-' + year + month + day + hours + mins + seconds + '.csv');
@@ -441,6 +562,11 @@ ipcMain.on('save-backup', (event, data, filePath) => {
 
 });
 
+
+/*
+======================
+App settings
+====================== */
 // create new window
 app.on('ready', () => {
   

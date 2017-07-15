@@ -404,89 +404,32 @@ $vm = new Vue({
 // electron process event listeners
 // once file is read, check it and update the array
 ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
-  let result;
-  let keys;
-  let key;
-  let backup = {};
-  let oldData = {};
-
-  //console.log(res);
-
+  let allFiles,
+      backup = res.data[0];
 
   if(res.error && indx !== -1 || indx >= 0){
     // get the data for all files
-    result = Object.assign({}, $vm.data);
+    allFiles = Object.assign({}, $vm.data);
 
     if(res.error){
       // update problem file with error info
-      result[indx]['zzz_path'] = res.error;
-      result[indx]['zzz_icon'] = $vm.getIcon(null);
+      allFiles[indx]['zzz_path'] = res.error;
+      allFiles[indx]['zzz_icon'] = $vm.getIcon(null);
       $vm.errorLog.push(res.error);
     }else{
-      // if pdf, mark as valid
-      if(result[indx]['zzz_extension'] === 'pdf'){
+      // if file is a pdf, mark as valid
+      if(allFiles[indx]['zzz_extension'] === 'pdf'){
         $vm.validFileCount++;
-      }
-
-      // get keys and remove zzz keys
-      keys = Object.keys(result[indx]);
-      keys = keys.filter((key) => {
-        return !key.startsWith('zzz_');
-      });
-
-      // for all keys in stored data...
-      // (if the value is not present it should be set to DELETE in the backup file)
-      for(let i = 0, len = keys.length; i < len; i++){
-
-        key = keys[i];
-
-        // if the file to be edited has the key...
-        if(res.data[0].hasOwnProperty(key)){
-
-          // ... and the value is an array...
-          if(Array.isArray(res.data[0][key])){
-            let arr = res.data[0][key];
-            let num = 1;
-
-            // loop through each array item and parse out the values for the backup file
-            for(let i = 0, len = arr.length; i < len; i++){
-              
-              // Case 1 = tags::1: "ROBOTS:FOLLOW", tags::2: "FOO:BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
-              // Case 2 = tags:ROBOTS: "FOLLOW", tags:FOO: "BAR" => tags['ROBOTS:FOLLOW', 'FOO:BAR']
-              let k = arr[i].substr(0, arr[i].indexOf(':'));
-              let v = arr[i].substr(arr[i].indexOf(':') + 1);
-              
-              if(v && v.startsWith(':')){
-                // case 1
-                backup[`${key}::${num}`] = k;
-                num++;
-              }else{
-                // case 2
-                backup[`${key}:${k}`] = v ? v : 'DELETE';
-              }
-            }
-
-            // save the file to be edited array data
-            oldData[key] = res.data[0][key];
-          }else{
-            // save the file to be edited non-array data and back it up
-            oldData[key] = res.data[0][key];
-            backup[key] = `${res.data[0][key]}`.trim() ? res.data[0][key] : 'DELETE';
-          }
-        }else{
-          //console.log(key+' not present');
-          backup[key] = 'DELETE';
-        }
       }
     }
 
     // add the file to be edited data to our file data
-    //console.log(oldData);
-    result[indx]['zzz_original'] = oldData;
-    $vm.data = result;
+    //console.log(currentFile);
+    allFiles[indx]['zzz_original'] = backup;
+    $vm.data = allFiles;
 
     // push the file to be edited data to our file data's revertFile property array
-    $vm.revertFile.push( Object.assign({}, backup, { Path: result[indx]['zzz_path'] }) );
+    $vm.revertFile.push( Object.assign({}, backup, { Path: allFiles[indx]['zzz_path'] }) );
     $vm.importCount++;
 
     if(indx % 10 === 0 || $vm.csvFileCount < 100){
@@ -498,7 +441,7 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     // there was an error, show it
     $vm.showErrorMessage('Read Reply Error', res.error);
   }
-  
+
 });
 
 // once a file has been written update the status regarding wether the operation was successful
