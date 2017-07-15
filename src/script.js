@@ -405,7 +405,11 @@ $vm = new Vue({
 // once file is read, check it and update the array
 ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let allFiles,
-      backup = res.data[0];
+      backup = res.data[0],
+      keys = Object.keys(backup),
+      key,
+      counter,
+      val;
 
   if(res.error && indx !== -1 || indx >= 0){
     // get the data for all files
@@ -421,10 +425,50 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
       if(allFiles[indx]['zzz_extension'] === 'pdf'){
         $vm.validFileCount++;
       }
+
+      // let's flatten any arrays: 
+      // tags['foo:bar'] = 'tags:foo': 'bar'
+      // tags['foo', 'bar'] = 'tags::1': 'foo', 'tags::2': 'bar'
+      // loop through each each key
+      for(let i = 0, len = keys.length; i < len; i++){
+
+        key = keys[i];
+        val = backup[key];
+
+        // if value is an array...
+        if(Array.isArray(val)){
+
+          // set counter for tags of format 'tags::[[counter]]': 'FOO' 
+          counter = 1;
+
+          // loop through array elements
+          for(let v = 0, vlen = val.length; v < vlen; v++){
+
+            // if element has a colon...
+            if(val[v].includes(':')){
+              // tags['foo:bar'] = 'tags:foo': 'bar'
+              let baseKey = val[v].substr(0, val[v].indexOf(':')),
+                  propName = val[v].substr(val[v].indexOf(':') + 1);
+
+              backup[`${key}:${baseKey}`] = propName;
+            }else{
+              // tags['foo', 'bar'] = 'tags::1': 'foo', 'tags::2': 'bar'
+              backup[`${key}::${counter}`] = val[v];
+              counter++;
+            }
+
+            // delete the array from backup
+            delete backup[key];
+
+          }
+          
+        }
+        
+      }
+
     }
 
     // add the file to be edited data to our file data
-    //console.log(currentFile);
     allFiles[indx]['zzz_original'] = backup;
     $vm.data = allFiles;
 

@@ -22,7 +22,6 @@ const csvFields = ['Path', 'Title', 'Description', 'Creator', 'Contributor', 'ta
 
 // csv headers as objects
 let generatedFields;
-let backupFields;
 
 
 /*
@@ -32,7 +31,8 @@ content for csv templates
 // logging errors
 let csvErrorData;
 
-// template with default values for saving an example template to start from scratch
+/* #template with default values for saving an example template to start from scratch
+------------------------------------------------------------------------------------- */
 const csvData = [{
   "Path": "path\\from\\this\\file.csv", 
   "Title": "My File", 
@@ -49,8 +49,11 @@ const csvData = [{
   "Owner": "American Bar Association", 
   "ExpirationDate": "2017:07:29 03:15"
 }];
+
+
 //************************** change below Tags back to tags */
-// empty template for generating a template from actual user files
+/* #empty template for generating a template from actual user files
+------------------------------------------------------------------ */
 let generatedCSVTemplate = {
   "Title": "", 
   "Description": "", 
@@ -67,7 +70,8 @@ let generatedCSVTemplate = {
   "ExpirationDate": ""
 };
 
-// init object template to hold data from actual user files
+
+// #init object template to hold data from actual user files
 let generatedCache;
 
 // init object template to hold errors from the actual user files
@@ -89,7 +93,8 @@ const csvContent = json2csv({ data: csvData, fields: csvFields });
 ======================
 functions
 ====================== */
-// get date object 
+/* #get date object 
+-------------------- */
 function getAppDateObject(){
   //get date for timestamp
   const today = new Date(),
@@ -103,7 +108,9 @@ function getAppDateObject(){
   return { year, month, day, hours, mins, seconds };
 }
 
-// download the default csv
+
+/* #download the default csv
+---------------------------- */
 function downloadDefaultCSV(){
 
   dialog.showSaveDialog(mainWindow, 
@@ -134,7 +141,9 @@ function downloadDefaultCSV(){
 
 }
 
-// read directory files to generate CSV
+
+/* #read directory files to generate CSV
+---------------------------------------- */
 function processDirToObj(){
 
   // reset generated data
@@ -221,7 +230,9 @@ function processDirToObj(){
 
 }
 
-// save the csv for file
+
+/* #save the csv for file
+------------------------- */
  function generateCSV(filePath){
   let data = [],
       fields = Object.keys(generatedFields),
@@ -256,7 +267,9 @@ function processDirToObj(){
 
 };
 
-// read a file and save it to our generatedCache object using a unique id as the key
+
+/* #read a file and save it to our generatedCache object using a unique id as the key
+------------------------------------------------------------------------------------- */
 function readFile(files, id, keys, filePath){
 
   // files = an array of all of the files 
@@ -376,7 +389,8 @@ function readFile(files, id, keys, filePath){
 ======================
 Menu Template
 ====================== */
-// application menu template
+/* #application menu template
+------------------------------ */
 const mainMenuTemplate = [
   {
     label: 'File',
@@ -435,7 +449,9 @@ const mainMenuTemplate = [
   }
 ];
 
-// Add development menu if testing
+
+/* #Add development menu if testing
+------------------------------------ */
 if(isDevelopment){
   mainMenuTemplate.push({
     label: 'Development',
@@ -453,9 +469,11 @@ const errorMenuTemplate = [...mainMenuTemplate];
 errorMenuTemplate.push({
   label: 'Show Errors',
   click(){ 
+    let { year, month, day, hours, mins, seconds } = getAppDateObject();
+
     dialog.showSaveDialog(mainWindow, 
       { 
-        defaultPath: 'error-log.csv',
+        defaultPath: 'error-log-' + year + month + day + hours + mins + seconds + '.csv',
         filters: [
           { name: 'CSV Files', extensions: ['csv'] }
         ] 
@@ -482,7 +500,19 @@ const errMenu = Menu.buildFromTemplate(errorMenuTemplate);
 ======================
 IPC Events
 ====================== */
-// ipc - write metadata
+/* #exiftool-read = ipc - read metadata
+---------------------------------------- */
+ipcMain.on('exiftool-read', (event, filePath, indx) => {
+  ep.readMetadata(filePath, [])
+    .then((res) => {
+      event.sender.send('exiftool-read-reply', res, indx);
+    })
+    .catch(console.error);
+});
+
+
+/* #exiftool-write = ipc - write metadata
+----------------------------------------- */
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
 
   //check data before written
@@ -497,30 +527,19 @@ ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
   }else{
     event.sender.send('exiftool-write-reply', { error: 'File Not Found' }, indx);
   }
-});
-
-// ipc - read metadata
-ipcMain.on('exiftool-read', (event, filePath, indx) => {
-  ep.readMetadata(filePath, [])
-    .then((res) => {
-      event.sender.send('exiftool-read-reply', res, indx);
-    })
-    .catch(console.error);
 }); 
 
-// ipc - show file in explorer
-ipcMain.on('show-file', (event, filePath) => {
-  if( !shell.showItemInFolder(filePath) ){
-    dialog.showErrorBox('Show File Error', 'Problems were encountered showing file');
-  }
+
+/* #get-title = ipc - get title from package.json
+-------------------------------------------------- */
+ipcMain.on('get-title', (event) => {
+  let res = `${name} -v ${version}`;
+  event.sender.send('get-title-reply', res);
 });
 
-// ipc - open error dialog window
-ipcMain.on('show-error', (event, title, content) => {
-  dialog.showErrorBox(title, content);
-});
 
-// ipc - show log error menu option
+/* #log-errors = ipc - show log error menu option
+-------------------------------------------------- */
 ipcMain.on('log-errors', (event, errorsArr) => {
   if(errorsArr && errorsArr.length >= 1){
     csvErrorData = errorsArr.map((err, indx) => {
@@ -533,19 +552,15 @@ ipcMain.on('log-errors', (event, errorsArr) => {
   }
 });
 
-// ipc - get title from package.json
-ipcMain.on('get-title', (event) => {
-  let res = `${name} -v ${version}`;
-  event.sender.send('get-title-reply', res);
-});
 
-// ipc - write backup to file
+/* #save-backup = ipc - write backup to file
+-------------------------------------------- */
 ipcMain.on('save-backup', (event, data, filePath) => {
 
   // convert data to csv
-  let fields = Object.keys(data[0]);
-  let csv = json2csv({ data: data, fields: fields });
-  let { year, month, day, hours, mins, seconds } = getAppDateObject();
+  let fields = Object.keys(data[0]),
+      csv = json2csv({ data: data, fields: fields }),
+      { year, month, day, hours, mins, seconds } = getAppDateObject();
 
   // create path for new file
   let fileName = path.join(filePath, 'reversion-file-' + year + month + day + hours + mins + seconds + '.csv');
@@ -563,11 +578,29 @@ ipcMain.on('save-backup', (event, data, filePath) => {
 });
 
 
+/* #show-error = ipc - open error dialog window
+------------------------------------------------- */
+ipcMain.on('show-error', (event, title, content) => {
+  dialog.showErrorBox(title, content);
+});
+
+
+/* #show-file = ipc - show file in explorer
+------------------------------------------------- */
+ipcMain.on('show-file', (event, filePath) => {
+  if( !shell.showItemInFolder(filePath) ){
+    dialog.showErrorBox('Show File Error', 'Problems were encountered showing file');
+  }
+});
+
+
+
 /*
 ======================
 App settings
 ====================== */
-// create new window
+/* #create new window
+---------------------- */
 app.on('ready', () => {
   
   mainWindow = new BrowserWindow({
