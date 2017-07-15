@@ -43,10 +43,12 @@ function getInitialData(){
     filesSkipped: 0,
     hovering: false,
     importCount: 0,
+    isGeneratingFile: false,
     message: '',
     page: 1,
     progressBarRead: { width: '1%' },
     progressBarLoad: { width: '1%' },
+    progressBarGenerating: { width: '1%' },
     title: '...',
     validFileCount: 0
   };
@@ -504,4 +506,20 @@ ipcRenderer.on('save-backup-reply', (event, res) => {
   if(!res.error && res){
     $vm.updateFiles();
   }
+});
+
+// the process of generating a csv has ended
+ipcRenderer.on('generate-ended', (event, res) => {
+  $vm.isGeneratingFile = false;
+});
+
+// a status update from the generating process
+ipcRenderer.on('generate-updated', (event, res) => {
+  // update the status bar
+  $vm.progressBarGenerating = { width: res };
+});
+
+// the process of generating a csv has started
+ipcRenderer.on('generate-started', (event, res) => {
+  $vm.isGeneratingFile = true;
 });

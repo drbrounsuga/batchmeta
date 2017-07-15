@@ -84,6 +84,9 @@ csv variables
 // a counter unsed to calculate how many files are left to process
 let generatedUnprocessed;
 
+// indicates the total number of files
+let fileTotal = 0;
+
 // create the csv content for the default csv template
 const csvContent = json2csv({ data: csvData, fields: csvFields });
 
@@ -165,9 +168,14 @@ function processDirToObj(){
     // get the list of files
     let walk = new Promise((resolve, reject) => {
       
+      // let the renderer know that we've started processing the files
+      mainWindow.webContents.send('generate-started');
+
       // ignore files that are not pdf
       recursive(filePath[0], ["!*.pdf"], (err, files) => {
         if(err){
+          // let the renderer know that we've stopped processing the files
+          mainWindow.webContents.send('generate-ended');
           reject(err);
         }else{
           resolve(files);
@@ -184,6 +192,7 @@ function processDirToObj(){
 
       // set the counter for processed files to the number of files
       generatedUnprocessed = files.length;
+      fileTotal = files.length;
 
       // object to pass to next part of promise
       let result = {};
@@ -255,6 +264,7 @@ function processDirToObj(){
 
   // write the file file
   fs.writeFile(fileName, generatedContent, (err) => {
+
     if(err){
       dialog.showErrorBox('CSV Generation Error', "An error ocurred creating the file " + err.message);
     }else{
@@ -262,6 +272,7 @@ function processDirToObj(){
         message: 'A batch import template has been created from the directory that you selected!'
       });
     }
+
   });
 
 };
@@ -343,6 +354,7 @@ function readFile(files, id, keys, filePath){
               filteredData[tempKey] = a2;
             }else{
               // the key is invalid. Example: 'ROBOTS:'
+              console.log('the key is invalid');
             }
 
           }else if(`${arr[a]}`.trim()){
@@ -374,9 +386,22 @@ function readFile(files, id, keys, filePath){
     return filePath;
   })
   .then((filePath) => {
+    
     // if all files have been processed save the csv
     if(generatedUnprocessed === 0){
+
+      // let the renderer know that we've stopped processing the files
+      mainWindow.webContents.send('generate-ended');
+
       generateCSV(filePath);
+    }else{
+
+      // get the percent complete
+      let percent = Math.floor(((fileTotal - generatedUnprocessed) / fileTotal) * 100);
+      
+      // return feedback on the status of the generating the csv
+      mainWindow.webContents.send('generate-updated', percent+'%');
+
     }
   })
   .catch(console.error);
