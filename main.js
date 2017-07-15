@@ -51,7 +51,6 @@ const csvData = [{
 }];
 
 
-//************************** change below Tags back to tags */
 /* #empty template for generating a template from actual user files
 ------------------------------------------------------------------ */
 let generatedCSVTemplate = {
@@ -59,11 +58,11 @@ let generatedCSVTemplate = {
   "Description": "", 
   "Creator": "", 
   "Contributor": "", 
-  "Tags:ROBOTS": "", 
-  "Tags:publishing_entity": "",
-  "Tags:membership": "",
-  "Tags:content_type": "",
-  "Tags:professional_interests": "",
+  "tags:ROBOTS": "", 
+  "tags:publishing_entity": "",
+  "tags:membership": "",
+  "tags:content_type": "",
+  "tags:professional_interests": "",
   "Language": "", 
   "Rights": "", 
   "Owner": "", 
@@ -515,8 +514,12 @@ ipcMain.on('exiftool-read', (event, filePath, indx) => {
 ----------------------------------------- */
 ipcMain.on('exiftool-write', (event, filePath, data, indx) => {
 
-  //check data before written
-  //console.log(data);
+  // erase all data before updating with 'all' = ""
+  data = Object.assign({}, { all: '' }, data);
+
+  // check data before written
+  // console.log(data); 
+  // return false;
 
   if(fs.existsSync(filePath)){
     ep.writeMetadata(filePath, data, ['ignoreMinorErrors','preserve','htmlFormat','overwrite_original','-duplicates'])
