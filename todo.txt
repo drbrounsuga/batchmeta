@@ -1,1 +1,3 @@
++ save the entire meta structure on backup
++ clear file before writing
 + test and refactor
