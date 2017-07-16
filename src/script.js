@@ -159,6 +159,21 @@ $vm = new Vue({
       this.page = 4;
 
       this.processCache()
+        .then((data) => {
+          let temp;
+
+          // CQ5 Tag hack 1 of 2. verify Tags is lowercase for cq5
+          // I hate doing this but I keep seeing the case switch for certain files
+          for(let i = 0, len = data.length; i < len; i++){
+            if(data[i].hasOwnProperty('Tags')){
+              temp = data[i]['Tags'];
+              delete data[i]['Tags'];
+              data[i]['tags'] = temp;
+            }
+          }
+
+          return data;
+        })
         .then((data) => this.data = data)
         .then(() => this.readImportedFiles());
     },
@@ -194,10 +209,10 @@ $vm = new Vue({
 
         try{
           result = this.csvCache.map((doc, indx) => {
-            let name;
-            let path;
-            let extension;
-            let val;
+            let name,
+                path,
+                extension,
+                val;
 
             name = doc['Path'];
             delete doc['Path'];
@@ -407,11 +422,22 @@ $vm = new Vue({
 // once file is read, check it and update the array
 ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
   let allFiles,
-      backup = res.data[0],
-      keys = Object.keys(backup),
+      backup = res.data && res.data[0] ? res.data[0] : {}, // if no file found, set empty object
       key,
       counter,
-      val;
+      val,
+      temp;
+
+  // CQ5 Tag hack 2 of 2. verify Tags is lowercase for cq5
+  // I hate doing this but I keep seeing the case switch for certain files
+  if(backup.hasOwnProperty('Tags')){
+    temp = backup['Tags'];
+    delete backup['Tags'];
+    backup.tags = temp;
+  }
+
+  // get the keys
+  let keys = Object.keys(backup);
 
   if(res.error && indx !== -1 || indx >= 0){
     // get the data for all files
