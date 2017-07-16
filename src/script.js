@@ -421,6 +421,7 @@ $vm = new Vue({
 // electron process event listeners
 // once file is read, check it and update the array
 ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
+
   let allFiles,
       backup = res.data && res.data[0] ? res.data[0] : {}, // if no file found, set empty object
       key,
@@ -434,6 +435,11 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
     temp = backup['Tags'];
     delete backup['Tags'];
     backup.tags = temp;
+  }
+
+  // If SourceFile tag exists we can toss it as we already have that info, and SourceFile is not writable
+  if(backup.hasOwnProperty('SourceFile')){
+    delete backup['SourceFile'];
   }
 
   // get the keys
@@ -466,29 +472,34 @@ ipcRenderer.on('exiftool-read-reply', (event, res, indx) => {
         // if value is an array...
         if(Array.isArray(val)){
 
-          // set counter for tags of format 'tags::[[counter]]': 'FOO' 
-          counter = 1;
+          if(val.length){
+            backup[key] = val.join(', ');
+          }else{
+            // set counter for tags of format 'tags::[[counter]]': 'FOO' 
+            counter = 1;
 
-          // loop through array elements
-          for(let v = 0, vlen = val.length; v < vlen; v++){
+            // loop through array elements
+            for(let v = 0, vlen = val.length; v < vlen; v++){
 
-            // if element has a colon...
-            if(typeof val[v] === 'string' && (val[v]).includes(':')){
-              // tags['foo:bar'] = 'tags:foo': 'bar'
-              let baseKey = val[v].substr(0, val[v].indexOf(':')),
-                  propName = val[v].substr(val[v].indexOf(':') + 1);
+              // if element has a colon...
+              if(typeof val[v] === 'string' && (val[v]).includes(':')){
+                // tags['foo:bar'] = 'tags:foo': 'bar'
+                let baseKey = val[v].substr(0, val[v].indexOf(':')),
+                    propName = val[v].substr(val[v].indexOf(':') + 1);
 
-              backup[`${key}:${baseKey}`] = propName;
-            }else{
-              // tags['foo', 'bar'] = 'tags::1': 'foo', 'tags::2': 'bar'
-              backup[`${key}::${counter}`] = val[v];
-              counter++;
+                backup[`${key}:${baseKey}`] = propName;
+              }else{
+                // tags['foo', 'bar'] = 'tags::1': 'foo', 'tags::2': 'bar'
+                backup[`${key}::${counter}`] = val[v];
+                counter++;
+              }
+
+              // delete the array from backup
+              delete backup[key];
+
             }
 
-            // delete the array from backup
-            delete backup[key];
-
-          }
+          } 
           
         }
         
