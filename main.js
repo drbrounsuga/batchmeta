@@ -81,6 +81,9 @@ let csvErrorContent;
 ======================
 csv variables 
 ====================== */
+// read only these fields from PDFs
+const readOnlyFields = ['Title', 'Description', 'Creator', 'Contributor', 'tags', 'Language', 'Rights', 'Owner', 'ExpirationDate', 'Keywords'];
+  
 // a counter unsed to calculate how many files are left to process
 let generatedUnprocessed;
 
@@ -538,7 +541,7 @@ IPC Events
 /* #exiftool-read = ipc - read metadata
 ---------------------------------------- */
 ipcMain.on('exiftool-read', (event, filePath, indx) => {
-  ep.readMetadata(filePath, [])
+  ep.readMetadata(filePath, readOnlyFields)
     .then((res) => {
       event.sender.send('exiftool-read-reply', res, indx);
     })
